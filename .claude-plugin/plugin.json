@@ -1,5 +1,10 @@
 {
   "name": "skills",
   "version": "1.0.0",
-  "description": "A collection of custom Claude skills"
+  "description": "Personal collection of agent skills using the open SKILL.md standard",
+  "author": "Michael Boeding",
+  "homepage": "https://github.com/michaelboeding/skills",
+  "skills": {
+    "skills/": {}
+  }
 }
