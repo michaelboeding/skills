@@ -40,9 +40,12 @@ Then export the variables in your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/
 
 ```bash
 # Image Generation APIs
-export OPENAI_API_KEY="sk-..."          # For DALL-E 3
+export OPENAI_API_KEY="sk-..."          # For DALL-E 3 + OpenAI TTS
 export STABILITY_API_KEY="sk-..."       # For Stable Diffusion
-export REPLICATE_API_TOKEN="r8_..."     # For Flux, SDXL, etc.
+export REPLICATE_API_TOKEN="r8_..."     # For Flux, SDXL, open-source TTS
+
+# Voice Generation APIs
+export ELEVENLABS_API_KEY="..."         # For ElevenLabs TTS
 ```
 
 Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to take effect.
@@ -51,6 +54,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 - OpenAI: https://platform.openai.com/api-keys
 - Stability AI: https://platform.stability.ai/account/keys
 - Replicate: https://replicate.com/account/api-tokens
+- ElevenLabs: https://elevenlabs.io
 
 ---
 
@@ -60,6 +64,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 |-------|-------------|----------|
 | [code-council](skills/code-council/) | Ensemble problem-solving that generates multiple independent code solutions, tests them, and synthesizes the best answer. Based on [self-consistency research](https://arxiv.org/abs/2311.17311). | None |
 | [image-generation](skills/image-generation/) | Generate images using AI models (DALL-E 3, Stable Diffusion, Flux). Handles prompt crafting, API selection, and delivery. | `OPENAI_API_KEY`, `STABILITY_API_KEY`, or `REPLICATE_API_TOKEN` |
+| [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS, Coqui). Handles voice selection, text optimization, and audio delivery. | `ELEVENLABS_API_KEY`, `OPENAI_API_KEY`, or `REPLICATE_API_TOKEN` |
 
 ---
 
@@ -87,6 +92,18 @@ generate an image of a sunset over mountains
 create a cyberpunk cityscape at night
 
 make a watercolor painting of a cat
+```
+
+### voice-generation
+
+Generate speech and audio:
+
+```
+read this text aloud: "Hello, welcome to my podcast"
+
+generate a voiceover for this script
+
+create narration for my video using a deep male voice
 ```
 
 ---
