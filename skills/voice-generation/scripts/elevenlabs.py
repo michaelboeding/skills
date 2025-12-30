@@ -54,7 +54,7 @@ def generate_speech(text: str, voice: str = "rachel", model: str = "eleven_multi
     
     api_key = os.environ.get("ELEVENLABS_API_KEY")
     if not api_key:
-        return {"error": "ELEVENLABS_API_KEY environment variable not set. Get your key at https://elevenlabs.io"}
+        return {"error": "ELEVENLABS_API_KEY environment variable not set. Get your key at https://elevenlabs.io then run: export ELEVENLABS_API_KEY='your-key'"}
     
     # Get voice ID
     voice_lower = voice.lower()

@@ -20,7 +20,7 @@ def generate_image(prompt: str, width: int = 1024, height: int = 1024,
     
     api_key = os.environ.get("STABILITY_API_KEY")
     if not api_key:
-        return {"error": "STABILITY_API_KEY environment variable not set. Please set it in your shell or .env file."}
+        return {"error": "STABILITY_API_KEY environment variable not set. Get your key at https://platform.stability.ai/account/keys then run: export STABILITY_API_KEY='sk-...'"}
     
     # Use Stable Diffusion 3
     url = "https://api.stability.ai/v2beta/stable-image/generate/sd3"

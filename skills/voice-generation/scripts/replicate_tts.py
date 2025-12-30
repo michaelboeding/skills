@@ -28,7 +28,7 @@ def generate_speech(text: str, model: str = "coqui-xtts",
     
     api_token = os.environ.get("REPLICATE_API_TOKEN")
     if not api_token:
-        return {"error": "REPLICATE_API_TOKEN environment variable not set. Get your token at https://replicate.com/account/api-tokens"}
+        return {"error": "REPLICATE_API_TOKEN environment variable not set. Get your token at https://replicate.com/account/api-tokens then run: export REPLICATE_API_TOKEN='r8_...'"}
     
     # Get model version
     model_version = MODELS.get(model, model)

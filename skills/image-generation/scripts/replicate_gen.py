@@ -29,7 +29,7 @@ def generate_image(prompt: str, model: str = "flux-schnell",
     
     api_token = os.environ.get("REPLICATE_API_TOKEN")
     if not api_token:
-        return {"error": "REPLICATE_API_TOKEN environment variable not set. Please set it in your shell or .env file."}
+        return {"error": "REPLICATE_API_TOKEN environment variable not set. Get your token at https://replicate.com/account/api-tokens then run: export REPLICATE_API_TOKEN='r8_...'"}
     
     # Get model identifier
     model_id = MODELS.get(model, model)

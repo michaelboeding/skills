@@ -19,7 +19,7 @@ def generate_image(prompt: str, size: str = "1024x1024", style: str = "vivid", q
     
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        return {"error": "OPENAI_API_KEY environment variable not set. Please set it in your shell or .env file."}
+        return {"error": "OPENAI_API_KEY environment variable not set. Get your key at https://platform.openai.com/api-keys then run: export OPENAI_API_KEY='sk-...'"}
     
     # Validate parameters
     valid_sizes = ["1024x1024", "1024x1792", "1792x1024"]

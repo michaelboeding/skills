@@ -24,7 +24,7 @@ def generate_speech(text: str, voice: str = "nova", model: str = "tts-1",
     
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        return {"error": "OPENAI_API_KEY environment variable not set. Get your key at https://platform.openai.com/api-keys"}
+        return {"error": "OPENAI_API_KEY environment variable not set. Get your key at https://platform.openai.com/api-keys then run: export OPENAI_API_KEY='sk-...'"}
     
     # Validate parameters
     if voice not in VOICES:
