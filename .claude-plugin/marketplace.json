@@ -1,10 +1,11 @@
 {
-  "name": "Michael's Skills Marketplace",
+  "name": "michaelboeding-skills",
+  "owner": "michaelboeding",
   "description": "Personal collection of agent skills using the open SKILL.md standard",
   "plugins": [
     {
       "name": "skills",
-      "repo": "michaelboeding/skills",
+      "source": "michaelboeding/skills",
       "description": "Personal collection of agent skills using the open SKILL.md standard"
     }
   ]
