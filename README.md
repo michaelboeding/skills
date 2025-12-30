@@ -39,12 +39,14 @@ cp env.example .env
 Then export the variables in your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/.bash_profile`):
 
 ```bash
-# Image Generation APIs
-export OPENAI_API_KEY="sk-..."          # For DALL-E 3 + OpenAI TTS
-export GOOGLE_API_KEY="..."             # For Google Imagen 3
+# Image Generation + Voice APIs
+export OPENAI_API_KEY="sk-..."          # DALL-E 3 + OpenAI TTS
+export GOOGLE_API_KEY="..."             # Google Imagen 3
+export ELEVENLABS_API_KEY="..."         # ElevenLabs TTS
 
-# Voice Generation APIs
-export ELEVENLABS_API_KEY="..."         # For ElevenLabs TTS
+# Model Council APIs (optional - for multi-model consensus)
+export ANTHROPIC_API_KEY="sk-ant-..."   # Claude API
+export XAI_API_KEY="..."                # Grok API
 ```
 
 Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to take effect.
@@ -53,6 +55,8 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 - OpenAI: https://platform.openai.com/api-keys
 - Google: https://aistudio.google.com/apikey
 - ElevenLabs: https://elevenlabs.io
+- Anthropic: https://console.anthropic.com/
+- xAI: https://console.x.ai/
 
 ---
 
@@ -60,9 +64,10 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 | Skill | Description | API Keys |
 |-------|-------------|----------|
-| [code-council](skills/code-council/) | Ensemble problem-solving that generates multiple independent code solutions, tests them, and synthesizes the best answer. Based on [self-consistency research](https://arxiv.org/abs/2311.17311). | None |
-| [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). Handles prompt crafting, API selection, and delivery. | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
-| [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS). Handles voice selection, text optimization, and audio delivery. | `ELEVENLABS_API_KEY` or `OPENAI_API_KEY` |
+| [code-council](skills/code-council/) | Ensemble problem-solving using ultrathink to generate multiple independent code solutions, test them, and synthesize the best answer. | None |
+| [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare. Uses CLI agents or APIs. | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
+| [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
+| [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS). | `ELEVENLABS_API_KEY` or `OPENAI_API_KEY` |
 
 ---
 
@@ -70,7 +75,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 ### code-council
 
-Generate multiple code solutions and pick the best one:
+Generate multiple code solutions and pick the best one (single model, multiple approaches):
 
 ```
 code council: fix this bug in my function
@@ -78,6 +83,18 @@ code council: fix this bug in my function
 code council: write a function to find duplicates in an array
 
 code council of 5: critical production bug, need extra confidence
+```
+
+### model-council
+
+Get consensus from multiple AI models (Claude, GPT, Gemini, Grok):
+
+```
+model council: review this architecture decision
+
+model council with claude, gpt-4o: is this code secure?
+
+model council all: critical decision, need all perspectives
 ```
 
 ### image-generation
