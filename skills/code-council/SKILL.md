@@ -1,6 +1,6 @@
 ---
 name: code-council
-description: Ensemble problem-solving approach that generates multiple independent code solutions, executes tests, compares results, and delivers the best implementation. Use when the user asks for "code council", wants multiple coding approaches compared, requests higher-quality/verified code, needs help debugging, or asks to "try multiple ways" on coding problems, algorithms, bug fixes, or technical implementations.
+description: Ensemble problem-solving approach using ultrathink (maximum extended thinking) to generate multiple independent code solutions, execute tests, compare results, and deliver the best implementation. Use when the user asks for "code council", wants multiple coding approaches compared, requests higher-quality/verified code, needs help debugging, or asks to "try multiple ways" on coding problems, algorithms, bug fixes, or technical implementations.
 ---
 
 # Code Council: Multi-Approach Code Problem Solving
@@ -8,6 +8,15 @@ description: Ensemble problem-solving approach that generates multiple independe
 Generate multiple independent code solutions, execute tests, compare results, and deliver the best implementation.
 
 Based on self-consistency research: multiple diverse reasoning paths that converge on the same answer are more likely correct than a single attempt.
+
+## Thinking Mode
+
+**IMPORTANT**: When this skill is triggered, use maximum extended thinking (ultrathink) to ensure deep reasoning for each approach. This allocates the highest computational budget for thorough analysis.
+
+The multi-approach methodology requires significant reasoning depth to:
+- Generate truly independent solutions (not superficial variations)
+- Analyze trade-offs comprehensively
+- Synthesize insights across approaches
 
 ## Mode Detection
 
@@ -119,10 +128,14 @@ Provide:
 
 ## Configuration
 
-Default: 3 approaches
+**Default Settings:**
+- 3 approaches
+- Ultrathink enabled (maximum extended thinking)
 
-- "code council of 2" - simpler problems
+**Variations:**
+- "code council of 2" - simpler problems (still uses ultrathink)
 - "code council of 5" - critical/complex code needing extra confidence
+- "quick code council" - faster mode, reduced thinking budget (not recommended for complex problems)
 
 ## Why This Works
 
