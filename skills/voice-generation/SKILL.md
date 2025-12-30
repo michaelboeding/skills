@@ -1,11 +1,11 @@
 ---
 name: voice-generation
-description: This skill should be used when the user asks to "generate voice", "create audio", "text to speech", "TTS", "read this aloud", "generate narration", "create voiceover", "synthesize speech", or needs AI voice generation using ElevenLabs, OpenAI TTS, or other voice APIs. Handles voice selection, audio generation, and delivery.
+description: This skill should be used when the user asks to "generate voice", "create audio", "text to speech", "TTS", "read this aloud", "generate narration", "create voiceover", "synthesize speech", or needs AI voice generation using ElevenLabs or OpenAI TTS. Handles voice selection, audio generation, and delivery.
 ---
 
 # Voice Generation Skill
 
-Generate realistic speech and voice audio using AI text-to-speech APIs (ElevenLabs, OpenAI TTS, Replicate).
+Generate realistic speech and voice audio using AI text-to-speech APIs (ElevenLabs, OpenAI TTS).
 
 ## Prerequisites
 
@@ -13,7 +13,6 @@ Environment variables must be configured for the APIs to work. At least one API 
 
 - `ELEVENLABS_API_KEY` - For ElevenLabs high-quality voice synthesis
 - `OPENAI_API_KEY` - For OpenAI TTS voices
-- `REPLICATE_API_TOKEN` - For open-source TTS models
 
 See the repository README for setup instructions.
 
@@ -30,10 +29,6 @@ See the repository README for setup instructions.
 - **Voices**: alloy, echo, fable, onyx, nova, shimmer
 - **Models**: tts-1 (fast), tts-1-hd (high quality)
 - **Output**: MP3, Opus, AAC, FLAC
-
-### Replicate
-- **Best for**: Open-source models, experimental voices
-- **Models**: Coqui XTTS, Bark, Tortoise TTS
 
 ## Workflow
 
@@ -58,13 +53,12 @@ Choose based on requirements:
 | Specific accent | ElevenLabs | Widest voice selection |
 | Voice cloning | ElevenLabs | Only API with cloning |
 | Budget-conscious | OpenAI TTS | Lower cost per character |
-| Experimental | Replicate | Access to open-source models |
 
 ### Step 3: Prepare the Text
 
 Optimize text for speech:
 
-1. **Add pauses**: Use commas, periods, or SSML for natural rhythm
+1. **Add pauses**: Use commas, periods for natural rhythm
 2. **Spell out numbers**: "1,234" → "one thousand two hundred thirty-four" (if needed)
 3. **Handle acronyms**: "NASA" vs "N.A.S.A." depending on pronunciation
 4. **Mark emphasis**: Some APIs support emphasis markers
@@ -93,13 +87,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/openai_tts.py \
   --model "tts-1-hd"
 ```
 
-**For Replicate:**
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/replicate_tts.py \
-  --text "Your text here" \
-  --model "coqui-xtts"
-```
-
 ### Step 5: Deliver the Result
 
 1. Provide the generated audio file path
@@ -112,7 +99,9 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/replicate_tts.py \
 
 ## Error Handling
 
-**Missing API key**: Inform the user which key is needed and how to set it up.
+**Missing API key**: Inform the user which key is needed and how to set it up:
+- ElevenLabs: https://elevenlabs.io
+- OpenAI: https://platform.openai.com/api-keys
 
 **Text too long**: Split into chunks and concatenate, or suggest shorter text.
 
@@ -161,10 +150,14 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/replicate_tts.py \
 - Avoid overly stylized voices
 - Test with screen readers if applicable
 
-## Output Formats
+## API Comparison
 
-| API | Formats Available | Default |
-|-----|-------------------|---------|
-| ElevenLabs | MP3, WAV, PCM | MP3 |
-| OpenAI TTS | MP3, Opus, AAC, FLAC | MP3 |
-| Replicate | WAV, MP3 (model-dependent) | WAV |
+| Feature | ElevenLabs | OpenAI TTS |
+|---------|------------|------------|
+| Voice quality | Excellent | Very good |
+| Voice variety | 100+ voices | 6 voices |
+| Voice cloning | Yes | No |
+| Languages | 29+ | 50+ |
+| Speed control | Yes | Yes (0.25-4x) |
+| Max length | 5,000 chars | 4,096 chars |
+| Output formats | MP3, WAV | MP3, Opus, AAC, FLAC |

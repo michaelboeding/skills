@@ -41,8 +41,7 @@ Then export the variables in your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/
 ```bash
 # Image Generation APIs
 export OPENAI_API_KEY="sk-..."          # For DALL-E 3 + OpenAI TTS
-export STABILITY_API_KEY="sk-..."       # For Stable Diffusion
-export REPLICATE_API_TOKEN="r8_..."     # For Flux, SDXL, open-source TTS
+export GOOGLE_API_KEY="..."             # For Google Imagen 3
 
 # Voice Generation APIs
 export ELEVENLABS_API_KEY="..."         # For ElevenLabs TTS
@@ -52,8 +51,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 **Where to get API keys:**
 - OpenAI: https://platform.openai.com/api-keys
-- Stability AI: https://platform.stability.ai/account/keys
-- Replicate: https://replicate.com/account/api-tokens
+- Google: https://aistudio.google.com/apikey
 - ElevenLabs: https://elevenlabs.io
 
 ---
@@ -63,8 +61,8 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | Skill | Description | API Keys |
 |-------|-------------|----------|
 | [code-council](skills/code-council/) | Ensemble problem-solving that generates multiple independent code solutions, tests them, and synthesizes the best answer. Based on [self-consistency research](https://arxiv.org/abs/2311.17311). | None |
-| [image-generation](skills/image-generation/) | Generate images using AI models (DALL-E 3, Stable Diffusion, Flux). Handles prompt crafting, API selection, and delivery. | `OPENAI_API_KEY`, `STABILITY_API_KEY`, or `REPLICATE_API_TOKEN` |
-| [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS, Coqui). Handles voice selection, text optimization, and audio delivery. | `ELEVENLABS_API_KEY`, `OPENAI_API_KEY`, or `REPLICATE_API_TOKEN` |
+| [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). Handles prompt crafting, API selection, and delivery. | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
+| [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS). Handles voice selection, text optimization, and audio delivery. | `ELEVENLABS_API_KEY` or `OPENAI_API_KEY` |
 
 ---
 
@@ -133,7 +131,7 @@ If you hit rate limits:
 - Wait a few minutes and try again
 - Check your API usage dashboard
 - Upgrade your plan if needed
-- Try a different API (e.g., Replicate instead of OpenAI)
+- Try a different API (e.g., Google instead of OpenAI)
 
 ### Generation Failed
 

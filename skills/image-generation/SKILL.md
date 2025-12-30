@@ -1,36 +1,33 @@
 ---
 name: image-generation
-description: This skill should be used when the user asks to "generate an image", "create an image", "make a picture", "draw", "visualize", "image of", "generate art", "create artwork", or needs AI image generation using DALL-E, Stability AI, or other image APIs. Handles prompt crafting, API selection, and image delivery.
+description: This skill should be used when the user asks to "generate an image", "create an image", "make a picture", "draw", "visualize", "image of", "generate art", "create artwork", or needs AI image generation using OpenAI DALL-E or Google Imagen. Handles prompt crafting, API selection, and image delivery.
 ---
 
 # Image Generation Skill
 
-Generate images using AI image generation APIs (OpenAI DALL-E, Stability AI, Replicate).
+Generate images using AI image generation APIs (OpenAI DALL-E 3, Google Imagen 3).
 
 ## Prerequisites
 
 Environment variables must be configured for the APIs to work. At least one API key is required:
 
-- `OPENAI_API_KEY` - For DALL-E 3 image generation
-- `STABILITY_API_KEY` - For Stability AI (Stable Diffusion)
-- `REPLICATE_API_TOKEN` - For Replicate models (Flux, SDXL, etc.)
+- `OPENAI_API_KEY` - For OpenAI DALL-E 3 image generation
+- `GOOGLE_API_KEY` - For Google Imagen 3 (via Gemini API)
 
 See the repository README for setup instructions.
 
 ## Available APIs
 
 ### OpenAI DALL-E 3 (Recommended)
-- **Best for**: High-quality, creative images with good prompt understanding
+- **Best for**: High-quality, creative images with excellent prompt understanding
 - **Sizes**: 1024x1024, 1024x1792, 1792x1024
-- **Styles**: vivid (dramatic) or natural (realistic)
+- **Styles**: vivid (dramatic, hyper-real) or natural (realistic)
+- **Quality**: standard or hd
 
-### Stability AI
-- **Best for**: Photorealistic images, fine control over generation
-- **Models**: Stable Diffusion 3, SDXL
-
-### Replicate
-- **Best for**: Access to latest open-source models (Flux, SDXL variants)
-- **Models**: Flux Pro, Flux Schnell, SDXL
+### Google Imagen 3
+- **Best for**: Photorealistic images, detailed scenes
+- **Aspect ratios**: 1:1, 16:9, 9:16, 4:3, 3:4
+- **Features**: Built-in safety filters, fast generation
 
 ## Workflow
 
@@ -63,34 +60,27 @@ Choose based on availability and use case:
 1. **Check which API keys are available** in environment
 2. **Match to use case**:
    - Creative/artistic → DALL-E 3 (vivid style)
-   - Photorealistic → Stability AI or DALL-E 3 (natural style)
-   - Experimental/latest models → Replicate
+   - Photorealistic → DALL-E 3 (natural style) or Imagen 3
+   - Fast generation → Imagen 3
 
 ### Step 4: Generate the Image
 
 Execute the appropriate script from `${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/`:
 
-**For DALL-E 3:**
+**For OpenAI DALL-E 3:**
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/dalle.py \
   --prompt "your enhanced prompt" \
   --size "1024x1024" \
-  --style "vivid"
+  --style "vivid" \
+  --quality "hd"
 ```
 
-**For Stability AI:**
+**For Google Imagen 3:**
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/stability.py \
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/gemini.py \
   --prompt "your enhanced prompt" \
-  --width 1024 \
-  --height 1024
-```
-
-**For Replicate:**
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/replicate_gen.py \
-  --prompt "your enhanced prompt" \
-  --model "flux-pro"
+  --aspect-ratio "1:1"
 ```
 
 ### Step 5: Deliver the Result
@@ -105,9 +95,11 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/replicate_gen.py \
 
 ## Error Handling
 
-**Missing API key**: Inform the user which key is needed and how to set it up.
+**Missing API key**: Inform the user which key is needed and how to set it up:
+- OpenAI: https://platform.openai.com/api-keys
+- Google: https://aistudio.google.com/apikey
 
-**API rate limit**: Suggest waiting or trying a different API.
+**API rate limit**: Suggest waiting or trying the other API.
 
 **Content policy violation**: Rephrase the prompt to be more appropriate.
 
@@ -129,3 +121,14 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/replicate_gen.py \
 - Use seed values when available
 - Save successful prompts for reference
 - Note which API produced best results for similar requests
+
+## API Comparison
+
+| Feature | DALL-E 3 | Imagen 3 |
+|---------|----------|----------|
+| Provider | OpenAI | Google |
+| Best for | Creative, artistic | Photorealistic |
+| Sizes | 1024², 1024x1792, 1792x1024 | Various aspect ratios |
+| Styles | vivid, natural | N/A |
+| Quality options | standard, hd | N/A |
+| Speed | ~15-30 seconds | ~10-20 seconds |
