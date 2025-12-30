@@ -1,11 +1,14 @@
 {
   "name": "michaelboeding-skills",
-  "owner": "michaelboeding",
+  "owner": {
+    "name": "Michael Boeding",
+    "github": "michaelboeding"
+  },
   "description": "Personal collection of agent skills using the open SKILL.md standard",
   "plugins": [
     {
       "name": "skills",
-      "source": "michaelboeding/skills",
+      "source": "./",
       "description": "Personal collection of agent skills using the open SKILL.md standard"
     }
   ]
