@@ -1,7 +1,7 @@
 ---
 name: council-solver-b
 description: Code Council Solver B - Generates alternative, creative solutions. Used by code-council skill for independent solution generation. DO NOT invoke directly.
-model: claude-sonnet-4-20250514
+model: claude-opus-4-20250514
 tools:
   - Read
   - Grep

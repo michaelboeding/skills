@@ -1,7 +1,7 @@
 ---
 name: council-solver-a
 description: Code Council Solver A - Generates straightforward, conventional solutions. Used by code-council skill for independent solution generation. DO NOT invoke directly.
-model: claude-sonnet-4-20250514
+model: claude-opus-4-20250514
 tools:
   - Read
   - Grep
