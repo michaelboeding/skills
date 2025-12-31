@@ -234,24 +234,27 @@ If Claude doesn't use a skill when you expect it to:
 
 If you update the plugin but Claude Code still uses an old version, or skills are missing:
 
-**The cache may be stale.** Clear it:
+**Quick fix - run the update script:**
 
 ```bash
-# Clear the plugin cache
+# From the skills repo directory
+./scripts/update-plugin.sh
+```
+
+**Or manually clear the cache:**
+
+```bash
 rm -rf ~/.claude/plugins/cache/michaelboeding-skills
 rm -rf ~/.claude/plugins/cache/temp_local_*
 ```
 
-Then reinstall fresh in Claude Code:
+Then in Claude Code:
 
 ```
-/plugin remove skills@michaelboeding-skills
-/plugin marketplace remove michaelboeding-skills
-/plugin marketplace add michaelboeding/skills
-/plugin install skills@michaelboeding-skills
+/plugin update skills@michaelboeding-skills
 ```
 
-Then **restart Claude Code**.
+Then **restart Claude Code** (quit and reopen - required for changes to take effect).
 
 ### Script Errors
 
