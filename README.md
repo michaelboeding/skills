@@ -236,6 +236,26 @@ make a lo-fi hip hop beat for studying
 
 ## Troubleshooting
 
+### Agents Hitting Token Limits
+
+If you see errors like:
+```
+API Error: Claude's response exceeded the 32000 output token maximum
+```
+
+**Solution:** Increase the max output tokens (only uses more when needed):
+
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=64000
+```
+
+Then restart Claude Code.
+
+This commonly happens with `feature-council` on complex features where agents generate complete implementations. The 64K limit allows full outputs without truncation.
+
+---
+
 ### Missing API Key Error
 
 If you see an error like:
