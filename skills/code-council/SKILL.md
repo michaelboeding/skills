@@ -7,18 +7,35 @@ description: Research-aligned self-consistency for code. Spawns 10 independent s
 
 Research-aligned implementation of self-consistency (Wang et al., 2022). Spawns multiple independent solvers with **identical prompts**, then uses **majority voting** to select the most likely correct answer.
 
+## Step 0: Ask User How Many Agents
+
+Before doing anything else, **ask the user how many solver agents to use**:
+
+```
+How many solver agents would you like me to use? (1-10)
+
+Recommendations:
+- 3 agents: Simple problems, fast
+- 5 agents: Standard (good balance)
+- 7 agents: Important code
+- 10 agents: Critical/complex problems (maximum confidence)
+```
+
+Wait for the user's response before proceeding. If they specified a number in their request (e.g., "code council of 5"), use that number without asking.
+
+**Maximum: 10 agents** (council-solver-1 through council-solver-10)
+
+---
+
 ## CRITICAL: Spawn Agents with IDENTICAL Prompts
 
-You MUST spawn solver agents. All agents get the **exact same prompt**.
+After the user chooses, spawn that many solver agents. All agents get the **exact same prompt**.
 
 ```
 Task(agent: "council-solver-1", prompt: "[problem]")
 Task(agent: "council-solver-2", prompt: "[problem]")
-Task(agent: "council-solver-3", prompt: "[problem]")
-... (continue for all agents)
+... (continue for the number of agents chosen)
 ```
-
-**Default: 5 agents** | **Extended: 10 agents** (for critical problems)
 
 ## Research Basis
 
@@ -200,11 +217,17 @@ Why:
 
 ## Configuration
 
+The skill will ask the user how many agents to use (1-10).
+
+**Quick shortcuts** (skip the question):
 | Mode | Agents | Use Case |
 |------|--------|----------|
-| `code council` | 5 | Default, most problems |
-| `code council of 10` | 10 | Critical, complex, or ambiguous problems |
 | `code council of 3` | 3 | Simple problems, faster |
+| `code council of 5` | 5 | Standard problems |
+| `code council of 7` | 7 | Important code |
+| `code council of 10` | 10 | Critical, maximum confidence |
+
+If user just says `code council: [problem]`, ask them to choose.
 
 ## Why Majority Voting > Synthesis
 
