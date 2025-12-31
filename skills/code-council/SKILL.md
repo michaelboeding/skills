@@ -1,262 +1,186 @@
 ---
 name: code-council
-description: Ensemble problem-solving using independent subagents. Spawns 3 isolated solver agents that generate truly independent solutions, then synthesizes the best answer. Use when the user asks for "code council", wants multiple coding approaches compared, requests higher-quality/verified code, needs help debugging, or asks to "try multiple ways" on coding problems, algorithms, bug fixes, or technical implementations.
+description: Research-aligned self-consistency for code. Spawns 10 independent solver agents with identical prompts, collects solutions, and uses majority voting to select the best answer. Based on "Self-Consistency Improves Chain of Thought Reasoning" (Wang et al., 2022). Use when the user asks for "code council", wants higher confidence, needs help debugging, or asks to "try multiple ways".
 ---
 
-# Code Council: Multi-Agent Ensemble Problem Solving
+# Code Council: Self-Consistency for Code
 
-## CRITICAL: You MUST Spawn Subagents
+Research-aligned implementation of self-consistency (Wang et al., 2022). Spawns multiple independent solvers with **identical prompts**, then uses **majority voting** to select the most likely correct answer.
 
-**DO NOT solve this yourself in a single context.** You MUST spawn the 3 solver agents to get truly independent solutions.
+## CRITICAL: Spawn Agents with IDENTICAL Prompts
 
-After understanding the problem, use Task to spawn each agent:
-
-```
-Task(agent: "council-solver-a", prompt: "[problem statement]")
-Task(agent: "council-solver-b", prompt: "[problem statement]")  
-Task(agent: "council-solver-c", prompt: "[problem statement]")
-```
-
-Wait for all 3 agents to complete, then synthesize their solutions.
-
----
-
-Spawn 3 independent solver subagents, each generating a solution in isolation, then synthesize the best answer using consensus analysis.
-
-## Architecture
+You MUST spawn solver agents. All agents get the **exact same prompt**.
 
 ```
-User Request: "code council: fix this bug"
-                    │
-                    ▼
-    ┌───────────────────────────────┐
-    │   Code Council Orchestrator   │
-    │      (Claude Code Main)       │
-    │                               │
-    │  1. Parse problem             │
-    │  2. Prepare context           │
-    │  3. Spawn subagents           │
-    └───────────────────────────────┘
-                    │
-       ┌────────────┼────────────┐
-       ▼            ▼            ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  Solver A   │ │  Solver B   │ │  Solver C   │
-│ Straight-   │ │ Alternative │ │ Optimized   │
-│ forward     │ │ Creative    │ │ Production  │
-│             │ │             │ │             │
-│ (isolated)  │ │ (isolated)  │ │ (isolated)  │
-└─────────────┘ └─────────────┘ └─────────────┘
-       │            │            │
-       └────────────┼────────────┘
-                    ▼
-    ┌───────────────────────────────┐
-    │         Synthesis             │
-    │    (Claude Code Main)         │
-    │                               │
-    │  1. Compare all solutions     │
-    │  2. Check consensus           │
-    │  3. Merge best elements       │
-    │  4. Implement final solution  │
-    └───────────────────────────────┘
+Task(agent: "council-solver-1", prompt: "[problem]")
+Task(agent: "council-solver-2", prompt: "[problem]")
+Task(agent: "council-solver-3", prompt: "[problem]")
+... (continue for all agents)
 ```
 
-## Why Subagents?
+**Default: 5 agents** | **Extended: 10 agents** (for critical problems)
 
-**The research problem**: Self-consistency requires *truly independent* reasoning paths. When one model generates all solutions sequentially, later solutions are influenced by earlier ones.
+## Research Basis
 
-**The solution**: Spawn separate subagent instances with isolated contexts:
-- Each agent sees ONLY the problem (not other solutions)
-- Different temperature settings encourage diversity
-- True independence = true ensemble diversity
-- Matches the original self-consistency research methodology
+This implementation follows "Self-Consistency Improves Chain of Thought Reasoning in Language Models" (Wang et al., 2022):
 
-## Subagent Definitions
+| Principle | Implementation |
+|-----------|----------------|
+| Multiple independent samples | 5-10 solver agents |
+| Identical prompts | Same problem statement to all |
+| Same temperature | 0.7 for all agents |
+| Chain-of-thought | Required before solution |
+| Majority voting | Select answer with most agreement |
 
-Solver agents are defined in the `agents/` directory:
+### Why This Works
 
-### Default (3 agents)
-| Agent | Role | Style | Temperature |
-|-------|------|-------|-------------|
-| `council-solver-a` | Straightforward | Conventional, direct, established patterns | 0.7 |
-| `council-solver-b` | Alternative | Creative, unconventional, different paradigms | 0.9 |
-| `council-solver-c` | Optimized | Performance-focused, production-ready, robust | 0.7 |
+If each agent has probability p of being correct, and agents are independent:
+- P(majority wrong with 5 agents) << P(single agent wrong)
+- As samples increase, probability of correct answer increases
 
-### Extended (5 agents) - Use for critical/complex problems
-| Agent | Role | Style | Temperature |
-|-------|------|-------|-------------|
-| `council-solver-d` | Security | Edge cases, input validation, defensive coding | 0.7 |
-| `council-solver-e` | Minimal | Elegant, simple, fewest lines possible | 0.8 |
-
-**When to use 5 agents:**
-- Critical production code
-- Security-sensitive code
-- Complex bugs that need extra perspectives
-- User explicitly requests "code council of 5"
-
-Each agent:
-- Has READ-ONLY access to the codebase (can explore, not modify)
-- Returns analysis + proposed solution (does NOT implement)
-- Works in complete isolation from other agents
+**Key insight**: When multiple independent reasoners converge on the same answer, it's more likely correct than a single attempt.
 
 ## Workflow
 
-### Step 1: Orchestrator Receives Request
+### Step 1: Prepare the Problem
 
-Claude Code (main session) receives the code council request.
-
-**Detect mode:**
-- **Bug Fix Mode**: User provides broken code + error/unexpected behavior
-- **New Code Mode**: User requests new functionality
-
-### Step 2: Prepare the Problem Statement
-
-Create a clear, self-contained problem statement for the agents:
+Create a clear, self-contained problem statement:
 
 ```markdown
-## Problem Statement
+## Problem
 
 [Clear description of what needs to be solved]
 
 ## Context
 
-[Relevant code snippets, file paths, error messages]
+[Relevant code - paste the actual code, not just file paths]
 
-## Requirements
+## Expected Behavior
 
-[What the solution must do]
+[What should happen]
 
-## Constraints
+## Current Behavior (for bugs)
 
-[Any constraints: performance, compatibility, style]
-
----
-
-Generate your solution following your designated approach style.
-Provide analysis and proposed code, but DO NOT implement changes.
+[What's actually happening / error messages]
 ```
 
-### Step 3: Spawn Subagents in Parallel
+**IMPORTANT**: All agents must receive the **exact same prompt**.
 
-Invoke all three solver agents simultaneously:
+### Step 2: Spawn Agents
 
+**Default (5 agents):**
 ```
-@council-solver-a [problem statement]
-@council-solver-b [problem statement]  
-@council-solver-c [problem statement]
+Task(agent: "council-solver-1", prompt: "[problem]")
+Task(agent: "council-solver-2", prompt: "[problem]")
+Task(agent: "council-solver-3", prompt: "[problem]")
+Task(agent: "council-solver-4", prompt: "[problem]")
+Task(agent: "council-solver-5", prompt: "[problem]")
 ```
 
-Each agent works in isolation and returns:
+**Extended (10 agents)** - use for critical/complex problems:
+```
+Task(agent: "council-solver-1", prompt: "[problem]")
+... through ...
+Task(agent: "council-solver-10", prompt: "[problem]")
+```
+
+### Step 3: Collect Solutions
+
+Wait for all agents to complete. Each returns:
 - Analysis of the problem
-- Reasoning/chain-of-thought
-- Proposed solution (code)
-- Edge cases considered
-- Trade-offs identified
-- Confidence level
+- Chain-of-thought reasoning
+- Proposed solution
 
-### Step 4: Collect Solutions
+### Step 4: Majority Voting
 
-Wait for all three agents to complete. Collect their outputs.
+**Group solutions by their core approach/answer:**
 
-### Step 5: Analyze Consensus (Orchestrator)
+1. Identify the **key decision** in each solution (e.g., "change `<=` to `<`")
+2. Group solutions that make the same key decision
+3. Count how many agents chose each approach
 
-Claude Code analyzes the three solutions:
+**Example:**
+```
+Approach A (change <= to <):     Agents 1, 2, 4, 5, 7, 9  → 6 votes
+Approach B (add bounds check):   Agents 3, 6             → 2 votes  
+Approach C (use forEach):        Agents 8, 10            → 2 votes
 
-**High Consensus** (2+ agents agree on core approach):
-- Strong signal of correctness
-- Merge best elements from agreeing solutions
-- Note any unique insights from the dissenting solution
+MAJORITY: Approach A (6/10 = 60%)
+```
 
-**Partial Consensus** (agents agree on some aspects):
-- Identify what they agree on (likely correct)
-- Investigate disagreements (may reveal edge cases)
+### Step 5: Select Answer
 
-**No Consensus** (all different):
-- Indicates complex problem with multiple valid approaches
-- Evaluate each on merits
-- Consider spawning additional agents if critical
+**If clear majority (≥50%):**
+- Select the majority solution
+- Confidence: HIGH
 
-### Step 6: Synthesize Best Solution
+**If plurality but no majority (highest < 50%):**
+- Select the plurality solution
+- Confidence: MEDIUM
+- Note the disagreement
 
-Using ultrathink (maximum extended thinking), synthesize:
+**If no clear winner (tie or close):**
+- Analyze why agents disagree
+- May indicate ambiguous problem or multiple valid approaches
+- Confidence: LOW
+- Consider running more agents
 
-1. **Evaluate correctness** of each proposed solution
-2. **Identify strongest elements** from each approach
-3. **Merge complementary ideas** (e.g., A's algorithm + C's error handling)
-4. **Resolve conflicts** where approaches disagree
-5. **Create final solution** that represents the best of all approaches
+### Step 6: Implement
 
-### Step 7: Test the Synthesized Solution
+Implement the winning solution. Do NOT synthesize or merge - use the majority answer as-is.
 
-Actually execute the solution in the environment:
-- Run against test cases
-- Verify edge cases
-- Confirm the original problem is solved
-
-### Step 8: Implement
-
-Only Claude Code (orchestrator) makes actual code changes:
-- Apply the synthesized solution
-- No conflicting changes from multiple agents
-- Single source of truth
-
-### Step 9: Deliver Results
-
-Provide:
-
-1. **Final implemented solution** (the actual code change)
-2. **Consensus report**:
-   - What did agents agree on?
-   - What unique insights did each provide?
-3. **For bug fixes**: Diff showing what changed + why it was broken
-4. **Test results** confirming it works
-5. **Confidence level**:
-   - High: Strong consensus (2+ agreed)
-   - Medium: Partial consensus or close decision
-   - Low: No consensus (investigate further)
-6. **Trade-offs** to be aware of
-
-## Example Output
+### Step 7: Report Results
 
 ```
 ## Code Council Results
 
-### Consensus: HIGH (2/3 agents agreed on core approach)
+### Voting Results
+| Approach | Agents | Votes |
+|----------|--------|-------|
+| [description] | 1, 2, 4, 5, 7, 9 | 6/10 |
+| [description] | 3, 6 | 2/10 |
+| [description] | 8, 10 | 2/10 |
 
-### Solution Summary
-All agents identified the off-by-one error in the loop condition.
-Solver A and C both recommended `i < len` (consensus).
-Solver B suggested using `forEach` to avoid index entirely (alternative insight).
+### Selected Solution
+[The majority solution]
 
-### Synthesized Solution
-Implementing Solver A's fix with Solver C's added null check:
+### Confidence: HIGH/MEDIUM/LOW
+[Explanation based on voting distribution]
 
-[code diff here]
-
-### Agent Contributions
-- **Solver A**: Identified the bug, proposed clean fix
-- **Solver B**: Suggested iterator approach (valid alternative for future)
-- **Solver C**: Added defensive null check, noted edge case with empty array
-
-### Tests: 5/5 passing
-### Confidence: HIGH
+### Implementation
+[The actual code change]
 ```
 
 ## Configuration
 
-**Default**: 3 agents (A, B, C)
+| Mode | Agents | Use Case |
+|------|--------|----------|
+| `code council` | 5 | Default, most problems |
+| `code council of 10` | 10 | Critical, complex, or ambiguous problems |
+| `code council of 3` | 3 | Simple problems, faster |
 
-**Variations:**
-- `code council of 2`: Simpler problems (Solver A + C only)
-- `code council of 5`: Critical code (add Solver D: Security, Solver E: Edge Cases)
-- `quick code council`: Skip subagents, use single-context multi-approach (faster but less independent)
+## Why Majority Voting > Synthesis
 
-## Why This Works
+| Approach | Pros | Cons |
+|----------|------|------|
+| **Majority voting** | Mathematical guarantee, no bias introduced | Might miss good ideas from minority |
+| **Synthesis** | Can combine best ideas | Introduces orchestrator bias, no mathematical guarantee |
 
-Research shows:
-- **Independent samples** that converge = higher accuracy than single attempt
-- **Diverse reasoning paths** catch different edge cases
-- **Consensus** is a strong correctness signal
-- **Meta-evaluation** (synthesizing best answer) matches human expert judgment
+Research shows majority voting is more reliable. We use it.
 
-The subagent architecture ensures TRUE independence - each solver has no knowledge of what others are doing, eliminating cross-contamination of ideas.
+## Agent Configuration
+
+All 10 agents are **identical**:
+- Same prompt (the problem)
+- Same temperature (0.7)
+- Same instructions (chain-of-thought, then solve)
+- Same tools (Read, Grep, Glob, LS)
+
+Diversity comes from **sampling randomness**, not from different prompts.
+
+## Agents
+
+Located in `agents/` directory:
+- `council-solver-1` through `council-solver-10`
+
+All identical - this is intentional per the research.

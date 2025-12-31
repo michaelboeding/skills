@@ -70,7 +70,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 | Skill | Description | API Keys |
 |-------|-------------|----------|
-| [code-council](skills/code-council/) | Ensemble problem-solving using 3 independent subagents. Each generates a solution in isolation, then synthesizes the best answer. | None |
+| [code-council](skills/code-council/) | Research-aligned self-consistency (Wang et al., 2022). Spawns 5-10 identical solvers, uses majority voting to select answer. | None |
 | [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare (analysis only). | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
 | [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
 | [video-generation](skills/video-generation/) | Generate videos using AI models (OpenAI Sora, Google Veo 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
@@ -81,22 +81,26 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 ## Agents
 
-Subagents used by the code-council skill for independent solution generation:
+### Code Council Solvers (Research-Aligned)
 
-### Default (3 agents)
-| Agent | Role | Purpose |
-|-------|------|---------|
-| [council-solver-a](agents/council-solver-a.md) | Straightforward | Conventional, direct solutions using established patterns |
-| [council-solver-b](agents/council-solver-b.md) | Alternative | Creative, unconventional approaches |
-| [council-solver-c](agents/council-solver-c.md) | Optimized | Performance-focused, production-ready solutions |
+10 identical solver agents used by code-council for self-consistency:
 
-### Extended (5 agents) - for critical problems
-| Agent | Role | Purpose |
-|-------|------|---------|
-| [council-solver-d](agents/council-solver-d.md) | Security | Edge cases, input validation, defensive coding |
-| [council-solver-e](agents/council-solver-e.md) | Minimal | Elegant, simple solutions with fewest lines |
+| Agents | Purpose |
+|--------|---------|
+| `council-solver-1` through `council-solver-10` | Independent solution generation |
 
-Use `code council of 5` for critical/security-sensitive code.
+**All agents are identical** - same prompt, same temperature (0.7), same instructions.
+
+This follows the self-consistency research (Wang et al., 2022):
+- Diversity comes from sampling randomness, not different prompts
+- Majority voting selects the most likely correct answer
+- More agents = higher confidence
+
+| Mode | Agents Used |
+|------|-------------|
+| `code council` | 5 agents (default) |
+| `code council of 10` | 10 agents (critical problems) |
+| `code council of 3` | 3 agents (simple problems) |
 
 These agents are invoked automatically by code-council and should not be called directly.
 
@@ -106,21 +110,22 @@ These agents are invoked automatically by code-council and should not be called 
 
 ### code-council
 
-Spawns 3 independent solver subagents, each generating a solution in isolation, then synthesizes the best answer:
+Research-aligned self-consistency. Spawns multiple independent solvers with identical prompts, then uses majority voting:
 
 ```
 code council: fix this bug in my function
 
 code council: write a function to find duplicates in an array
 
-code council of 5: critical production bug, need extra confidence
+code council of 10: critical production bug, need maximum confidence
 ```
 
-How it works:
-1. **Solver A** (straightforward) generates a conventional solution
-2. **Solver B** (alternative) generates a creative/different approach  
-3. **Solver C** (optimized) generates a production-ready solution
-4. Claude Code synthesizes the best elements from all three
+How it works (based on Wang et al., 2022):
+1. **Same prompt** sent to 5-10 identical solver agents
+2. Each agent independently reasons and generates a solution
+3. Solutions are grouped by their core approach
+4. **Majority voting** selects the most common answer
+5. Confidence based on voting distribution (6/10 agree = HIGH)
 
 ### model-council
 
