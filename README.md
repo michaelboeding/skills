@@ -92,15 +92,17 @@ This follows the self-consistency research (Wang et al., 2022):
 - Majority voting selects the most likely correct answer
 - More agents = higher confidence
 
-The skill will ask you how many agents to use (1-10), or specify directly:
+The skill will ask you how many agents to use (3-10), or specify directly:
 
 | Mode | Agents |
 |------|--------|
 | `code council` | Asks you to choose |
-| `code council of 3` | 3 agents (fast) |
+| `code council of 3` | 3 agents (minimum, fast) |
 | `code council of 5` | 5 agents (standard) |
 | `code council of 7` | 7 agents (important) |
-| `code council of 10` | 10 agents (maximum) |
+| `code council of 10` | 10 agents (maximum confidence) |
+
+**Minimum 3 agents** - needed for meaningful majority voting.
 
 These agents are invoked automatically by code-council and should not be called directly.
 

@@ -12,7 +12,7 @@ Research-aligned implementation of self-consistency (Wang et al., 2022). Spawns 
 Before doing anything else, **ask the user how many solver agents to use**:
 
 ```
-How many solver agents would you like me to use? (1-10)
+How many solver agents would you like me to use? (3-10)
 
 Recommendations:
 - 3 agents: Simple problems, fast
@@ -23,7 +23,12 @@ Recommendations:
 
 Wait for the user's response before proceeding. If they specified a number in their request (e.g., "code council of 5"), use that number without asking.
 
+**Minimum: 3 agents** (needed for meaningful majority voting)
 **Maximum: 10 agents** (council-solver-1 through council-solver-10)
+
+If user requests fewer than 3, explain why 3 is the minimum:
+- With 1-2 agents, there's no "council" - no majority voting possible
+- Self-consistency research requires multiple independent samples
 
 ---
 
