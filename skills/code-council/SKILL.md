@@ -131,25 +131,72 @@ Implement the winning solution. Do NOT synthesize or merge - use the majority an
 
 ### Step 7: Report Results
 
+Present results in this detailed format so the user understands the reasoning:
+
 ```
-## Code Council Results
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     CODE COUNCIL RESULTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### Voting Results
-| Approach | Agents | Votes |
-|----------|--------|-------|
-| [description] | 1, 2, 4, 5, 7, 9 | 6/10 |
-| [description] | 3, 6 | 2/10 |
-| [description] | 8, 10 | 2/10 |
+## 📊 Voting Summary
 
-### Selected Solution
-[The majority solution]
+| Approach | Description | Agents | Votes |
+|----------|-------------|--------|-------|
+| ✅ A | Change `<=` to `<` in loop | 1, 2, 4, 5, 7 | **5/8** |
+| B | Add bounds check before loop | 3, 6 | 2/8 |
+| C | Use forEach instead | 8 | 1/8 |
 
-### Confidence: HIGH/MEDIUM/LOW
-[Explanation based on voting distribution]
+**Winner: Approach A** (62.5% consensus)
 
-### Implementation
-[The actual code change]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 🧠 Agent Reasoning Highlights
+
+### Why agents chose Approach A (majority):
+- Agent 1: "The off-by-one error is clear - loop iterates past array bounds"
+- Agent 2: "Standard fix for fence-post error in iteration"
+- Agent 4: "Root cause is `<=` should be `<` to stay within bounds"
+
+### Why some agents chose differently:
+- Agent 3 (Approach B): "Adding explicit bounds check is more defensive"
+- Agent 8 (Approach C): "forEach eliminates index management entirely"
+
+### Key insight from minority:
+Agent 3's bounds check idea could be valuable as additional safety.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## ✅ Selected Solution (Majority Winner)
+
+[Show the complete winning solution with code]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 📈 Confidence Assessment
+
+**Confidence: HIGH** ✅
+
+Why:
+- 5 of 8 agents (62.5%) independently chose the same approach
+- Core reasoning aligned across majority
+- Fix addresses the root cause directly
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 🔧 Implementation
+
+[Show the actual diff/change being made]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+**Key elements to include:**
+1. Visual voting table with clear winner marked
+2. Percentage consensus
+3. Brief reasoning quotes from key agents
+4. Why minority chose differently (may have insights)
+5. Confidence level with justification
+6. The actual implementation
 
 ## Configuration
 
