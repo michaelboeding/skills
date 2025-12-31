@@ -1,6 +1,6 @@
 ---
 name: model-council
-description: This skill should be used when the user asks for "model council", "multi-model", "compare models", "ask multiple AIs", "consensus across models", "run on different models", or wants to get solutions from multiple AI providers (Claude, GPT, Gemini, Grok) and compare results. Orchestrates parallel execution across AI models/CLIs and synthesizes the best answer.
+description: This skill should be used when the user asks for "model council", "multi-model", "compare models", "ask multiple AIs", "consensus across models", "run on different models", or wants to get solutions from multiple AI providers (Claude, GPT, Gemini, Grok) and compare results. Orchestrates parallel execution across AI models and synthesizes the best answer.
 ---
 
 # Model Council: Multi-Model Consensus
@@ -8,6 +8,21 @@ description: This skill should be used when the user asks for "model council", "
 Run the same problem through multiple AI models in parallel, then compare and synthesize the best solution.
 
 Unlike code-council (which uses one model with multiple approaches), model-council leverages **different model architectures** for true ensemble diversity.
+
+## CRITICAL: Analysis Only - No Code Changes
+
+**External models must NOT modify any code or files.** They provide analysis only.
+
+When prompting external models, always include this instruction:
+> "Analyze this problem and provide your recommendation. Do NOT modify any files. 
+> Provide your analysis, suggested approach, and reasoning only. 
+> Another system will make the final decision on implementation."
+
+**Why?**
+- Claude Code maintains full control and context
+- External models lack access to the codebase
+- Claude Code synthesizes all inputs and makes the final decision
+- Prevents conflicting changes from multiple sources
 
 ## Why Multi-Model?
 
@@ -20,26 +35,42 @@ When multiple independent models agree → High confidence the answer is correct
 
 ## Execution Modes
 
-### Mode 1: CLI Agents (Recommended - Uses Your Existing Accounts)
+### Mode 1: CLI Agents (Uses Your Existing Logins)
 
-Call CLI tools that use your logged-in accounts - no extra API costs!
+Call CLI tools that use your logged-in accounts.
 
-| CLI Tool | Model | Install |
-|----------|-------|---------|
-| `claude` | Claude (this session) | Already running |
-| `codex` | OpenAI Codex CLI | `npm install -g @openai/codex` |
-| `gemini` | Google Gemini CLI | `npm install -g @anthropic-ai/gemini-cli` |
-| `aider` | Any (configurable) | `pip install aider-chat` |
+| CLI Tool | Model | Install Command | Notes |
+|----------|-------|-----------------|-------|
+| `claude` | Claude | Already running | This session |
+| `codex` | OpenAI | `npm install -g @openai/codex` | Requires OpenAI login |
+| `gemini` | Google | See [Gemini CLI docs](https://github.com/google-gemini/gemini-cli) | Requires Google login |
+| `aider` | Any | `pip install aider-chat` | Configure with any provider |
+
+**CLI Setup Instructions:**
+
+```bash
+# OpenAI Codex CLI
+npm install -g @openai/codex
+codex auth   # Login with your OpenAI account
+
+# Google Gemini CLI  
+npm install -g @anthropic-ai/gemini-cli
+gemini auth  # Login with your Google account
+
+# Aider (works with multiple providers)
+pip install aider-chat
+# Configure in ~/.aider.conf.yml or pass --model flag
+```
 
 ### Mode 2: API Calls (Pay per token)
 
 Direct API calls - more reliable but costs money.
 
 Required environment variables:
-- `ANTHROPIC_API_KEY` - For Claude API
-- `OPENAI_API_KEY` - For GPT-4 API
-- `GOOGLE_API_KEY` - For Gemini API
-- `XAI_API_KEY` - For Grok API
+- `ANTHROPIC_API_KEY` - For Claude API (https://console.anthropic.com/)
+- `OPENAI_API_KEY` - For GPT-4 API (https://platform.openai.com/api-keys)
+- `GOOGLE_API_KEY` - For Gemini API (https://aistudio.google.com/apikey)
+- `XAI_API_KEY` - For Grok API (https://console.x.ai/)
 
 ## Configuration
 
@@ -96,31 +127,42 @@ parallel: true
 
 Determine which models to use:
 1. Check user's inline specification (e.g., "with claude, gpt-4o")
-2. If none specified, check config file
-3. If no config, detect available CLIs and APIs
+2. If none specified, detect available CLIs and APIs
+3. Default: use all available models
 
-### Step 2: Prepare the Prompt
+### Step 2: Prepare the Analysis Prompt
 
-Format the problem for each model:
-- Keep the core problem identical
-- Adjust formatting if needed for specific models
-- Include any necessary context
+**CRITICAL**: Format the problem as an analysis request, NOT a code modification request:
+
+```
+ANALYSIS REQUEST - DO NOT MODIFY ANY CODE
+
+Problem: [describe the problem]
+
+Context: [relevant code or information]
+
+Please provide:
+1. Your analysis of the problem
+2. Your recommended approach
+3. Reasoning for your recommendation
+4. Any concerns or edge cases
+5. Confidence level (high/medium/low)
+
+DO NOT provide code changes. Only provide analysis and recommendations.
+```
 
 ### Step 3: Execute in Parallel
 
-For CLI mode, use the orchestrator script:
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/model-council/scripts/orchestrate.py \
-  --prompt "your problem here" \
-  --models "claude,codex,gemini" \
-  --parallel
-```
-
-For API mode:
+For API mode, use:
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/model-council/scripts/api_council.py \
-  --prompt "your problem here" \
+  --prompt "your analysis prompt here" \
   --models "claude-sonnet,gpt-4o,gemini-flash"
+```
+
+To check available resources:
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/model-council/scripts/detect_clis.py
 ```
 
 ### Step 4: Collect Responses
@@ -129,44 +171,44 @@ Gather all model responses with metadata:
 - Model name and version
 - Response time
 - Token usage (if available)
-- Full response
+- Full analysis text
 
-### Step 5: Analyze Consensus
+### Step 5: Analyze Consensus (Claude Code Does This)
 
 Compare responses looking for:
-- **Agreement**: Do models produce the same answer/approach?
+- **Agreement**: Do models recommend the same approach?
 - **Unique insights**: Does one model catch something others missed?
 - **Disagreements**: Where do models differ and why?
+- **Confidence levels**: Which models are most confident?
 
-### Step 6: Synthesize Best Answer
+### Step 6: Claude Code Makes the Decision
 
-Use ultrathink to:
-1. Evaluate each response's correctness
+**Claude Code (this session) is the decision-maker.** Use ultrathink to:
+1. Evaluate each model's analysis
 2. Identify the strongest reasoning
-3. Combine best elements from multiple responses
-4. Produce final synthesized answer
+3. Note areas of consensus and disagreement
+4. Decide on the best approach
+5. Implement the solution (only Claude Code modifies code)
 
 ### Step 7: Deliver Results
 
 Provide:
-1. **Final synthesized answer** (best combined solution)
+1. **Claude Code's decision** (the chosen approach)
 2. **Consensus score** (how many models agreed)
-3. **Individual responses** (for transparency)
-4. **Insights** (what each model contributed)
+3. **Summary of each model's input**
+4. **Rationale for the decision**
+5. **Implementation** (Claude Code executes the changes)
 
-## CLI Detection
+## Resource Detection
 
-To check available CLIs:
+To check available CLIs and API keys:
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/model-council/scripts/detect_clis.py
 ```
 
 This checks for:
-- `claude` - Claude Code CLI
-- `codex` - OpenAI Codex CLI
-- `gemini` - Gemini CLI
-- `aider` - Aider (multi-model)
-- `cursor` - Cursor AI (if applicable)
+- Installed CLI tools (codex, gemini, aider)
+- Configured API keys (Anthropic, OpenAI, Google, xAI)
 
 ## Comparison: code-council vs model-council
 
@@ -174,9 +216,10 @@ This checks for:
 |--------|--------------|---------------|
 | Models used | Claude only | Multiple (Claude, GPT, Gemini, etc.) |
 | Diversity source | Different approaches | Different architectures |
-| Cost | Free (uses current session) | Free (CLIs) or paid (APIs) |
+| Cost | Free (current session) | API costs per token |
 | Speed | Fast (single model) | Slower (parallel calls) |
 | Best for | Quick iterations | High-stakes decisions |
+| Code changes | Claude makes changes | Only Claude makes changes (others analyze) |
 
 ## When to Use Each
 
@@ -206,28 +249,33 @@ This checks for:
 ```
 ## Model Council Results
 
-### Consensus: HIGH (3/3 models agree)
+### Consensus: HIGH (3/3 models agree on approach)
 
-### Synthesized Solution:
-[Combined best answer here]
+### Individual Analyses:
 
-### Individual Responses:
+#### Claude Sonnet (API)
+- Recommendation: Use a hash map for O(1) lookup
+- Reasoning: Reduces time complexity from O(n²) to O(n)
+- Confidence: High
+- Unique insight: Noted potential memory constraints for large datasets
 
-#### Claude (via CLI)
-[Response...]
-Reasoning quality: High
-Unique contribution: Caught edge case with null input
+#### GPT-4o (API)  
+- Recommendation: Use a hash map for O(1) lookup
+- Reasoning: Standard pattern for duplicate detection
+- Confidence: High
+- Unique insight: Suggested early termination optimization
 
-#### GPT-4o (via Codex CLI)  
-[Response...]
-Reasoning quality: High
-Unique contribution: Suggested performance optimization
+#### Gemini Flash (API)
+- Recommendation: Use a hash map for O(1) lookup
+- Reasoning: Most efficient approach for this problem
+- Confidence: High
+- Unique insight: Referenced similar pattern in standard library
 
-#### Gemini (via CLI)
-[Response...]
-Reasoning quality: Medium
-Unique contribution: Referenced relevant documentation
+### Claude Code Decision:
+Based on unanimous consensus, implementing hash map approach with:
+- Early termination from GPT-4o's suggestion
+- Memory consideration from Claude Sonnet's analysis
 
-### Confidence: HIGH
-All models converged on the same core solution with complementary insights.
+### Implementation:
+[Claude Code now implements the chosen solution]
 ```

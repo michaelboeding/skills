@@ -39,12 +39,16 @@ cp env.example .env
 Then export the variables in your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/.bash_profile`):
 
 ```bash
-# Image Generation + Voice APIs
-export OPENAI_API_KEY="sk-..."          # DALL-E 3 + OpenAI TTS
-export GOOGLE_API_KEY="..."             # Google Imagen 3
+# Core APIs (used by multiple skills)
+export OPENAI_API_KEY="sk-..."          # DALL-E, Sora, TTS
+export GOOGLE_API_KEY="..."             # Imagen, Veo, Gemini
 export ELEVENLABS_API_KEY="..."         # ElevenLabs TTS
 
-# Model Council APIs (optional - for multi-model consensus)
+# Music Generation
+export SUNO_API_KEY="..."               # Suno music
+export UDIO_API_KEY="..."               # Udio music
+
+# Model Council (optional)
 export ANTHROPIC_API_KEY="sk-ant-..."   # Claude API
 export XAI_API_KEY="..."                # Grok API
 ```
@@ -55,6 +59,8 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 - OpenAI: https://platform.openai.com/api-keys
 - Google: https://aistudio.google.com/apikey
 - ElevenLabs: https://elevenlabs.io
+- Suno: https://suno.com
+- Udio: https://udio.com
 - Anthropic: https://console.anthropic.com/
 - xAI: https://console.x.ai/
 
@@ -65,9 +71,11 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | Skill | Description | API Keys |
 |-------|-------------|----------|
 | [code-council](skills/code-council/) | Ensemble problem-solving using ultrathink to generate multiple independent code solutions, test them, and synthesize the best answer. | None |
-| [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare. Uses CLI agents or APIs. | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
+| [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare. | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
 | [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
+| [video-generation](skills/video-generation/) | Generate videos using AI models (OpenAI Sora, Google Veo 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
 | [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS). | `ELEVENLABS_API_KEY` or `OPENAI_API_KEY` |
+| [music-generation](skills/music-generation/) | Generate music and songs using AI (Suno, Udio). | `SUNO_API_KEY` or `UDIO_API_KEY` |
 
 ---
 
@@ -109,6 +117,18 @@ create a cyberpunk cityscape at night
 make a watercolor painting of a cat
 ```
 
+### video-generation
+
+Generate videos with AI:
+
+```
+generate a video of waves crashing on a beach at sunset
+
+create a cinematic drone shot flying over mountains
+
+make a video of a cat playing with yarn
+```
+
 ### voice-generation
 
 Generate speech and audio:
@@ -119,6 +139,18 @@ read this text aloud: "Hello, welcome to my podcast"
 generate a voiceover for this script
 
 create narration for my video using a deep male voice
+```
+
+### music-generation
+
+Generate music and songs:
+
+```
+create an upbeat pop song about summer
+
+generate a cinematic orchestral soundtrack
+
+make a lo-fi hip hop beat for studying
 ```
 
 ---
