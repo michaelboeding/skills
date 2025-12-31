@@ -1,32 +1,32 @@
 ---
-name: code-council
-description: Research-aligned self-consistency for critical code problems. Spawns independent solver agents that each explore and solve the problem from scratch. Uses majority voting. Based on "Self-Consistency Improves Chain of Thought Reasoning" (Wang et al., 2022). Use for critical bugs, high-stakes code, or when other approaches have failed.
+name: debug-council
+description: Research-aligned self-consistency for debugging. Spawns independent solver agents that each explore and debug the problem from scratch. Uses majority voting. Based on "Self-Consistency Improves Chain of Thought Reasoning" (Wang et al., 2022). Use for critical bugs, algorithms, or when other approaches have failed.
 ---
 
-# Code Council: Research-Aligned Self-Consistency
+# Debug Council: Research-Aligned Self-Consistency
 
-Pure implementation of self-consistency (Wang et al., 2022). Each agent receives the **raw user prompt** and explores/solves **independently**. No pre-processing, no shared context. Majority voting selects the answer.
+Pure implementation of self-consistency (Wang et al., 2022). Each agent receives the **raw user prompt** and explores/debugs **independently**. No pre-processing, no shared context. Majority voting selects the answer.
 
-**Use this for critical scenarios where accuracy matters more than speed.**
+**Use this for bugs and problems with ONE correct answer.**
 
 ## Step 0: Ask User How Many Agents
 
 Before doing anything else, **ask the user how many solver agents to use**:
 
 ```
-How many solver agents would you like me to use? (3-10)
+How many debug agents would you like me to use? (3-10)
 
 Recommendations:
 - 3 agents: Faster, still reliable
 - 5 agents: Good balance
 - 7 agents: High confidence
-- 10 agents: Maximum confidence (critical problems)
+- 10 agents: Maximum confidence (critical bugs)
 
-Note: Each agent will independently explore the codebase and generate a solution.
+Note: Each agent will independently explore the codebase and find the bug.
 This takes longer but provides true independence per the research.
 ```
 
-Wait for the user's response. If they specified a number (e.g., "code council of 5"), use that.
+Wait for the user's response. If they specified a number (e.g., "debug council of 5"), use that.
 
 **Minimum: 3 agents** | **Maximum: 10 agents**
 
@@ -67,9 +67,9 @@ Just capture what the user said.
 Spawn ALL agents simultaneously. Each gets the **exact same raw prompt**:
 
 ```
-Task(agent: "council-solver-1", prompt: "[USER'S EXACT WORDS]")
-Task(agent: "council-solver-2", prompt: "[USER'S EXACT WORDS]")
-Task(agent: "council-solver-3", prompt: "[USER'S EXACT WORDS]")
+Task(agent: "debug-solver-1", prompt: "[USER'S EXACT WORDS]")
+Task(agent: "debug-solver-2", prompt: "[USER'S EXACT WORDS]")
+Task(agent: "debug-solver-3", prompt: "[USER'S EXACT WORDS]")
 ... (all in the SAME batch - parallel execution)
 ```
 
@@ -80,9 +80,9 @@ Task(agent: "council-solver-3", prompt: "[USER'S EXACT WORDS]")
 Each agent will:
 1. Read and understand the user's request
 2. Explore the codebase using their tools (Read, Grep, Glob, LS)
-3. Identify the problem
+3. Identify the root cause
 4. Reason through solutions (chain-of-thought)
-5. Generate a complete solution
+5. Generate a complete fix
 
 **Each agent works in complete isolation** - they cannot see what other agents are doing or have found.
 
@@ -141,7 +141,7 @@ Implement the majority solution. Do NOT synthesize or merge - use the winning an
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                     CODE COUNCIL RESULTS
+                    DEBUG COUNCIL RESULTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## 📊 Voting Summary
@@ -211,12 +211,12 @@ Implement the majority solution. Do NOT synthesize or merge - use the winning an
 
 | Mode | Agents | Use Case |
 |------|--------|----------|
-| `code council of 3` | 3 | Faster, still reliable |
-| `code council of 5` | 5 | Good balance |
-| `code council of 7` | 7 | High confidence |
-| `code council of 10` | 10 | Maximum confidence |
+| `debug council of 3` | 3 | Faster, still reliable |
+| `debug council of 5` | 5 | Good balance |
+| `debug council of 7` | 7 | High confidence |
+| `debug council of 10` | 10 | Maximum confidence |
 
-If user just says `code council`, ask them to choose.
+If user just says `debug council`, ask them to choose.
 
 ---
 
@@ -254,13 +254,14 @@ This takes **3-10x longer** than shared-context approaches, but provides:
 
 ## Agents
 
-10 identical solver agents in `agents/` directory:
-- `council-solver-1` through `council-solver-10`
+10 identical debug solver agents in `agents/` directory:
+- `debug-solver-1` through `debug-solver-10`
 
 All agents:
 - Same instructions
 - Same temperature (0.7)
 - Same tools (Read, Grep, Glob, LS)
 - Use ultrathink (extended thinking)
+- Focus on finding the ONE correct answer
 
 Diversity comes from sampling randomness and independent exploration, not different prompts.

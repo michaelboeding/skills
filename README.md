@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 2.0.0** - Research-aligned code-council with self-consistency (Wang et al., 2022)
+> **Version 3.0.0** - Separate debug-council and feature-council with specialized agents
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -66,7 +66,8 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 | Skill | Description | API Keys |
 |-------|-------------|----------|
-| [code-council](skills/code-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent explores independently, majority voting. For critical problems. | None |
+| [debug-council](skills/debug-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent debugs independently, majority voting. For bugs & algorithms. | None |
+| [feature-council](skills/feature-council/) | Multi-agent feature implementation. Each agent builds the feature independently, then synthesizes best parts from each. | None |
 | [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare (analysis only). | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
 | [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
 | [video-generation](skills/video-generation/) | Generate videos using AI models (OpenAI Sora, Google Veo 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
@@ -77,60 +78,99 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 ## Agents
 
-### Code Council Solvers (Research-Aligned)
+### Debug Solvers (for debug-council)
 
-10 identical solver agents used by code-council for self-consistency:
+10 debug solver agents focused on finding bugs:
 
 | Agents | Purpose |
 |--------|---------|
-| `council-solver-1` through `council-solver-10` | Independent solution generation |
+| `debug-solver-1` through `debug-solver-10` | Independent bug finding and fixing |
 
-**All agents are identical** - same prompt, same temperature (0.7), same instructions.
+Focus: Root cause analysis, finding the ONE correct fix, chain-of-thought debugging.
 
-This follows the self-consistency research (Wang et al., 2022):
-- Diversity comes from sampling randomness, not different prompts
-- Majority voting selects the most likely correct answer
-- More agents = higher confidence
+### Feature Solvers (for feature-council)
 
-The skill will ask you how many agents to use (3-10), or specify directly:
+10 feature solver agents focused on building features:
 
-| Mode | Agents |
-|------|--------|
-| `code council` | Asks you to choose |
-| `code council of 3` | 3 agents (minimum, fast) |
-| `code council of 5` | 5 agents (standard) |
-| `code council of 7` | 7 agents (important) |
-| `code council of 10` | 10 agents (maximum confidence) |
+| Agents | Purpose |
+|--------|---------|
+| `feature-solver-1` through `feature-solver-10` | Independent feature implementation |
 
-**Minimum 3 agents** - needed for meaningful majority voting.
+Focus: Codebase pattern matching, edge case coverage, comprehensive implementation.
 
-These agents are invoked automatically by code-council and should not be called directly.
+---
+
+Both agent types:
+- Same temperature (0.7) for sampling diversity
+- Same tools (Read, Grep, Glob, LS)
+- Use ultrathink (extended thinking)
+- Explore the codebase independently
+
+Both skills will ask you how many agents to use (3-10), or specify directly:
+
+| Mode | Agents | Use Case |
+|------|--------|----------|
+| `debug council of 3` | 3 | Fast, simple bugs |
+| `debug council of 5` | 5 | Standard debugging |
+| `debug council of 10` | 10 | Critical bugs |
+| `feature council of 3` | 3 | Simple features |
+| `feature council of 5` | 5 | Standard features |
+| `feature council of 10` | 10 | Complex features |
+
+**Minimum 3 agents** - needed for meaningful voting/synthesis.
+
+These agents are invoked automatically by the council skills and should not be called directly.
 
 ---
 
 ## Usage Examples
 
-### code-council
+### debug-council
 
-Research-aligned self-consistency for **critical problems**. Each agent explores and solves independently - no shared context:
+Research-aligned self-consistency for **debugging**. Each agent explores and debugs independently - no shared context:
 
 ```
-code council: fix this bug in my function
+debug council: fix this bug in my function
 
-code council of 5: important production issue
+debug council of 5: important production issue
 
-code council of 10: critical bug, need maximum confidence
+debug council of 10: critical bug, need maximum confidence
 ```
 
 How it works (pure Wang et al., 2022):
-1. **Raw user prompt** sent to all agents (no pre-processing)
+1. **Raw user prompt** sent to all debug agents (no pre-processing)
 2. Each agent **independently explores** the codebase
-3. Each agent uses **ultrathink** to reason and solve
-4. Solutions are grouped by their core approach
+3. Each agent uses **ultrathink** to find the root cause
+4. Solutions are grouped by their core fix
 5. **Majority voting** selects the most common answer
 6. Confidence based on voting distribution (5/7 agree = HIGH)
 
-**Note:** This is slower than shared-context approaches because each agent explores independently. Use for critical problems where accuracy matters more than speed.
+**Note:** This is slower than shared-context approaches because each agent explores independently. Use for critical bugs where accuracy matters more than speed.
+
+### feature-council
+
+Multi-agent feature implementation. Each agent builds the feature independently, then **synthesizes** the best parts:
+
+```
+feature council: implement user authentication with OAuth
+
+feature council of 5: add caching layer to the API
+
+feature council of 10: complex payment integration
+```
+
+How it works:
+1. **Raw user prompt** sent to all agents (no pre-processing)
+2. Each agent **independently explores** the codebase
+3. Each agent implements the **complete feature**
+4. Implementations are **compared** across multiple dimensions
+5. **Synthesis** combines the best elements from each:
+   - Best architecture (matches codebase patterns)
+   - All edge cases discovered
+   - Robust error handling
+   - Best type definitions
+
+**Output shows what each agent contributed** to the final solution.
 
 ### model-council
 
