@@ -32,15 +32,21 @@ If user requests fewer than 3, explain why 3 is the minimum:
 
 ---
 
-## CRITICAL: Spawn Agents with IDENTICAL Prompts
+## CRITICAL: Spawn Agents IN PARALLEL with IDENTICAL Prompts
 
-After the user chooses, spawn that many solver agents. All agents get the **exact same prompt**.
+After the user chooses, spawn ALL agents **simultaneously in parallel**. Do NOT wait for one agent to finish before starting the next.
+
+**IMPORTANT: Use parallel execution** - spawn all agents at once in a single batch:
 
 ```
+# Spawn ALL agents in parallel (same tool call batch)
 Task(agent: "council-solver-1", prompt: "[problem]")
 Task(agent: "council-solver-2", prompt: "[problem]")
-... (continue for the number of agents chosen)
+Task(agent: "council-solver-3", prompt: "[problem]")
+... (all in the SAME batch - do not wait between spawns)
 ```
+
+This is much faster than sequential execution. All agents run simultaneously and you collect results as they complete.
 
 ## Research Basis
 
