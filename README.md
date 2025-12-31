@@ -88,15 +88,20 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 Focus: Root cause analysis, finding the ONE correct fix, chain-of-thought debugging.
 
-### Feature Solvers (for feature-council)
+### Feature Agents (for feature-council)
 
-10 feature solver agents focused on building features:
+Scout + solver architecture for efficient feature implementation:
 
-| Agents | Purpose |
-|--------|---------|
-| `feature-solver-1` through `feature-solver-10` | Independent feature implementation |
+| Agent | Purpose |
+|-------|---------|
+| `feature-scout` | Explores codebase, gathers context for solvers |
+| `feature-solver-1` through `feature-solver-10` | Implement with scout context |
 
-Focus: Codebase pattern matching, edge case coverage, comprehensive implementation.
+**How it works:**
+1. Scout explores codebase first (finds files, patterns, integration points)
+2. Solvers receive scout's context as a head start
+3. Solvers still have full tool access to explore further if needed
+4. Result: Less duplicated exploration, more focused implementation
 
 ---
 
@@ -149,7 +154,7 @@ How it works (pure Wang et al., 2022):
 
 ### feature-council
 
-Multi-agent feature implementation. Each agent builds the feature independently, then **synthesizes** the best parts:
+Multi-agent feature implementation with **scout + solver** architecture:
 
 ```
 feature council: implement user authentication with OAuth
@@ -160,17 +165,21 @@ feature council of 10: complex payment integration
 ```
 
 How it works:
-1. **Raw user prompt** sent to all agents (no pre-processing)
-2. Each agent **independently explores** the codebase
-3. Each agent implements the **complete feature**
-4. Implementations are **compared** across multiple dimensions
-5. **Synthesis** combines the best elements from each:
+1. **Scout agent** explores codebase first (finds files, patterns, integration points)
+2. **Solver agents** receive scout's context as a head start
+3. Solvers still have **full tool access** to explore further if needed
+4. Each solver implements the **complete feature**
+5. Implementations are **compared** and **synthesized**:
    - Best architecture (matches codebase patterns)
    - All edge cases discovered
    - Robust error handling
    - Best type definitions
 
-**Output shows what each agent contributed** to the final solution.
+**Benefits of scout architecture:**
+- Less duplicated exploration (scout does it once)
+- More tokens available for implementation
+- Fewer token limit issues
+- Faster overall execution
 
 ### model-council
 
