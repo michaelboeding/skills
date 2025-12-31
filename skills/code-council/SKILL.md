@@ -86,9 +86,39 @@ Each agent will:
 
 **Each agent works in complete isolation** - they cannot see what other agents are doing or have found.
 
-### Step 4: Collect All Solutions
+### Step 4: Track Progress & Collect Solutions
 
-Wait for all agents to complete. Collect their outputs.
+As agents complete, **show progress to the user**:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     AGENT PROGRESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+☑ Agent 1 - Complete
+☑ Agent 2 - Complete  
+☑ Agent 3 - Complete
+☐ Agent 4 - Working...
+☐ Agent 5 - Working...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Update this display as each agent finishes. When all complete:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                     AGENT PROGRESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+☑ Agent 1 - Complete ✓
+☑ Agent 2 - Complete ✓
+☑ Agent 3 - Complete ✓
+☑ Agent 4 - Complete ✓
+☑ Agent 5 - Complete ✓
+
+All agents finished! Analyzing solutions...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Collect all outputs for voting.
 
 ### Step 5: Majority Voting
 
