@@ -5,6 +5,22 @@ description: Ensemble problem-solving using independent subagents. Spawns 3 isol
 
 # Code Council: Multi-Agent Ensemble Problem Solving
 
+## CRITICAL: You MUST Spawn Subagents
+
+**DO NOT solve this yourself in a single context.** You MUST spawn the 3 solver agents to get truly independent solutions.
+
+After understanding the problem, use Task to spawn each agent:
+
+```
+Task(agent: "council-solver-a", prompt: "[problem statement]")
+Task(agent: "council-solver-b", prompt: "[problem statement]")  
+Task(agent: "council-solver-c", prompt: "[problem statement]")
+```
+
+Wait for all 3 agents to complete, then synthesize their solutions.
+
+---
+
 Spawn 3 independent solver subagents, each generating a solution in isolation, then synthesize the best answer using consensus analysis.
 
 ## Architecture
