@@ -1,6 +1,8 @@
 # Skills
 
-Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude (claude.ai, Claude Code, API), Cursor, and other AI assistants.
+> **Version 2.0.0** - Research-aligned code-council with self-consistency (Wang et al., 2022)
+
+Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
 ## Installation
 
@@ -14,13 +16,7 @@ Personal collection of agent skills using the open [SKILL.md standard](https://a
 /plugin install skills@michaelboeding-skills
 ```
 
-### Claude.ai
-
-1. Download the `.skill` file from [Releases](../../releases)
-2. Go to Settings → Skills
-3. Upload the file
-
-### Cursor / Other Tools
+### Other Tools
 
 Copy the `skills/` folder to your project or follow your tool's skill installation docs.
 
@@ -121,11 +117,12 @@ code council of 10: critical production bug, need maximum confidence
 ```
 
 How it works (based on Wang et al., 2022):
-1. **Same prompt** sent to 5-10 identical solver agents
-2. Each agent independently reasons and generates a solution
-3. Solutions are grouped by their core approach
-4. **Majority voting** selects the most common answer
-5. Confidence based on voting distribution (6/10 agree = HIGH)
+1. Orchestrator gathers context and prepares problem statement
+2. **Same prompt** sent to 5-10 identical solver agents
+3. Each agent uses **ultrathink** (extended thinking) to reason deeply
+4. Solutions are grouped by their core approach
+5. **Majority voting** selects the most common answer
+6. Confidence based on voting distribution (5/5 agree = HIGH)
 
 ### model-council
 
