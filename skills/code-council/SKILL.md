@@ -1,11 +1,13 @@
 ---
 name: code-council
-description: Research-aligned self-consistency for code. Spawns 10 independent solver agents with identical prompts, collects solutions, and uses majority voting to select the best answer. Based on "Self-Consistency Improves Chain of Thought Reasoning" (Wang et al., 2022). Use when the user asks for "code council", wants higher confidence, needs help debugging, or asks to "try multiple ways".
+description: Research-aligned self-consistency for critical code problems. Spawns independent solver agents that each explore and solve the problem from scratch. Uses majority voting. Based on "Self-Consistency Improves Chain of Thought Reasoning" (Wang et al., 2022). Use for critical bugs, high-stakes code, or when other approaches have failed.
 ---
 
-# Code Council: Self-Consistency for Code
+# Code Council: Research-Aligned Self-Consistency
 
-Research-aligned implementation of self-consistency (Wang et al., 2022). Spawns multiple independent solvers with **identical prompts**, then uses **majority voting** to select the most likely correct answer.
+Pure implementation of self-consistency (Wang et al., 2022). Each agent receives the **raw user prompt** and explores/solves **independently**. No pre-processing, no shared context. Majority voting selects the answer.
+
+**Use this for critical scenarios where accuracy matters more than speed.**
 
 ## Step 0: Ask User How Many Agents
 
@@ -15,151 +17,97 @@ Before doing anything else, **ask the user how many solver agents to use**:
 How many solver agents would you like me to use? (3-10)
 
 Recommendations:
-- 3 agents: Simple problems, fast
-- 5 agents: Standard (good balance)
-- 7 agents: Important code
-- 10 agents: Critical/complex problems (maximum confidence)
+- 3 agents: Faster, still reliable
+- 5 agents: Good balance
+- 7 agents: High confidence
+- 10 agents: Maximum confidence (critical problems)
+
+Note: Each agent will independently explore the codebase and generate a solution.
+This takes longer but provides true independence per the research.
 ```
 
-Wait for the user's response before proceeding. If they specified a number in their request (e.g., "code council of 5"), use that number without asking.
+Wait for the user's response. If they specified a number (e.g., "code council of 5"), use that.
 
-**Minimum: 3 agents** (needed for meaningful majority voting)
-**Maximum: 10 agents** (council-solver-1 through council-solver-10)
-
-If user requests fewer than 3, explain why 3 is the minimum:
-- With 1-2 agents, there's no "council" - no majority voting possible
-- Self-consistency research requires multiple independent samples
+**Minimum: 3 agents** | **Maximum: 10 agents**
 
 ---
 
-## CRITICAL: Spawn Agents IN PARALLEL with IDENTICAL Prompts
+## CRITICAL: Pure Research Alignment
 
-After the user chooses, spawn ALL agents **simultaneously in parallel**. Do NOT wait for one agent to finish before starting the next.
+### What This Means
 
-**IMPORTANT: Use parallel execution** - spawn all agents at once in a single batch:
+1. **NO orchestrator exploration** - Do NOT read files or gather context before spawning agents
+2. **Raw user prompt to all agents** - Each agent gets the user's original request, unchanged
+3. **Each agent explores independently** - Agents discover the codebase themselves
+4. **True independence** - No shared context, no cross-contamination
 
-```
-# Spawn ALL agents in parallel (same tool call batch)
-Task(agent: "council-solver-1", prompt: "[problem]")
-Task(agent: "council-solver-2", prompt: "[problem]")
-Task(agent: "council-solver-3", prompt: "[problem]")
-... (all in the SAME batch - do not wait between spawns)
-```
+### Why This Matters
 
-This is much faster than sequential execution. All agents run simultaneously and you collect results as they complete.
+The research shows that **independent samples** converge on correct answers. If we pre-process or share context, we:
+- Introduce orchestrator bias
+- Reduce independence
+- May miss what individual agents would discover
 
-## Research Basis
-
-This implementation follows "Self-Consistency Improves Chain of Thought Reasoning in Language Models" (Wang et al., 2022):
-
-| Principle | Implementation |
-|-----------|----------------|
-| Multiple independent samples | 5-10 solver agents |
-| Identical prompts | Same problem statement to all |
-| Same temperature | 0.7 for all agents |
-| Chain-of-thought | Required before solution |
-| Majority voting | Select answer with most agreement |
-
-### Why This Works
-
-If each agent has probability p of being correct, and agents are independent:
-- P(majority wrong with 5 agents) << P(single agent wrong)
-- As samples increase, probability of correct answer increases
-
-**Key insight**: When multiple independent reasoners converge on the same answer, it's more likely correct than a single attempt.
+---
 
 ## Workflow
 
-### Step 1: Prepare the Problem
+### Step 1: Capture the Raw User Prompt
 
-Create a clear, self-contained problem statement:
+Take the user's request **exactly as stated**. Do NOT:
+- ❌ Read files first
+- ❌ Explore the codebase
+- ❌ Add context
+- ❌ Rephrase or enhance the prompt
 
-```markdown
-## Problem
+Just capture what the user said.
 
-[Clear description of what needs to be solved]
+### Step 2: Spawn Agents IN PARALLEL with RAW PROMPT
 
-## Context
+Spawn ALL agents simultaneously. Each gets the **exact same raw prompt**:
 
-[Relevant code - paste the actual code, not just file paths]
-
-## Expected Behavior
-
-[What should happen]
-
-## Current Behavior (for bugs)
-
-[What's actually happening / error messages]
+```
+Task(agent: "council-solver-1", prompt: "[USER'S EXACT WORDS]")
+Task(agent: "council-solver-2", prompt: "[USER'S EXACT WORDS]")
+Task(agent: "council-solver-3", prompt: "[USER'S EXACT WORDS]")
+... (all in the SAME batch - parallel execution)
 ```
 
-**IMPORTANT**: All agents must receive the **exact same prompt**.
+**DO NOT modify the prompt. DO NOT add context. Raw user words only.**
 
-### Step 2: Spawn Agents
+### Step 3: Agents Work Independently
 
-**Default (5 agents):**
-```
-Task(agent: "council-solver-1", prompt: "[problem]")
-Task(agent: "council-solver-2", prompt: "[problem]")
-Task(agent: "council-solver-3", prompt: "[problem]")
-Task(agent: "council-solver-4", prompt: "[problem]")
-Task(agent: "council-solver-5", prompt: "[problem]")
-```
+Each agent will:
+1. Read and understand the user's request
+2. Explore the codebase using their tools (Read, Grep, Glob, LS)
+3. Identify the problem
+4. Reason through solutions (chain-of-thought)
+5. Generate a complete solution
 
-**Extended (10 agents)** - use for critical/complex problems:
-```
-Task(agent: "council-solver-1", prompt: "[problem]")
-... through ...
-Task(agent: "council-solver-10", prompt: "[problem]")
-```
+**Each agent works in complete isolation** - they cannot see what other agents are doing or have found.
 
-### Step 3: Collect Solutions
+### Step 4: Collect All Solutions
 
-Wait for all agents to complete. Each returns:
-- Analysis of the problem
-- Chain-of-thought reasoning
-- Proposed solution
+Wait for all agents to complete. Collect their outputs.
 
-### Step 4: Majority Voting
+### Step 5: Majority Voting
 
 **Group solutions by their core approach/answer:**
 
-1. Identify the **key decision** in each solution (e.g., "change `<=` to `<`")
+1. Identify the **key decision** in each solution
 2. Group solutions that make the same key decision
 3. Count how many agents chose each approach
 
-**Example:**
-```
-Approach A (change <= to <):     Agents 1, 2, 4, 5, 7, 9  → 6 votes
-Approach B (add bounds check):   Agents 3, 6             → 2 votes  
-Approach C (use forEach):        Agents 8, 10            → 2 votes
+**Voting rules:**
+- **Clear majority (≥50%)**: Select that solution, HIGH confidence
+- **Plurality (highest < 50%)**: Select that solution, MEDIUM confidence
+- **No clear winner**: Analyze disagreement, LOW confidence
 
-MAJORITY: Approach A (6/10 = 60%)
-```
+### Step 6: Implement the Winner
 
-### Step 5: Select Answer
-
-**If clear majority (≥50%):**
-- Select the majority solution
-- Confidence: HIGH
-
-**If plurality but no majority (highest < 50%):**
-- Select the plurality solution
-- Confidence: MEDIUM
-- Note the disagreement
-
-**If no clear winner (tie or close):**
-- Analyze why agents disagree
-- May indicate ambiguous problem or multiple valid approaches
-- Confidence: LOW
-- Consider running more agents
-
-### Step 6: Implement
-
-Implement the winning solution. Do NOT synthesize or merge - use the majority answer as-is.
+Implement the majority solution. Do NOT synthesize or merge - use the winning answer as-is.
 
 ### Step 7: Report Results
-
-Present results in this detailed format so the user understands the reasoning:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -170,98 +118,119 @@ Present results in this detailed format so the user understands the reasoning:
 
 | Approach | Description | Agents | Votes |
 |----------|-------------|--------|-------|
-| ✅ A | Change `<=` to `<` in loop | 1, 2, 4, 5, 7 | **5/8** |
-| B | Add bounds check before loop | 3, 6 | 2/8 |
-| C | Use forEach instead | 8 | 1/8 |
+| ✅ A | [description] | 1, 2, 4, 5, 7 | **5/7** |
+| B | [description] | 3, 6 | 2/7 |
 
-**Winner: Approach A** (62.5% consensus)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-## 🧠 Agent Reasoning Highlights
-
-### Why agents chose Approach A (majority):
-- Agent 1: "The off-by-one error is clear - loop iterates past array bounds"
-- Agent 2: "Standard fix for fence-post error in iteration"
-- Agent 4: "Root cause is `<=` should be `<` to stay within bounds"
-
-### Why some agents chose differently:
-- Agent 3 (Approach B): "Adding explicit bounds check is more defensive"
-- Agent 8 (Approach C): "forEach eliminates index management entirely"
-
-### Key insight from minority:
-Agent 3's bounds check idea could be valuable as additional safety.
+**Winner: Approach A** (71% consensus)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## ✅ Selected Solution (Majority Winner)
+## 🔍 What Each Agent Found
 
-[Show the complete winning solution with code]
+### Agent 1
+- Files explored: [list]
+- Root cause identified: [summary]
+- Solution: [brief]
+
+### Agent 2
+- Files explored: [list]
+- Root cause identified: [summary]
+- Solution: [brief]
+
+... (for each agent)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## 📈 Confidence Assessment
+## 🧠 Reasoning Highlights
 
-**Confidence: HIGH** ✅
+### Why majority chose Approach A:
+- Agent 1: "[key insight]"
+- Agent 2: "[key insight]"
+- Agent 4: "[key insight]"
 
-Why:
-- 5 of 8 agents (62.5%) independently chose the same approach
-- Core reasoning aligned across majority
-- Fix addresses the root cause directly
+### Why minority chose differently:
+- Agent 3: "[different perspective]"
+
+### Valuable minority insight:
+[Any good ideas from minority that might be worth noting]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## 📈 Confidence: HIGH/MEDIUM/LOW
+
+[Explanation based on voting distribution and reasoning quality]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## ✅ Selected Solution
+
+[The complete winning solution]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## 🔧 Implementation
 
-[Show the actual diff/change being made]
+[The actual code change being made]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Key elements to include:**
-1. Visual voting table with clear winner marked
-2. Percentage consensus
-3. Brief reasoning quotes from key agents
-4. Why minority chose differently (may have insights)
-5. Confidence level with justification
-6. The actual implementation
+---
 
 ## Configuration
 
-The skill will ask the user how many agents to use (1-10).
-
-**Quick shortcuts** (skip the question):
 | Mode | Agents | Use Case |
 |------|--------|----------|
-| `code council of 3` | 3 | Simple problems, faster |
-| `code council of 5` | 5 | Standard problems |
-| `code council of 7` | 7 | Important code |
-| `code council of 10` | 10 | Critical, maximum confidence |
+| `code council of 3` | 3 | Faster, still reliable |
+| `code council of 5` | 5 | Good balance |
+| `code council of 7` | 7 | High confidence |
+| `code council of 10` | 10 | Maximum confidence |
 
-If user just says `code council: [problem]`, ask them to choose.
+If user just says `code council`, ask them to choose.
 
-## Why Majority Voting > Synthesis
+---
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Majority voting** | Mathematical guarantee, no bias introduced | Might miss good ideas from minority |
-| **Synthesis** | Can combine best ideas | Introduces orchestrator bias, no mathematical guarantee |
+## Research Basis
 
-Research shows majority voting is more reliable. We use it.
+Based on "Self-Consistency Improves Chain of Thought Reasoning in Language Models" (Wang et al., 2022):
 
-## Agent Configuration
+| Principle | Our Implementation |
+|-----------|-------------------|
+| Same prompt to all | Raw user prompt, unmodified |
+| Independent samples | Each agent explores independently |
+| No shared context | No orchestrator pre-processing |
+| Chain-of-thought | Agents use ultrathink |
+| Majority voting | Count approaches, select majority |
 
-All 10 agents are **identical**:
-- Same prompt (the problem)
-- Same temperature (0.7)
-- Same instructions (chain-of-thought, then solve)
-- Same tools (Read, Grep, Glob, LS)
+---
 
-Diversity comes from **sampling randomness**, not from different prompts.
+## Why This is Slower (And Why That's OK)
+
+Each agent independently:
+- Explores the codebase
+- Reads relevant files
+- Reasons through the problem
+- Generates a solution
+
+This takes **3-10x longer** than shared-context approaches, but provides:
+- **True independence** - no orchestrator bias
+- **Diverse exploration** - agents may find different things
+- **Research alignment** - matches the paper exactly
+- **Maximum reliability** - for when accuracy matters most
+
+**Use this for critical problems where getting it right matters more than getting it fast.**
+
+---
 
 ## Agents
 
-Located in `agents/` directory:
+10 identical solver agents in `agents/` directory:
 - `council-solver-1` through `council-solver-10`
 
-All identical - this is intentional per the research.
+All agents:
+- Same instructions
+- Same temperature (0.7)
+- Same tools (Read, Grep, Glob, LS)
+- Use ultrathink (extended thinking)
+
+Diversity comes from sampling randomness and independent exploration, not different prompts.

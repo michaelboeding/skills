@@ -66,7 +66,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 | Skill | Description | API Keys |
 |-------|-------------|----------|
-| [code-council](skills/code-council/) | Research-aligned self-consistency (Wang et al., 2022). Spawns 5-10 identical solvers, uses majority voting to select answer. | None |
+| [code-council](skills/code-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent explores independently, majority voting. For critical problems. | None |
 | [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare (analysis only). | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
 | [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
 | [video-generation](skills/video-generation/) | Generate videos using AI models (OpenAI Sora, Google Veo 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
@@ -112,23 +112,25 @@ These agents are invoked automatically by code-council and should not be called 
 
 ### code-council
 
-Research-aligned self-consistency. Spawns multiple independent solvers with identical prompts, then uses majority voting:
+Research-aligned self-consistency for **critical problems**. Each agent explores and solves independently - no shared context:
 
 ```
 code council: fix this bug in my function
 
-code council: write a function to find duplicates in an array
+code council of 5: important production issue
 
-code council of 10: critical production bug, need maximum confidence
+code council of 10: critical bug, need maximum confidence
 ```
 
-How it works (based on Wang et al., 2022):
-1. Orchestrator gathers context and prepares problem statement
-2. **Same prompt** sent to 5-10 identical solver agents
-3. Each agent uses **ultrathink** (extended thinking) to reason deeply
+How it works (pure Wang et al., 2022):
+1. **Raw user prompt** sent to all agents (no pre-processing)
+2. Each agent **independently explores** the codebase
+3. Each agent uses **ultrathink** to reason and solve
 4. Solutions are grouped by their core approach
 5. **Majority voting** selects the most common answer
-6. Confidence based on voting distribution (5/5 agree = HIGH)
+6. Confidence based on voting distribution (5/7 agree = HIGH)
+
+**Note:** This is slower than shared-context approaches because each agent explores independently. Use for critical problems where accuracy matters more than speed.
 
 ### model-council
 
