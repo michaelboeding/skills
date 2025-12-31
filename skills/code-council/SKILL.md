@@ -73,13 +73,26 @@ User Request: "code council: fix this bug"
 
 ## Subagent Definitions
 
-Three solver agents are defined in the `agents/` directory:
+Solver agents are defined in the `agents/` directory:
 
+### Default (3 agents)
 | Agent | Role | Style | Temperature |
 |-------|------|-------|-------------|
 | `council-solver-a` | Straightforward | Conventional, direct, established patterns | 0.7 |
 | `council-solver-b` | Alternative | Creative, unconventional, different paradigms | 0.9 |
 | `council-solver-c` | Optimized | Performance-focused, production-ready, robust | 0.7 |
+
+### Extended (5 agents) - Use for critical/complex problems
+| Agent | Role | Style | Temperature |
+|-------|------|-------|-------------|
+| `council-solver-d` | Security | Edge cases, input validation, defensive coding | 0.7 |
+| `council-solver-e` | Minimal | Elegant, simple, fewest lines possible | 0.8 |
+
+**When to use 5 agents:**
+- Critical production code
+- Security-sensitive code
+- Complex bugs that need extra perspectives
+- User explicitly requests "code council of 5"
 
 Each agent:
 - Has READ-ONLY access to the codebase (can explore, not modify)

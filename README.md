@@ -83,11 +83,20 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 Subagents used by the code-council skill for independent solution generation:
 
+### Default (3 agents)
 | Agent | Role | Purpose |
 |-------|------|---------|
 | [council-solver-a](agents/council-solver-a.md) | Straightforward | Conventional, direct solutions using established patterns |
 | [council-solver-b](agents/council-solver-b.md) | Alternative | Creative, unconventional approaches |
 | [council-solver-c](agents/council-solver-c.md) | Optimized | Performance-focused, production-ready solutions |
+
+### Extended (5 agents) - for critical problems
+| Agent | Role | Purpose |
+|-------|------|---------|
+| [council-solver-d](agents/council-solver-d.md) | Security | Edge cases, input validation, defensive coding |
+| [council-solver-e](agents/council-solver-e.md) | Minimal | Elegant, simple solutions with fewest lines |
+
+Use `code council of 5` for critical/security-sensitive code.
 
 These agents are invoked automatically by code-council and should not be called directly.
 
