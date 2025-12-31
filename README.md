@@ -70,8 +70,8 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 | Skill | Description | API Keys |
 |-------|-------------|----------|
-| [code-council](skills/code-council/) | Ensemble problem-solving using ultrathink to generate multiple independent code solutions, test them, and synthesize the best answer. | None |
-| [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare. | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
+| [code-council](skills/code-council/) | Ensemble problem-solving using 3 independent subagents. Each generates a solution in isolation, then synthesizes the best answer. | None |
+| [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare (analysis only). | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
 | [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
 | [video-generation](skills/video-generation/) | Generate videos using AI models (OpenAI Sora, Google Veo 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
 | [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS). | `ELEVENLABS_API_KEY` or `OPENAI_API_KEY` |
@@ -79,11 +79,25 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 ---
 
+## Agents
+
+Subagents used by the code-council skill for independent solution generation:
+
+| Agent | Role | Purpose |
+|-------|------|---------|
+| [council-solver-a](agents/council-solver-a.md) | Straightforward | Conventional, direct solutions using established patterns |
+| [council-solver-b](agents/council-solver-b.md) | Alternative | Creative, unconventional approaches |
+| [council-solver-c](agents/council-solver-c.md) | Optimized | Performance-focused, production-ready solutions |
+
+These agents are invoked automatically by code-council and should not be called directly.
+
+---
+
 ## Usage Examples
 
 ### code-council
 
-Generate multiple code solutions and pick the best one (single model, multiple approaches):
+Spawns 3 independent solver subagents, each generating a solution in isolation, then synthesizes the best answer:
 
 ```
 code council: fix this bug in my function
@@ -92,6 +106,12 @@ code council: write a function to find duplicates in an array
 
 code council of 5: critical production bug, need extra confidence
 ```
+
+How it works:
+1. **Solver A** (straightforward) generates a conventional solution
+2. **Solver B** (alternative) generates a creative/different approach  
+3. **Solver C** (optimized) generates a production-ready solution
+4. Claude Code synthesizes the best elements from all three
 
 ### model-council
 
