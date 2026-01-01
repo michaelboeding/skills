@@ -164,13 +164,14 @@ How it works:
 2. Each agent **independently explores** the codebase
 3. Each agent implements the **complete feature**
 4. Implementations are **compared** across multiple dimensions
-5. **Synthesis** combines the best elements from each:
-   - Best architecture (matches codebase patterns)
-   - All edge cases discovered
-   - Robust error handling
-   - Best type definitions
+5. **Synthesis** combines the best elements from each
+6. **Implementation Plan** created with exact files and order
+7. **Execute** plan step-by-step
 
-**Output shows what each agent contributed** to the final solution.
+**Output shows:**
+- What each agent contributed
+- Implementation plan with file order
+- Synthesis breakdown (which agent provided what)
 
 ### model-council
 
