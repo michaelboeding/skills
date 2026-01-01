@@ -7,6 +7,7 @@ tools:
   - Glob
   - LS
 temperature: 0.7
+model: inherit
 ---
 
 # Debug Council Solver
