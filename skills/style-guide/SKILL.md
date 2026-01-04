@@ -33,6 +33,25 @@ This works for: Python, JavaScript, TypeScript, Go, Rust, Java, C#, Ruby, PHP, S
 
 ## Workflow
 
+### Step 0: Check for Existing Style Guide
+
+**Before starting, check if `.claude/codebase-style.md` already exists.**
+
+If it exists, ask the user:
+
+```
+A style guide already exists for this codebase (.claude/codebase-style.md).
+
+Options:
+1. View the existing style guide
+2. Regenerate it (will overwrite)
+3. Cancel
+
+What would you like to do?
+```
+
+Only proceed with analysis if the user chooses to regenerate.
+
 ### Step 1: Quick Language/Framework Detection
 
 Before spawning analyzers, do a quick check:
