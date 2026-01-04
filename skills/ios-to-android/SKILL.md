@@ -174,7 +174,16 @@ Create the Android implementation:
 - Follow the same naming conventions
 - Keep data structure shapes equivalent for API compatibility
 
-### Step 6: Report Results
+### Step 6: Copy Assets (if needed)
+
+**If the feature uses assets, offer to copy them:**
+
+Assets that may need to be copied:
+- Images, icons, colors, fonts, Lottie animations, sounds, etc.
+
+If assets are needed and the user wants them copied, use file operations to transfer them from the iOS codebase to the appropriate Android locations.
+
+### Step 7: Report Results
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
