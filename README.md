@@ -77,6 +77,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | [video-generation](skills/video-generation/) | Generate videos using AI (Veo 3.1 with audio, Sora). Text-to-video, image-to-video. | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
 | [voice-generation](skills/voice-generation/) | Generate speech using AI TTS (Gemini TTS, ElevenLabs, OpenAI). Multi-speaker support. | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
 | [music-generation](skills/music-generation/) | Generate music using AI (Lyria instrumental, Suno, Udio). | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
+| [brand-research](skills/brand-research/) | Analyze a brand from their website. Extracts colors, typography, voice, audience. Outputs reusable `brand_profile.json`. | None (uses browser) |
 
 ---
 
@@ -156,6 +157,33 @@ apt install ffmpeg        # Linux
 pip install google-genai
 ```
 
+### Using Brand Research with Producers
+
+For on-brand content, analyze the brand first:
+
+```
+USER: "Analyze Nike's brand, then create a product video for my sneakers"
+
+WORKFLOW:
+1. brand-research analyzes nike.com
+   → Extracts colors, typography, voice, audience
+   → Saves brand_profile.json
+
+2. video-producer uses brand_profile.json
+   → Matches Nike's visual style
+   → Uses appropriate music mood
+   → Follows voice guidelines
+
+RESULT: Video that feels "Nike-like"
+```
+
+**Brand Research uses 5 specialized agents** that analyze in parallel:
+- Visual Analyst (colors, fonts, imagery)
+- Voice Analyst (tone, messaging, copy style)
+- Product Analyst (offerings, USPs, pricing)
+- Audience Analyst (demographics, pain points)
+- Competitive Analyst (market position, differentiation)
+
 ---
 
 ## Agents
@@ -203,6 +231,20 @@ Focus: File ownership, shared contracts, parallel execution, integration.
 | `style-frontend` | Component patterns, styling, state (if applicable) |
 
 Focus: Language-agnostic detection, real examples from codebase, structured output.
+
+### Brand Analysts (for brand-research)
+
+5 specialized brand analysts that work in parallel:
+
+| Agent | Focus |
+|-------|-------|
+| `visual-analyst` | Colors, typography, logo, imagery style |
+| `voice-analyst` | Tone, messaging, taglines, copy patterns |
+| `product-analyst` | Offerings, features, USPs, pricing |
+| `audience-analyst` | Demographics, psychographics, pain points |
+| `competitive-analyst` | Market position, competitors, differentiation |
+
+Focus: Web scraping, pattern extraction, structured brand profile output.
 
 ---
 
