@@ -1,99 +1,155 @@
 ---
 name: video-generation
-description: This skill should be used when the user asks to "generate a video", "create a video", "make a video", "animate", "text to video", "video from image", "video of", or needs AI video generation using OpenAI Sora or Google Veo. Handles prompt crafting, API selection, and video delivery.
+description: >
+  Use this skill for AI video generation. Triggers include:
+  "generate video", "create video", "make video", "animate", "text to video", "video from image", "video of",
+  "animate image", "bring to life", "make it move", "add motion", "video with audio", "video with dialogue"
+  Supports text-to-video, image-to-video, video with dialogue/audio using Google Veo 3.1 (default) or OpenAI Sora.
 ---
 
 # Video Generation Skill
 
-Generate videos using AI video generation APIs (OpenAI Sora, Google Veo 3).
+Generate videos using AI (Google Veo 3.1, OpenAI Sora).
+
+**Capabilities:**
+- 🎬 **Text-to-Video**: Create videos from text descriptions
+- 🖼️ **Image-to-Video**: Animate images as the first frame
+- 🔊 **Audio Generation**: Dialogue, sound effects, ambient sounds (Veo 3+)
+- 🎭 **Reference Images**: Guide video content with up to 3 reference images (Veo 3.1)
 
 ## Prerequisites
 
-Environment variables must be configured. At least one API key is required:
+At least one API key is required:
 
-- `OPENAI_API_KEY` - For OpenAI Sora video generation
-- `GOOGLE_API_KEY` - For Google Veo 3 video generation
+- `GOOGLE_API_KEY` - For Google Veo (same key as image generation) ✅
+- `OPENAI_API_KEY` - For OpenAI Sora
 
-See the repository README for setup instructions.
+## Available Models
 
-## Available APIs
+### Google Veo Models (Recommended - Default)
 
-### Google Veo 3 (Recommended - Default)
-- **Best for**: Realistic videos, natural motion, high fidelity
-- **Resolutions**: Up to 1080p
-- **Durations**: Up to 8 seconds per generation
-- **Aspect ratios**: 16:9, 9:16, 1:1
-- **Features**: Text-to-video, high fidelity, natural physics, same API key as image generation
+| Model | Description | Audio | Best For |
+|-------|-------------|-------|----------|
+| `veo-3.1` | Latest, highest quality | ✅ Yes | Professional, dialogue, reference images |
+| `veo-3.1-fast` | Faster processing | ✅ Yes | Quick iterations |
+| `veo-3` | Previous generation | ✅ Yes | Standard quality |
+| `veo-3-fast` | Fast previous gen | ✅ Yes | Rapid prototyping |
+| `veo-2` | Older, silent | ❌ No | Silent videos only |
+
+**Veo 3.1 Features:**
+- 720p/1080p resolution
+- 4, 6, or 8 second duration
+- Native audio (dialogue, SFX, ambient)
+- Image-to-video (animate images)
+- Reference images (up to 3)
+- Video extension
 
 ### OpenAI Sora
 - **Best for**: Creative videos, cinematic quality, complex motion
 - **Resolutions**: 480p, 720p, 1080p
 - **Durations**: 5s, 10s, 15s, 20s
-- **Aspect ratios**: 16:9, 9:16, 1:1
-- **Features**: Text-to-video, image-to-video, video extensions
+- **Features**: Text-to-video, image-to-video
 
 ## Workflow
 
-### Step 1: Understand the Request
+### Step 1: Ask Clarifying Questions
 
-Parse the user's video request for:
-- **Subject/action**: What should happen in the video?
-- **Style**: Cinematic, documentary, animation, abstract?
-- **Duration**: How long should it be?
-- **Aspect ratio**: Landscape (16:9), portrait (9:16), square (1:1)?
-- **Camera motion**: Static, pan, zoom, tracking shot?
+Before generating, ask the user in a single message:
+
+---
+
+**Example prompt to user:**
+
+"I'll generate that video for you! Quick questions:
+
+1. **Do you have an image to animate?** (I can use it as the first frame)
+
+2. **Do you need dialogue or sound effects?** (Veo 3.1 generates audio)
+
+3. **Which model would you like?**
+   - `veo-3.1` - Latest, highest quality with audio (default)
+   - `veo-3.1-fast` - Faster processing with audio
+   - `veo-3` / `veo-3-fast` - Previous generation with audio
+   - `sora` - OpenAI, up to 20 seconds, no audio
+
+4. **Settings?**
+   - Duration: 4s, 6s, or 8s (default: 8s)
+   - Aspect ratio: 16:9 (landscape) or 9:16 (portrait)
+   - Resolution: 720p or 1080p"
+
+---
 
 ### Step 2: Craft the Prompt
 
-Transform the user request into an effective video generation prompt:
+Transform the user request into an effective video prompt:
 
 1. **Describe the scene**: Set the visual context
 2. **Specify action**: What moves, changes, happens
-3. **Include camera work**: "slow pan", "tracking shot", "static wide shot"
-4. **Add style descriptors**: "cinematic", "documentary", "film grain"
+3. **Include camera work**: "slow pan", "tracking shot", "dolly shot"
+4. **Add audio cues** (Veo 3+): Use quotes for dialogue, describe sounds
 5. **Set the mood**: Lighting, atmosphere, time of day
 
-**Example transformation:**
+**Example with dialogue (Veo 3.1):**
+- User: "a person discovering treasure"
+- Enhanced: "Close-up of a treasure hunter's face as torchlight flickers. He murmurs 'This must be it...' while brushing dust off an ancient chest. Sound of creaking hinges as he opens it, revealing golden light on his awestruck face. Cinematic, dramatic shadows."
+
+**Example without dialogue:**
 - User: "a dog running on a beach"
-- Enhanced: "Cinematic slow-motion shot of a golden retriever running joyfully along a pristine beach at sunset, waves gently lapping in the background, warm golden hour lighting, shallow depth of field, 4K quality, natural documentary style"
+- Enhanced: "Cinematic slow-motion shot of a golden retriever running joyfully along a beach at sunset, waves lapping, warm golden hour lighting, shallow depth of field"
 
-### Step 3: Select the API
+### Step 3: Select the Model
 
-**Default: Google Veo 3** (uses same API key as image generation)
+**Default: Google Veo 3.1** (latest, with audio)
 
-1. **If only one API is available**: Use it automatically.
-
-2. **If both APIs are available**: Default to **Veo 3** unless user specifically requests Sora.
-   - Veo 3 uses the same `GOOGLE_API_KEY` as image generation
-   - Only use Sora if user asks for it or needs features Veo lacks
-
-| Use Case | Recommended API | Reason |
-|----------|----------------|--------|
-| Default / Quick | Veo 3 | Same API key, faster |
-| Realistic scenes | Veo 3 | Natural physics |
-| Cinematic/artistic | Sora | Best creative control |
-| Complex motion | Sora | Better motion understanding |
-| Longer videos (>8s) | Sora | Supports up to 20s |
+| Use Case | Recommended Model | Reason |
+|----------|------------------|--------|
+| Default / Best quality | veo-3.1 | Latest, audio, reference images |
+| Quick iteration | veo-3.1-fast | Faster with audio |
+| Longer videos (>8s) | sora | Supports up to 20s |
+| Silent videos | veo-2 | No audio processing |
+| Cinematic/artistic | sora | Best creative control |
 
 ### Step 4: Generate the Video
 
 Execute the appropriate script from `${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/`:
 
-**For OpenAI Sora:**
+**For Google Veo 3.1 (default, with audio):**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --prompt "your enhanced prompt with 'dialogue in quotes'" \
+  --model "veo-3.1" \
+  --duration 8 \
+  --aspect-ratio "16:9" \
+  --resolution "720p"
+```
+
+**For Google Veo 3.1 with image input:**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --prompt "The cat slowly opens its eyes and yawns" \
+  --image "/path/to/cat.jpg" \
+  --model "veo-3.1" \
+  --duration 8
+```
+
+**For faster generation:**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --prompt "your prompt" \
+  --model "veo-3.1-fast"
+```
+
+**For OpenAI Sora (longer videos):**
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/sora.py \
   --prompt "your enhanced prompt" \
-  --duration 10 \
-  --resolution "1080p" \
-  --aspect-ratio "16:9"
+  --duration 20 \
+  --resolution "1080p"
 ```
 
-**For Google Veo 3:**
+**List available models:**
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
-  --prompt "your enhanced prompt" \
-  --duration 8 \
-  --aspect-ratio "16:9"
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py --list-models
 ```
 
 ### Step 5: Deliver the Result
@@ -121,6 +177,12 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
 
 ## Prompt Engineering Tips
 
+### For Audio (Veo 3.1)
+- **Dialogue**: Use quotes for speech: `"Hello!" she said excitedly`
+- **Sound effects**: Describe explicitly: `tires screeching, engine roaring`
+- **Ambient**: Describe the soundscape: `birds chirping, distant traffic`
+- **Example**: `A man whispers "Did you hear that?" as footsteps echo in the dark hallway`
+
 ### For Cinematic Quality
 - Include camera directions: "slow dolly", "tracking shot", "crane shot"
 - Specify lighting: "golden hour", "dramatic shadows", "soft diffused light"
@@ -131,21 +193,28 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
 - Include environmental details: "wind in hair", "leaves rustling"
 - Specify speed: "slow motion", "real-time", "time-lapse"
 
-### For Consistency
-- Use detailed descriptions for subjects
-- Maintain consistent style language
-- Reference previous successful prompts
+### For Image-to-Video
+- Describe what should change/move from the starting image
+- Be specific about the action: "the cat slowly opens its eyes"
+- Include environmental motion: "leaves blow past"
+
+### Negative Prompts
+- Describe what NOT to include: `--negative-prompt "cartoon, low quality, blurry"`
+- Don't use "no" or "don't" - just describe the unwanted elements
 
 ## API Comparison
 
-| Feature | Veo 3 (Default) | Sora |
-|---------|-----------------|------|
-| Provider | Google | OpenAI |
-| API Key | `GOOGLE_API_KEY` | `OPENAI_API_KEY` |
-| Max duration | 8 seconds | 20 seconds |
-| Resolution | Up to 1080p | Up to 1080p |
-| Aspect ratios | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1 |
-| Image-to-video | Yes | Yes |
-| Best for | Realistic, fast | Creative, cinematic |
-| Speed | Faster | Slower |
-| Same key as images | ✅ Yes | ❌ No |
+| Feature | Veo 3.1 (Default) | Veo 3.1 Fast | Sora |
+|---------|-------------------|--------------|------|
+| Provider | Google | Google | OpenAI |
+| API Key | `GOOGLE_API_KEY` | `GOOGLE_API_KEY` | `OPENAI_API_KEY` |
+| Max duration | 8 seconds | 8 seconds | 20 seconds |
+| Resolution | 720p, 1080p | 720p, 1080p | Up to 1080p |
+| Aspect ratios | 16:9, 9:16 | 16:9, 9:16 | 16:9, 9:16, 1:1 |
+| Audio (dialogue, SFX) | ✅ Yes | ✅ Yes | ❌ No |
+| Image-to-video | ✅ Yes | ✅ Yes | ✅ Yes |
+| Reference images | ✅ Up to 3 | ✅ Up to 3 | ❌ No |
+| Video extension | ✅ Yes | ✅ Yes | ❌ No |
+| Same key as images | ✅ Yes | ✅ Yes | ❌ No |
+| Speed | Standard | Faster | Slower |
+| Best for | Professional, dialogue | Quick iterations | Longer videos |
