@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 3.4.0** - Gemini Nano Banana Pro image generation, ~/.config/skills/.env support
+> **Version 4.0.0** - Producer skills for complete media production (video, podcast, audio, social)
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -73,10 +73,88 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation. Each agent builds the feature independently, then synthesizes best parts from each. | None |
 | [parallel-builder](skills/parallel-builder/) | Divide-and-conquer from specs/plans. Decomposes a plan into independent tasks, assigns each to an agent, executes in parallel waves, then integrates. | None |
 | [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare (analysis only). | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
-| [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
-| [video-generation](skills/video-generation/) | Generate videos using AI models (OpenAI Sora, Google Veo 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
-| [voice-generation](skills/voice-generation/) | Generate realistic speech using AI text-to-speech (ElevenLabs, OpenAI TTS). | `ELEVENLABS_API_KEY` or `OPENAI_API_KEY` |
-| [music-generation](skills/music-generation/) | Generate music and songs using AI (Suno, Udio). | `SUNO_API_KEY` or `UDIO_API_KEY` |
+| [image-generation](skills/image-generation/) | Generate images using AI (Gemini 3 Pro Image, DALL-E 3). Reference images, editing, style transfer. | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
+| [video-generation](skills/video-generation/) | Generate videos using AI (Veo 3.1 with audio, Sora). Text-to-video, image-to-video. | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
+| [voice-generation](skills/voice-generation/) | Generate speech using AI TTS (Gemini TTS, ElevenLabs, OpenAI). Multi-speaker support. | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
+| [music-generation](skills/music-generation/) | Generate music using AI (Lyria instrumental, Suno, Udio). | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
+
+---
+
+## Producer Skills (Orchestrators)
+
+**Producer skills combine multiple generation skills to create complete, polished media.** They handle the entire workflow: planning, generating assets, and assembling the final output.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              PRODUCER SKILLS (Orchestrators)                │
+│         Plan → Generate → Assemble → Deliver                │
+├─────────────────────────────────────────────────────────────┤
+│  video-producer    podcast-producer    audio-producer       │
+│  social-producer                                            │
+└───────────────────────────┬─────────────────────────────────┘
+                            │ uses
+┌───────────────────────────▼─────────────────────────────────┐
+│              GENERATION SKILLS (Single-purpose)             │
+├─────────────────────────────────────────────────────────────┤
+│  image-generation   video-generation   music-generation     │
+│  voice-generation                                           │
+└───────────────────────────┬─────────────────────────────────┘
+                            │ uses
+┌───────────────────────────▼─────────────────────────────────┐
+│                    MEDIA UTILS (Assembly)                   │
+├─────────────────────────────────────────────────────────────┤
+│  audio_concat    audio_mix    video_concat    video_merge   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Producer | Creates | Example |
+|----------|---------|---------|
+| [video-producer](skills/video-producer/) | Complete videos with voiceover + music | "Create a 30s product video for my headphones" |
+| [podcast-producer](skills/podcast-producer/) | Podcast episodes, interviews, dialogues | "Create a 5min podcast about AI with two hosts" |
+| [audio-producer](skills/audio-producer/) | Audiobooks, voiceovers, jingles, ads | "Create a 30s radio ad for our coffee brand" |
+| [social-producer](skills/social-producer/) | Multi-asset content packs | "Create a launch kit: 1 reel, 5 carousel images" |
+
+**All producer skills use `GOOGLE_API_KEY`** (same key for video, images, voice, music) and require **FFmpeg** for assembly.
+
+### How Producers Work
+
+1. **Understand** - Parse your request (duration, style, assets)
+2. **Plan** - Create storyboard/manifest of what to generate
+3. **Generate** - Call generation skills (Veo, Gemini TTS, Lyria, etc.)
+4. **Assemble** - Stitch everything together with FFmpeg
+5. **Deliver** - Provide final file + offer adjustments
+
+### Example: Creating a Product Video
+
+```
+USER: "Create a 30-second product video for my new wireless earbuds"
+
+PRODUCER WORKFLOW:
+1. Asks: Duration? Style? Have product images?
+2. Plans: 5 scenes (reveal, features, lifestyle, CTA)
+3. Generates:
+   - 5 video clips (Veo 3.1)
+   - Voiceover script (Gemini TTS)
+   - Background music (Lyria)
+4. Assembles:
+   - Concat clips with transitions
+   - Mix voice + music (music ducks under voice)
+   - Merge audio with video
+5. Delivers: final_product_video.mp4
+
+OUTPUT: Professional video with VO, music, transitions
+```
+
+### Prerequisites for Producers
+
+```bash
+# FFmpeg for media assembly
+brew install ffmpeg      # macOS
+apt install ffmpeg        # Linux
+
+# Python package for Google APIs
+pip install google-genai
+```
 
 ---
 
