@@ -125,28 +125,33 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/gemini_tts.py \
   --style "Speak with confident, premium brand voice. Measured pace, slight pauses between phrases."
 ```
 
-**Generate video clips (Veo 3.1):**
+**Generate all video clips in parallel (Veo 3.1):**
 
-Scene 1:
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
-  --prompt "Cinematic slow zoom on premium wireless earbuds emerging from shadow, dramatic lighting, product photography style, high-end commercial look" \
-  --model veo-3.1 \
-  --duration 6 \
-  --aspect-ratio 16:9 \
-  --silent
+Create a `scenes.json` file with all scenes:
+```json
+[
+  {"prompt": "Cinematic slow zoom on premium wireless earbuds emerging from shadow, dramatic lighting, product photography style, high-end commercial look", "duration": 6, "output": "scene1_hero.mp4"},
+  {"prompt": "Abstract sound wave visualization transitioning to person with eyes closed enjoying music through earbuds, blissful expression, cinematic", "duration": 8, "output": "scene2_sound.mp4"},
+  {"prompt": "Close-up of earbud fitting perfectly in ear, person running and moving freely, secure fit demonstration", "duration": 8, "output": "scene3_comfort.mp4"},
+  {"prompt": "Lifestyle montage: person using earbuds in coffee shop, gym, commuting, various urban settings", "duration": 8, "output": "scene4_lifestyle.mp4"},
+  {"prompt": "Premium product shot with brand logo on minimal dark background, elegant lighting", "duration": 4, "output": "scene5_cta.mp4"}
+]
 ```
 
-Scene 2:
+Generate all scenes simultaneously (~3 min instead of ~15 min):
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
-  --prompt "Abstract sound wave visualization transitioning to person with eyes closed enjoying music through earbuds, blissful expression, cinematic" \
-  --model veo-3.1 \
-  --duration 8 \
-  --silent
+  --batch scenes.json
 ```
 
-*(Continue for each scene...)*
+**Or generate scenes individually (slower):**
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --prompt "Scene prompt here" \
+  --model veo-3.1 \
+  --duration 6
+```
 
 **Or generate from user's product image:**
 ```bash

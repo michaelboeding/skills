@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.4.1** - Fixed API key handling in voice-generation and music-generation scripts
+> **Version 5.5.0** - Added parallel batch video generation, --output flag for TTS/music scripts
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 

@@ -24,8 +24,22 @@ from pathlib import Path
 try:
     from google import genai
     from google.genai import types
-except ImportError:
-    print("""
+except ImportError as e:
+    error_msg = str(e)
+    if "incompatible architecture" in error_msg or "mach-o file" in error_msg:
+        print(f"""
+╭─────────────────────────────────────────────────────────────────╮
+│  Architecture Mismatch Error                                    │
+╰─────────────────────────────────────────────────────────────────╯
+
+The installed packages have wrong architecture. Fix with:
+
+   pip install --force-reinstall pydantic pydantic-core google-genai
+
+Error: {error_msg[:100]}
+""", file=sys.stderr)
+    else:
+        print(f"""
 ╭─────────────────────────────────────────────────────────────────╮
 │  Missing Dependency: google-genai                               │
 ╰─────────────────────────────────────────────────────────────────╯
@@ -38,6 +52,7 @@ Or: pip install -r requirements.txt
 Or: pip install google-genai
 
 Note: Requires Python 3.10+
+{f'Error: {error_msg}' if error_msg else ''}
 """, file=sys.stderr)
     sys.exit(1)
 
@@ -150,7 +165,8 @@ def generate_speech_single(
     text: str,
     voice: str = DEFAULT_VOICE,
     model: str = DEFAULT_MODEL,
-    style: str = None
+    style: str = None,
+    output: str = None
 ) -> dict:
     """Generate single-speaker speech.
     
@@ -159,6 +175,7 @@ def generate_speech_single(
         voice: Voice name from VOICES
         model: 'flash' or 'pro'
         style: Optional style/direction prefix (e.g., "Say cheerfully:")
+        output: Optional output file path (default: auto-generated)
     
     Returns:
         dict with success/error and file path
@@ -207,8 +224,11 @@ def generate_speech_single(
             return {"error": "Empty audio data received"}
         
         # Save to file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"gemini_tts_{voice.lower()}_{timestamp}.wav"
+        if output:
+            filename = output
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"gemini_tts_{voice.lower()}_{timestamp}.wav"
         
         save_wave_file(filename, audio_data)
         
@@ -233,7 +253,8 @@ def generate_speech_single(
 def generate_speech_multi(
     text: str,
     speakers: list,
-    model: str = DEFAULT_MODEL
+    model: str = DEFAULT_MODEL,
+    output: str = None
 ) -> dict:
     """Generate multi-speaker speech (dialogue).
     
@@ -241,6 +262,7 @@ def generate_speech_multi(
         text: Dialogue text with speaker names
         speakers: List of (speaker_name, voice_name) tuples
         model: 'flash' or 'pro'
+        output: Optional output file path (default: auto-generated)
     
     Returns:
         dict with success/error and file path
@@ -299,9 +321,12 @@ def generate_speech_multi(
             return {"error": "Empty audio data received"}
         
         # Save to file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        speaker_names = "_".join([s[0].replace(" ", "")[:10] for s in speakers])
-        filename = f"gemini_tts_multi_{speaker_names}_{timestamp}.wav"
+        if output:
+            filename = output
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            speaker_names = "_".join([s[0].replace(" ", "")[:10] for s in speakers])
+            filename = f"gemini_tts_multi_{speaker_names}_{timestamp}.wav"
         
         save_wave_file(filename, audio_data)
         
@@ -395,6 +420,8 @@ STYLE TIPS:
                         help="List all available voices")
     parser.add_argument("--text-file", "-f",
                         help="Read text from file instead of --text")
+    parser.add_argument("--output", "-o",
+                        help="Output file path (default: auto-generated)")
     
     args = parser.parse_args()
     
@@ -453,17 +480,19 @@ STYLE TIPS:
         print(f"Text: {text[:100]}{'...' if len(text) > 100 else ''}")
         print()
         
-        result = generate_speech_multi(text, speakers, args.model)
+        result = generate_speech_multi(text, speakers, args.model, args.output)
     else:
         # Single-speaker mode
         print(f"Voice: {args.voice} ({VOICES.get(args.voice, '')})")
         print(f"Model: {MODELS.get(args.model, args.model)}")
         if args.style:
             print(f"Style: {args.style}")
+        if args.output:
+            print(f"Output: {args.output}")
         print(f"Text: {text[:100]}{'...' if len(text) > 100 else ''}")
         print()
         
-        result = generate_speech_single(text, args.voice, args.model, args.style)
+        result = generate_speech_single(text, args.voice, args.model, args.style, args.output)
     
     if "error" in result:
         print(f"\n❌ Error: {result['error']}", file=sys.stderr)

@@ -200,6 +200,58 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
 - Maximum 20 extensions total (~2.5 minutes)
 - Output resolution is 720p
 
+## Batch Generation (Parallel)
+
+**Generate multiple videos simultaneously** for faster multi-scene workflows. Instead of waiting 15+ minutes for 5 sequential videos, generate them all in parallel (~3 minutes total).
+
+### Create a scenes.json file:
+
+```json
+[
+  {"prompt": "Scene 1: Cinematic hero shot of wireless earbuds on dark surface", "duration": 6, "output": "scene1_hero.mp4"},
+  {"prompt": "Scene 2: Sound waves visualization, person enjoying music", "duration": 8, "output": "scene2_sound.mp4"},
+  {"prompt": "Scene 3: Close-up of earbud in ear, person exercising", "duration": 8, "output": "scene3_comfort.mp4"},
+  {"prompt": "Scene 4: Lifestyle montage, various settings", "duration": 8, "output": "scene4_lifestyle.mp4"},
+  {"prompt": "Scene 5: Product with logo on clean background", "duration": 4, "output": "scene5_cta.mp4"}
+]
+```
+
+### Generate all scenes in parallel:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --batch scenes.json
+```
+
+### With custom worker count:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --batch scenes.json \
+  --max-workers 3
+```
+
+### Batch config options per video:
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `prompt` | Video description (required) | - |
+| `model` | veo-3.1, veo-3.1-fast, etc. | veo-3.1 |
+| `duration` | 4, 6, or 8 seconds | 8 |
+| `aspect_ratio` | "16:9" or "9:16" | "16:9" |
+| `resolution` | "720p" or "1080p" | "720p" |
+| `image` | Path to image for image-to-video | - |
+| `negative_prompt` | What to avoid | - |
+| `output` | Custom output filename | auto-generated |
+
+### Speed comparison:
+
+| Scenes | Sequential | Parallel (5 workers) | Speedup |
+|--------|------------|---------------------|---------|
+| 3 | ~9 min | ~3 min | 3x |
+| 5 | ~15 min | ~3 min | 5x |
+| 10 | ~30 min | ~6 min | 5x |
+
 ### Step 5: Deliver the Result
 
 1. Provide the generated video file/URL

@@ -23,8 +23,22 @@ from pathlib import Path
 try:
     from google import genai
     from google.genai import types
-except ImportError:
-    print("""
+except ImportError as e:
+    error_msg = str(e)
+    if "incompatible architecture" in error_msg or "mach-o file" in error_msg:
+        print(f"""
+╭─────────────────────────────────────────────────────────────────╮
+│  Architecture Mismatch Error                                    │
+╰─────────────────────────────────────────────────────────────────╯
+
+The installed packages have wrong architecture. Fix with:
+
+   pip install --force-reinstall pydantic pydantic-core google-genai
+
+Error: {error_msg[:100]}
+""", file=sys.stderr)
+    else:
+        print(f"""
 ╭─────────────────────────────────────────────────────────────────╮
 │  Missing Dependency: google-genai                               │
 ╰─────────────────────────────────────────────────────────────────╯
@@ -37,6 +51,7 @@ Or: pip install -r requirements.txt
 Or: pip install google-genai
 
 Note: Requires Python 3.10+
+{f'Error: {error_msg}' if error_msg else ''}
 """, file=sys.stderr)
     sys.exit(1)
 
@@ -104,7 +119,8 @@ async def generate_music(
     brightness: float = None,
     density: float = None,
     temperature: float = 1.1,
-    mode: str = "quality"
+    mode: str = "quality",
+    output: str = None
 ) -> dict:
     """Generate music using Lyria RealTime API.
     
@@ -254,10 +270,13 @@ async def generate_music(
             all_audio = all_audio[:target_bytes]
         
         # Save as WAV file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        prompt_slug = prompts[0] if isinstance(prompts[0], str) else prompts[0][0]
-        prompt_slug = prompt_slug.replace(" ", "_")[:20]
-        filename = f"lyria_{prompt_slug}_{timestamp}.wav"
+        if output:
+            filename = output
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            prompt_slug = prompts[0] if isinstance(prompts[0], str) else prompts[0][0]
+            prompt_slug = prompt_slug.replace(" ", "_")[:20]
+            filename = f"lyria_{prompt_slug}_{timestamp}.wav"
         
         print(f"  Saving to {filename}...")
         
@@ -338,6 +357,8 @@ Prompt ideas:
                         help="Creativity 0.0-3.0 (default: 1.1)")
     parser.add_argument("--mode", "-m", choices=["quality", "diversity"], default="quality",
                         help="Generation mode (default: quality)")
+    parser.add_argument("--output", "-o",
+                        help="Output file path (default: auto-generated)")
     
     args = parser.parse_args()
     
@@ -358,7 +379,8 @@ Prompt ideas:
         brightness=args.brightness,
         density=args.density,
         temperature=args.temperature,
-        mode=args.mode
+        mode=args.mode,
+        output=args.output
     ))
     
     if "error" in result:

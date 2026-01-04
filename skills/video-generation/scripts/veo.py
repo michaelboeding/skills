@@ -28,15 +28,31 @@ from datetime import datetime
 import time
 import base64
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 # Check for google-genai package
 try:
     from google import genai
     from google.genai import types
     HAS_GENAI_SDK = True
-except ImportError:
+except ImportError as e:
     HAS_GENAI_SDK = False
-    print("""
+    error_msg = str(e)
+    if "incompatible architecture" in error_msg or "mach-o file" in error_msg:
+        print(f"""
+╭─────────────────────────────────────────────────────────────────╮
+│  Architecture Mismatch Error                                    │
+╰─────────────────────────────────────────────────────────────────╯
+
+The installed packages have wrong architecture. Fix with:
+
+   pip install --force-reinstall pydantic pydantic-core google-genai
+
+Error: {error_msg[:100]}
+""", file=sys.stderr)
+    else:
+        print(f"""
 ╭─────────────────────────────────────────────────────────────────╮
 │  Missing Dependency: google-genai                               │
 ╰─────────────────────────────────────────────────────────────────╯
@@ -49,6 +65,7 @@ Or: pip install -r requirements.txt
 Or: pip install google-genai
 
 Note: Requires Python 3.10+
+{f'Error: {error_msg}' if error_msg else ''}
 """, file=sys.stderr)
     sys.exit(1)
 
@@ -471,6 +488,158 @@ def generate_video(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
         return {"error": f"Request failed: {str(e)}"}
 
 
+# Thread-safe print lock for batch mode
+_print_lock = threading.Lock()
+
+
+def _safe_print(msg: str):
+    """Thread-safe print for parallel generation."""
+    with _print_lock:
+        print(msg)
+
+
+def _generate_single_for_batch(idx: int, config: dict, total: int) -> dict:
+    """Generate a single video as part of a batch (thread worker).
+    
+    Args:
+        idx: Index of this video in the batch (0-based)
+        config: Video configuration dict with prompt, model, duration, etc.
+        total: Total number of videos in batch
+    
+    Returns:
+        dict with index, success/error, and file path
+    """
+    scene_num = idx + 1
+    prompt = config.get("prompt", "")
+    model = config.get("model", DEFAULT_MODEL)
+    duration = config.get("duration", 8)
+    aspect_ratio = config.get("aspect_ratio", "16:9")
+    resolution = config.get("resolution", "720p")
+    image = config.get("image")
+    negative_prompt = config.get("negative_prompt")
+    output_name = config.get("output")  # Optional custom output filename
+    
+    _safe_print(f"🎬 [{scene_num}/{total}] Starting: {prompt[:50]}...")
+    
+    # Suppress individual video prints during batch
+    result = generate_video(
+        prompt=prompt,
+        model=model,
+        duration=duration,
+        aspect_ratio=aspect_ratio,
+        resolution=resolution,
+        image=image,
+        negative_prompt=negative_prompt
+    )
+    
+    # Rename output file if custom name specified
+    if result.get("success") and output_name and result.get("file"):
+        try:
+            os.rename(result["file"], output_name)
+            result["file"] = output_name
+        except OSError:
+            pass  # Keep original name if rename fails
+    
+    if result.get("success"):
+        _safe_print(f"✅ [{scene_num}/{total}] Complete: {result.get('file')}")
+    else:
+        _safe_print(f"❌ [{scene_num}/{total}] Failed: {result.get('error', 'Unknown error')}")
+    
+    result["index"] = idx
+    result["scene"] = scene_num
+    return result
+
+
+def generate_videos_batch(configs: list, max_workers: int = 5) -> dict:
+    """Generate multiple videos in parallel.
+    
+    Args:
+        configs: List of video configuration dicts, each with:
+            - prompt (required): Video description
+            - model: Model to use (default: veo-3.1)
+            - duration: 4, 6, or 8 seconds (default: 8)
+            - aspect_ratio: "16:9" or "9:16" (default: "16:9")
+            - resolution: "720p" or "1080p" (default: "720p")
+            - image: Optional image path for image-to-video
+            - negative_prompt: What not to include
+            - output: Optional custom output filename
+        max_workers: Maximum parallel generations (default: 5)
+    
+    Returns:
+        dict with:
+            - success: True if all succeeded
+            - results: List of individual results
+            - files: List of successfully generated files
+            - failed: Count of failed generations
+            - total_time: Total execution time in seconds
+    """
+    if not configs:
+        return {"error": "No video configs provided"}
+    
+    # Validate all configs have prompts
+    for i, cfg in enumerate(configs):
+        if not cfg.get("prompt"):
+            return {"error": f"Config {i+1} missing required 'prompt' field"}
+    
+    total = len(configs)
+    print(f"\n🎬 Batch Video Generation")
+    print(f"=" * 50)
+    print(f"Videos to generate: {total}")
+    print(f"Parallel workers: {min(max_workers, total)}")
+    print(f"=" * 50)
+    print()
+    
+    start_time = time.time()
+    results = []
+    
+    # Use ThreadPoolExecutor for parallel generation
+    with ThreadPoolExecutor(max_workers=min(max_workers, total)) as executor:
+        # Submit all jobs
+        futures = {
+            executor.submit(_generate_single_for_batch, i, cfg, total): i
+            for i, cfg in enumerate(configs)
+        }
+        
+        # Collect results as they complete
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+                results.append(result)
+            except Exception as e:
+                idx = futures[future]
+                results.append({
+                    "index": idx,
+                    "scene": idx + 1,
+                    "error": str(e)
+                })
+    
+    # Sort results by original index
+    results.sort(key=lambda x: x.get("index", 0))
+    
+    elapsed = time.time() - start_time
+    successful = [r for r in results if r.get("success")]
+    failed = [r for r in results if not r.get("success")]
+    
+    print()
+    print(f"=" * 50)
+    print(f"✅ Batch complete in {elapsed:.1f}s")
+    print(f"   Successful: {len(successful)}/{total}")
+    if failed:
+        print(f"   Failed: {len(failed)}/{total}")
+    print(f"=" * 50)
+    
+    return {
+        "success": len(failed) == 0,
+        "results": results,
+        "files": [r.get("file") for r in successful if r.get("file")],
+        "successful": len(successful),
+        "failed": len(failed),
+        "total": total,
+        "total_time": round(elapsed, 1),
+        "avg_time_per_video": round(elapsed / total, 1) if total > 0 else 0
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate videos using Google Veo",
@@ -509,6 +678,33 @@ Video Extension (for long-form continuity):
   - Each extension adds ~7 seconds
   - Output is 720p
   - Maximum 20 extensions (~2.5 minutes total)
+
+BATCH MODE (parallel generation):
+  Generate multiple videos simultaneously for faster workflows.
+  
+  # Create a scenes.json file:
+  [
+    {"prompt": "Scene 1: Hero shot of product", "duration": 6},
+    {"prompt": "Scene 2: Feature highlights", "duration": 8},
+    {"prompt": "Scene 3: Lifestyle usage", "duration": 8},
+    {"prompt": "Scene 4: Logo and CTA", "duration": 4, "output": "scene4_cta.mp4"}
+  ]
+  
+  # Generate all scenes in parallel:
+  python veo.py --batch scenes.json
+  
+  # With custom worker count:
+  python veo.py --batch scenes.json --max-workers 3
+  
+  Batch config options per video:
+    - prompt (required): Video description
+    - model: veo-3.1, veo-3.1-fast, etc.
+    - duration: 4, 6, or 8
+    - aspect_ratio: "16:9" or "9:16"
+    - resolution: "720p" or "1080p"
+    - image: Path to image for image-to-video
+    - negative_prompt: What to avoid
+    - output: Custom output filename
         """
     )
     parser.add_argument("--prompt", "-p",
@@ -540,7 +736,46 @@ Video Extension (for long-form continuity):
     parser.add_argument("--extend-times", "-x", type=int, default=1,
                         help="Number of times to extend (each adds ~7s, max 20)")
     
+    # Batch/parallel options
+    parser.add_argument("--batch", "-b",
+                        help="Generate multiple videos in parallel from JSON file")
+    parser.add_argument("--max-workers", "-w", type=int, default=5,
+                        help="Max parallel workers for batch mode (default: 5)")
+    
     args = parser.parse_args()
+    
+    # Handle batch mode
+    if args.batch:
+        batch_file = Path(args.batch)
+        if not batch_file.exists():
+            print(f"Error: Batch file not found: {args.batch}", file=sys.stderr)
+            sys.exit(1)
+        
+        try:
+            with open(batch_file) as f:
+                configs = json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in batch file: {e}", file=sys.stderr)
+            sys.exit(1)
+        
+        if not isinstance(configs, list):
+            print("Error: Batch file must contain a JSON array of video configs", file=sys.stderr)
+            sys.exit(1)
+        
+        result = generate_videos_batch(configs, args.max_workers)
+        
+        if result.get("error"):
+            print(f"Error: {result['error']}", file=sys.stderr)
+            sys.exit(1)
+        
+        print()
+        print("Generated files:")
+        for f in result.get("files", []):
+            print(f"  - {f}")
+        print()
+        print(json.dumps(result, indent=2))
+        
+        sys.exit(0 if result.get("success") else 1)
     
     # Handle extension mode
     if args.extend:
