@@ -68,6 +68,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 |-------|-------------|----------|
 | [debug-council](skills/debug-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent debugs independently, majority voting. For bugs & algorithms. | None |
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation. Each agent builds the feature independently, then synthesizes best parts from each. | None |
+| [parallel-builder](skills/parallel-builder/) | Divide-and-conquer from specs/plans. Decomposes a plan into independent tasks, assigns each to an agent, executes in parallel waves, then integrates. | None |
 | [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare (analysis only). | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
 | [image-generation](skills/image-generation/) | Generate images using AI models (OpenAI DALL-E 3, Google Imagen 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
 | [video-generation](skills/video-generation/) | Generate videos using AI models (OpenAI Sora, Google Veo 3). | `OPENAI_API_KEY` or `GOOGLE_API_KEY` |
@@ -98,15 +99,31 @@ Focus: Root cause analysis, finding the ONE correct fix, chain-of-thought debugg
 
 Focus: Codebase pattern matching, edge case coverage, comprehensive implementation.
 
+### Builder Solvers (for parallel-builder)
+
+10 builder solver agents focused on implementing assigned pieces:
+
+| Agents | Purpose |
+|--------|---------|
+| `builder-solver-1` through `builder-solver-10` | Implement assigned piece of decomposed plan |
+
+Focus: File ownership, shared contracts, parallel execution, integration.
+
 ---
 
-Both agent types:
+Both debug and feature agent types:
 - Same temperature (0.7) for sampling diversity
 - Same tools (Read, Grep, Glob, LS)
 - Use ultrathink (extended thinking)
 - Explore the codebase independently
 
-Both skills will ask you how many agents to use (3-10), or specify directly:
+Builder agents are different:
+- Lower temperature (0.4) for consistency
+- Full tools including Write and Shell
+- Implement assigned pieces only
+- Follow shared contracts exactly
+
+Council skills will ask you how many agents to use (3-10), or specify directly:
 
 | Mode | Agents | Use Case |
 |------|--------|----------|
@@ -117,9 +134,11 @@ Both skills will ask you how many agents to use (3-10), or specify directly:
 | `feature council of 5` | 5 | Standard features |
 | `feature council of 10` | 10 | Complex features |
 
-**Minimum 3 agents** - needed for meaningful voting/synthesis.
+**Minimum 3 agents** for councils - needed for meaningful voting/synthesis.
 
-These agents are invoked automatically by the council skills and should not be called directly.
+Parallel-builder uses as many agents as needed based on task decomposition (up to 10).
+
+These agents are invoked automatically by their skills and should not be called directly.
 
 ---
 
@@ -172,6 +191,37 @@ How it works:
 - What each agent contributed
 - Implementation plan with file order
 - Synthesis breakdown (which agent provided what)
+
+### parallel-builder
+
+Divide-and-conquer implementation from specs, PRDs, or plans. Decomposes into parallel tasks:
+
+```
+parallel-builder from docs/auth-prd.md
+
+parallel-builder: full CRUD API for blog with posts, comments, users
+
+parallel-builder something like src/features/users but for products
+```
+
+How it works:
+1. **Analyze the plan** - identify independent work units and dependencies
+2. **Define shared contracts** - types/interfaces all agents must use
+3. **Show execution plan** - user confirms task breakdown and waves
+4. **Execute in waves** - parallel agents build their pieces simultaneously
+5. **Integrate** - merge all pieces, resolve conflicts, verify
+
+**Key differences from feature-council:**
+- Each agent builds a **different piece** (not the same feature)
+- Focus on **speed** via parallelization (not diversity of approaches)
+- Agents respect **file ownership** (no overlaps)
+- Results are **integrated** (not synthesized)
+
+**Output shows:**
+- Wave execution progress
+- Files created per agent
+- Integration results
+- Verification status
 
 ### model-council
 
