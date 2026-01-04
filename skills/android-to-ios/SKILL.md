@@ -106,7 +106,7 @@ Thoroughly understand:
 
 **Before implementing, understand how THIS iOS codebase does things:**
 
-1. Check if `.claude/codebase-style.md` exists
+1. **Check if `.claude/codebase-style.md` exists** - If yes, use it and skip manual analysis
 2. Find similar features in the codebase
 3. Note the patterns used:
    - Architecture pattern
@@ -226,10 +226,23 @@ If assets are needed and the user wants them copied, use file operations to tran
 
 ## Integration with style-guide
 
-If `.claude/codebase-style.md` exists:
-- Reference it before implementing
-- Follow all documented patterns
-- Use the same conventions throughout
+**Recommended:** Run the `style-guide` skill on the iOS codebase first.
+
+```
+style guide     ← Run this first on iOS codebase
+android to ios  ← Then run this
+```
+
+This generates `.claude/codebase-style.md` which this skill will automatically reference.
+
+**If style guide exists:**
+- Skip manual pattern analysis (Step 3)
+- Reference the documented patterns directly
+- Ensure perfect consistency with existing code
+
+**If no style guide:**
+- This skill will analyze patterns manually (Step 3)
+- Consider running `style-guide` first for better results
 
 ---
 
