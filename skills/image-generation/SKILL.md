@@ -18,15 +18,15 @@ See the repository README for setup instructions.
 
 ## Available APIs
 
-### OpenAI DALL-E 3 (Recommended)
+### OpenAI DALL-E 3
 - **Best for**: High-quality, creative images with excellent prompt understanding
 - **Sizes**: 1024x1024, 1024x1792, 1792x1024
 - **Styles**: vivid (dramatic, hyper-real) or natural (realistic)
 - **Quality**: standard or hd
 
-### Google Gemini Native Image Generation
+### Google Gemini Native Image Generation (Recommended)
 - **Nano Banana** (`gemini-2.5-flash-image`): Fast, efficient, 1K resolution, up to 3 reference images
-- **Nano Banana Pro** (`gemini-3-pro-image-preview`): Professional quality, up to 4K, thinking mode, up to 14 reference images
+- **Nano Banana Pro** (`gemini-3-pro-image-preview`): Professional quality, up to 4K, thinking mode, up to 14 reference images (default)
 - **Aspect ratios**: 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
 - **Resolutions** (Pro only): 1K, 2K, 4K
 - **Features**: 
@@ -88,15 +88,13 @@ Check which API keys are available and let the user choose:
 
 1. **Check which API keys are configured** in environment:
    - `OPENAI_API_KEY` → DALL-E 3 available
-   - `GOOGLE_API_KEY` → Imagen 3 available
+   - `GOOGLE_API_KEY` → Gemini (Nano Banana Pro) available
 
 2. **If only one API is available**: Use it automatically, no need to ask.
 
-3. **If both APIs are available**: Ask the user which one to use:
-   - "I can generate this image using either **DALL-E 3** (OpenAI) or **Gemini** (Google). Which would you prefer?"
-   - Briefly mention the differences if helpful:
-     - DALL-E 3: Better for creative/artistic images, has vivid and natural styles
-     - Gemini Nano Banana Pro: Up to 4K resolution, advanced text rendering, thinking mode
+3. **If both APIs are available**: Default to **Google Gemini (Nano Banana Pro)** unless the user specifically requests DALL-E.
+   - Gemini is preferred because: up to 4K resolution, reference image support, advanced text rendering
+   - Only use DALL-E if user asks for it or if Gemini fails
 
 ### Step 4: Generate the Image
 

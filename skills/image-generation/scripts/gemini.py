@@ -27,10 +27,14 @@ from pathlib import Path
 
 
 def load_env():
-    """Load environment variables from .env file in repo root."""
-    current = Path(__file__).resolve().parent
-    for _ in range(10):
-        env_file = current / ".env"
+    """Load environment variables from .env file.
+    
+    Checks these locations in order:
+    1. ~/.config/skills/.env (recommended)
+    2. ~/.env (home directory)
+    3. Walk up from script location (for local development)
+    """
+    def parse_env_file(env_file: Path):
         if env_file.exists():
             with open(env_file) as f:
                 for line in f:
@@ -41,6 +45,20 @@ def load_env():
                         value = value.strip().strip('"').strip("'")
                         if key and value and key not in os.environ:
                             os.environ[key] = value
+            return True
+        return False
+    
+    # Check standard locations first
+    home = Path.home()
+    if parse_env_file(home / ".config" / "skills" / ".env"):
+        return
+    if parse_env_file(home / ".env"):
+        return
+    
+    # Fall back to walking up from script location
+    current = Path(__file__).resolve().parent
+    for _ in range(10):
+        if parse_env_file(current / ".env"):
             return
         current = current.parent
 
