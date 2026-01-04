@@ -161,6 +161,45 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py --list-models
 ```
 
+## Video Extension (For Long-Form Continuity)
+
+**The `--extend` flag creates TRUE visual continuity** by continuing from where a previous Veo video ended. This is the best approach for long-form videos.
+
+**Basic extension:**
+```bash
+# First, generate initial clip
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --prompt "A person walks through a forest at sunrise" \
+  --duration 8
+
+# Extend it with new content (adds ~7 seconds)
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --extend veo_veo-3.1_20260104_120000.mp4 \
+  --prompt "Continue walking, discover a hidden stream"
+```
+
+**Multiple extensions (for longer videos):**
+```bash
+# Extend 5 times (adds ~35 seconds of continuation)
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --extend initial_clip.mp4 \
+  --prompt "Keep exploring the forest, encounter wildlife" \
+  --extend-times 5
+```
+
+**Extension vs Stitching:**
+
+| Approach | Result | Use Case |
+|----------|--------|----------|
+| **Extension** | True continuity, same characters/scene | Long continuous shots |
+| **Stitching** | Separate clips with transitions | Scene changes, montages |
+
+**Extension Limits:**
+- Input video must be Veo-generated (max 141 seconds)
+- Each extension adds ~7 seconds
+- Maximum 20 extensions total (~2.5 minutes)
+- Output resolution is 720p
+
 ### Step 5: Deliver the Result
 
 1. Provide the generated video file/URL

@@ -101,6 +101,189 @@ def load_image_as_base64(image_path: str) -> tuple:
     return image_data, mime_type
 
 
+def load_video_as_base64(video_path: str) -> tuple:
+    """Load a video file and return base64 data and mime type."""
+    path = Path(video_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Video not found: {video_path}")
+    
+    suffix = path.suffix.lower()
+    mime_types = {
+        ".mp4": "video/mp4",
+        ".mov": "video/quicktime",
+        ".avi": "video/x-msvideo",
+        ".webm": "video/webm",
+    }
+    mime_type = mime_types.get(suffix, "video/mp4")
+    
+    with open(path, "rb") as f:
+        video_data = base64.b64encode(f.read()).decode()
+    
+    return video_data, mime_type
+
+
+def extend_video(
+    video_path: str,
+    prompt: str = None,
+    model: str = DEFAULT_MODEL,
+    num_extensions: int = 1
+) -> dict:
+    """Extend an existing Veo-generated video.
+    
+    Args:
+        video_path: Path to the video to extend (must be Veo-generated)
+        prompt: Optional prompt to guide the extension
+        model: Model to use (must be veo-3.1)
+        num_extensions: Number of times to extend (each adds ~7 seconds)
+    
+    Returns:
+        dict with success/error and output file path
+    
+    Note: 
+        - Only works with Veo 3.1
+        - Input video must be Veo-generated, max 141 seconds
+        - Each extension adds ~7 seconds
+        - Max 20 extensions total
+        - Output resolution is 720p
+    """
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        return {"error": "GOOGLE_API_KEY environment variable not set. Get your key at https://aistudio.google.com/apikey"}
+    
+    if not os.path.exists(video_path):
+        return {"error": f"Video file not found: {video_path}"}
+    
+    # Extension only works with Veo 3.1
+    model_id = "veo-3.1-generate-preview"
+    
+    if num_extensions < 1 or num_extensions > 20:
+        return {"error": "num_extensions must be between 1 and 20"}
+    
+    current_video_path = video_path
+    final_result = None
+    
+    for ext_num in range(num_extensions):
+        print(f"\n📹 Extension {ext_num + 1}/{num_extensions}...")
+        
+        try:
+            # Load current video
+            video_data, mime_type = load_video_as_base64(current_video_path)
+        except FileNotFoundError as e:
+            return {"error": str(e)}
+        
+        # API endpoint
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateVideo?key={api_key}"
+        
+        headers = {
+            "Content-Type": "application/json"
+        }
+        
+        # Build request data for extension
+        data = {
+            "video": {
+                "bytesBase64Encoded": video_data,
+                "mimeType": mime_type
+            },
+            "generationConfig": {
+                "numberOfVideos": 1,
+                "resolution": "720p"  # Extension only supports 720p
+            }
+        }
+        
+        if prompt:
+            data["prompt"] = prompt
+        
+        try:
+            # Create extension request
+            request = Request(url, data=json.dumps(data).encode(), headers=headers, method="POST")
+            with urlopen(request, timeout=120) as response:
+                result = json.loads(response.read().decode())
+            
+            # Check for operation/job ID
+            operation_name = result.get("name") or result.get("operationId")
+            
+            if operation_name:
+                # Poll for completion
+                poll_url = f"https://generativelanguage.googleapis.com/v1beta/{operation_name}?key={api_key}"
+                print("Extending video... This may take a few minutes.")
+                
+                max_attempts = 72  # Up to 6 minutes
+                for attempt in range(max_attempts):
+                    try:
+                        poll_request = Request(poll_url, headers=headers)
+                        with urlopen(poll_request, timeout=30) as response:
+                            status = json.loads(response.read().decode())
+                        
+                        if status.get("done"):
+                            if "error" in status:
+                                return {"error": f"Extension failed: {status['error']}"}
+                            
+                            # Extract video from response
+                            video_response = status.get("response", {})
+                            videos = video_response.get("generatedVideos", [])
+                            
+                            if not videos:
+                                return {"error": "No video in extension response"}
+                            
+                            video_obj = videos[0].get("video", {})
+                            video_uri = video_obj.get("uri") or videos[0].get("uri")
+                            
+                            # Download the extended video
+                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                            filename = f"veo_extended_{ext_num + 1}_{timestamp}.mp4"
+                            
+                            if video_uri:
+                                print(f"Downloading extended video to {filename}...")
+                                urlretrieve(video_uri, filename)
+                            elif "bytesBase64Encoded" in video_obj:
+                                print(f"Saving extended video to {filename}...")
+                                video_bytes = base64.b64decode(video_obj["bytesBase64Encoded"])
+                                with open(filename, "wb") as f:
+                                    f.write(video_bytes)
+                            else:
+                                return {"error": "No video data in response"}
+                            
+                            # Update for next iteration
+                            current_video_path = filename
+                            final_result = {
+                                "success": True,
+                                "file": filename,
+                                "model": model_id,
+                                "extensions_applied": ext_num + 1,
+                                "original_video": video_path,
+                                "prompt": prompt
+                            }
+                            break
+                        
+                        if attempt % 6 == 0:
+                            elapsed = attempt * 5
+                            print(f"Still extending... ({elapsed}s elapsed)")
+                        time.sleep(5)
+                        
+                    except Exception as poll_error:
+                        if attempt < max_attempts - 1:
+                            time.sleep(5)
+                            continue
+                        return {"error": f"Polling failed: {str(poll_error)}"}
+                else:
+                    return {"error": "Extension timed out after 6 minutes"}
+            else:
+                return {"error": f"Unexpected response: {json.dumps(result)[:200]}"}
+                
+        except HTTPError as e:
+            error_body = e.read().decode() if e.fp else str(e)
+            try:
+                error_json = json.loads(error_body)
+                error_message = error_json.get("error", {}).get("message", error_body)
+            except:
+                error_message = error_body
+            return {"error": f"API error ({e.code}): {error_message}"}
+        except Exception as e:
+            return {"error": f"Extension request failed: {str(e)}"}
+    
+    return final_result
+
+
 def generate_video(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
                    aspect_ratio: str = "16:9", resolution: str = "720p",
                    image: str = None, negative_prompt: str = None) -> dict:
@@ -310,9 +493,23 @@ Examples:
   
   # Faster generation
   python veo.py -p "Ocean waves" --model veo-3.1-fast
+  
+  # EXTEND an existing video (for continuity)
+  python veo.py --extend previous.mp4 -p "Continue walking into the forest"
+  
+  # Extend multiple times (each adds ~7 seconds)
+  python veo.py --extend clip.mp4 -p "Keep exploring" --extend-times 3
+
+Video Extension (for long-form continuity):
+  The --extend flag continues from where a previous Veo video ended.
+  This creates TRUE visual continuity, not just stitching.
+  - Only works with Veo-generated videos (max 141s input)
+  - Each extension adds ~7 seconds
+  - Output is 720p
+  - Maximum 20 extensions (~2.5 minutes total)
         """
     )
-    parser.add_argument("--prompt", "-p", required=True, 
+    parser.add_argument("--prompt", "-p",
                         help="Video prompt (use quotes for dialogue with Veo 3+)")
     parser.add_argument("--model", "-m", default=DEFAULT_MODEL,
                         choices=list(MODELS.keys()),
@@ -335,7 +532,45 @@ Examples:
     parser.add_argument("--silent", "-s", action="store_true",
                         help="Generate silent video (uses veo-2, no audio)")
     
+    # Extension options
+    parser.add_argument("--extend", "-e",
+                        help="Extend an existing Veo-generated video (path to .mp4)")
+    parser.add_argument("--extend-times", "-x", type=int, default=1,
+                        help="Number of times to extend (each adds ~7s, max 20)")
+    
     args = parser.parse_args()
+    
+    # Handle extension mode
+    if args.extend:
+        print(f"🎬 Extending video with Google Veo 3.1...")
+        print(f"Input: {args.extend}")
+        print(f"Extensions: {args.extend_times} (each adds ~7 seconds)")
+        if args.prompt:
+            print(f"Prompt: {args.prompt[:100]}{'...' if len(args.prompt) > 100 else ''}")
+        print()
+        
+        result = extend_video(
+            args.extend,
+            args.prompt,
+            "veo-3.1",  # Extension only works with Veo 3.1
+            args.extend_times
+        )
+        
+        if "error" in result:
+            print(f"Error: {result['error']}", file=sys.stderr)
+            sys.exit(1)
+        else:
+            print()
+            print("✅ Video extended successfully!")
+            print(f"Saved to: {result['file']}")
+            print(f"Extensions applied: {result['extensions_applied']}")
+            print("Note: Extended video includes original + new content")
+            print(json.dumps(result, indent=2))
+        return
+    
+    # Regular generation mode - prompt is required
+    if not args.prompt:
+        parser.error("--prompt/-p is required for video generation (use --extend for extension)")
     
     # --silent flag overrides model to veo-2
     if args.silent:
@@ -375,7 +610,7 @@ Examples:
         print(f"Error: {result['error']}", file=sys.stderr)
         sys.exit(1)
     else:
-        print("✓ Video generated successfully!")
+        print("✅ Video generated successfully!")
         print(f"Saved to: {result['file']}")
         if result.get("has_audio"):
             print("Audio: Included (dialogue, sound effects, ambient)")
