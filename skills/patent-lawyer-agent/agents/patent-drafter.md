@@ -157,6 +157,29 @@ Draft both types:
 
 After drafting the document, **generate actual patent figures** using the `image-generation` skill.
 
+### Required Figure Style
+
+**ALL patent figures MUST use this consistent style:**
+
+```
+Style: Technical patent illustration
+Colors: Black and white ONLY (no color, no grayscale shading)
+Lines: Clean, precise line art
+Background: Pure white
+Labels: Reference numerals (10, 12, 14...) matching the description
+Text: Clear, readable component labels
+Format: PNG, 2K resolution
+Aspect: 4:3 (standard patent figure ratio)
+```
+
+**Style keywords to ALWAYS include in prompts:**
+- "technical patent drawing"
+- "clean black and white line art"
+- "engineering illustration style"
+- "white background"
+- "labeled with reference numerals"
+- "no shading, no color"
+
 ### Figure Types to Generate
 
 | Figure Type | When to Use | Example Prompt |
@@ -208,6 +231,29 @@ After drafting the document, generate figures in this order:
 4. **Additional figures** as needed for detail views
 
 **Save figures as:** `patent_fig_1.png`, `patent_fig_2.png`, etc.
+
+### Embedding Figures in Document
+
+**IMPORTANT:** After generating each figure, embed it directly in the patent document:
+
+```markdown
+## DRAWINGS
+
+![FIG. 1 - Perspective View](patent_fig_1.png)
+*FIG. 1 is a perspective view of the [invention] showing [key components].*
+
+![FIG. 2 - Cross-Section](patent_fig_2.png)
+*FIG. 2 is a cross-sectional view showing [internal mechanism].*
+
+![FIG. 3 - Block Diagram](patent_fig_3.png)
+*FIG. 3 is a block diagram illustrating [system architecture].*
+```
+
+**Ensure:**
+- Each figure is embedded with proper Markdown image syntax
+- Caption matches the "Brief Description of the Drawings" entry
+- Reference numerals in figure match those in Detailed Description
+- All figures render correctly in the final document
 
 ---
 
