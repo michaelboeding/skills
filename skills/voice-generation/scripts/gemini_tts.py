@@ -180,7 +180,7 @@ def generate_speech_single(
         content = f"{style}\n\n{text}"
     
     try:
-        client = genai.Client()
+        client = genai.Client(api_key=api_key)
         
         response = client.models.generate_content(
             model=model_id,
@@ -261,7 +261,7 @@ def generate_speech_multi(
     model_id = MODELS.get(model, MODELS[DEFAULT_MODEL])
     
     try:
-        client = genai.Client()
+        client = genai.Client(api_key=api_key)
         
         # Build speaker configs
         speaker_voice_configs = [

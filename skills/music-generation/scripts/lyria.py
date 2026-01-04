@@ -161,7 +161,7 @@ async def generate_music(
     print()
     
     try:
-        client = genai.Client(http_options={'api_version': 'v1alpha'})
+        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1alpha'})
         
         async def receive_audio(session):
             nonlocal audio_chunks, total_samples

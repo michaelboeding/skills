@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.4.0** - Added chart-generation skill for data-driven visualizations
+> **Version 5.4.1** - Fixed API key handling in voice-generation and music-generation scripts
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
