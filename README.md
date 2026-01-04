@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 3.0.0** - Separate debug-council and feature-council with specialized agents
+> **Version 3.1.0** - Add parallel-builder for divide-and-conquer implementation
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
