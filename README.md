@@ -62,80 +62,144 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 ---
 
-## Skills
+## Skills vs Agents
 
-| Skill | Description | API Keys |
-|-------|-------------|----------|
-| [style-guide](skills/style-guide/) | Analyze codebase conventions with specialized agents (structure, naming, patterns, testing, frontend). Generates `.claude/codebase-style.md` style guide. | None |
-| [ios-to-android](skills/ios-to-android/) | Use iOS/Swift as source of truth, implement equivalent feature in Android/Kotlin/Compose. Feature parity, not literal translation. | None |
-| [android-to-ios](skills/android-to-ios/) | Use Android/Kotlin as source of truth, implement equivalent feature in iOS/Swift/SwiftUI. Feature parity, not literal translation. | None |
-| [debug-council](skills/debug-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent debugs independently, majority voting. For bugs & algorithms. | None |
-| [feature-council](skills/feature-council/) | Multi-agent feature implementation. Each agent builds the feature independently, then synthesizes best parts from each. | None |
-| [parallel-builder](skills/parallel-builder/) | Divide-and-conquer from specs/plans. Decomposes a plan into independent tasks, assigns each to an agent, executes in parallel waves, then integrates. | None |
-| [model-council](skills/model-council/) | Multi-model consensus - run problems through Claude, GPT, Gemini, Grok in parallel and compare (analysis only). | Optional: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY` |
-| [image-generation](skills/image-generation/) | Generate images using AI (Gemini 3 Pro Image, DALL-E 3). Reference images, editing, style transfer. | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
-| [video-generation](skills/video-generation/) | Generate videos using AI (Veo 3.1 with audio, Sora). Text-to-video, image-to-video. | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
-| [voice-generation](skills/voice-generation/) | Generate speech using AI TTS (Gemini TTS, ElevenLabs, OpenAI). Multi-speaker support. | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
-| [music-generation](skills/music-generation/) | Generate music using AI (Lyria instrumental, Suno, Udio). | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
-| [slide-generation](skills/slide-generation/) | Create presentation slides (PPTX, Markdown). Used by pitch-deck-agent and others. | None (`pip install python-pptx`) |
-| [chart-generation](skills/chart-generation/) | Generate data-driven charts (bar, line, pie, positioning matrix, TAM/SAM/SOM). | None (`pip install matplotlib`) |
+**Everything is a skill** (has a SKILL.md file), but there are two types:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    AGENT SKILLS (Higher-Level)                              │
+│         Skills that orchestrate other skills + have sub-agents              │
+│                                                                             │
+│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐ │
+│  │ patent-lawyer-agent │  │ product-engineer-   │  │ video-producer-     │ │
+│  │   5 sub-agents      │  │     agent           │  │     agent           │ │
+│  │   uses: image-gen   │  │   5 sub-agents      │  │   uses: video-gen   │ │
+│  │         chart-gen   │  │   uses: image-gen   │  │         voice-gen   │ │
+│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘ │
+│                                      │ calls                                │
+├──────────────────────────────────────▼──────────────────────────────────────┤
+│                    BASE SKILLS (Single-Purpose)                             │
+│               Do ONE thing well - can be used directly or by agents         │
+│                                                                             │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │
+│  │ image-gen    │ │ video-gen    │ │ voice-gen    │ │ music-gen    │       │
+│  │ Generate     │ │ Generate     │ │ Generate     │ │ Generate     │       │
+│  │ images       │ │ videos       │ │ speech       │ │ music        │       │
+│  └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘       │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                        │
+│  │ chart-gen    │ │ slide-gen    │ │ media-utils  │                        │
+│  │ Data charts  │ │ PPTX slides  │ │ Concat/mix   │                        │
+│  └──────────────┘ └──────────────┘ └──────────────┘                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Difference:**
+- **Skills** = Single-purpose tools. Do ONE thing (generate an image, create a chart, make a video).
+- **Agents** = Higher-level skills that orchestrate multiple other skills + have specialized sub-agents.
+
+**Note:** Agents are still skills (they have SKILL.md files), but they're a higher-level type that combines other skills in their execution. Think of it as: agents are skills that use skills.
 
 ---
 
-## Professional Agent Skills
+## Base Skills (Single-Purpose)
 
-**Professional agents handle business operations** - research, strategy, design, and content creation. They use specialized sub-agents for comprehensive analysis.
+Base skills are focused tools that do one thing well. They can be used directly or called by agent skills.
 
-| Agent | Purpose | Multi-Agent |
-|-------|---------|-------------|
-| [brand-research-agent](skills/brand-research-agent/) | Analyze brands from websites. Extract colors, typography, voice, audience. | ✅ 5 agents |
-| [product-engineer-agent](skills/product-engineer-agent/) | Design new products with specs, BOM, and **generated visuals** (concept renders, exploded views). | ✅ 5 agents + visuals |
-| [market-researcher-agent](skills/market-researcher-agent/) | Research markets. TAM/SAM/SOM, trends, opportunities. | ✅ 4 agents |
-| [patent-lawyer-agent](skills/patent-lawyer-agent/) | IP guidance, patent drafting with **generated figures**. Prior art, claims, full applications. | ✅ 5 agents + figures |
-| [pitch-deck-agent](skills/pitch-deck-agent/) | Create pitch decks with **generated slide images** (charts, mockups, icons). | No (workflow) + visuals |
-| [copywriter-agent](skills/copywriter-agent/) | Write marketing copy. Headlines, ads, landing pages, emails. | ✅ 4 agents |
-| [competitive-intel-agent](skills/competitive-intel-agent/) | Analyze competitors with **visual comparison charts** (positioning matrix, features). | ✅ 4 agents + charts |
-| [review-analyst-agent](skills/review-analyst-agent/) | Analyze product reviews. Find issues, prioritize improvements. | ✅ 4 agents |
-
-**All professional agents use the `-agent` suffix** to indicate they are top-level autonomous workflows.
+| Skill | What It Does | API Keys |
+|-------|--------------|----------|
+| [image-generation](skills/image-generation/) | Generate/edit images (Gemini, DALL-E) | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
+| [video-generation](skills/video-generation/) | Generate videos (Veo, Sora) | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
+| [voice-generation](skills/voice-generation/) | Text-to-speech (Gemini TTS, ElevenLabs, OpenAI) | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
+| [music-generation](skills/music-generation/) | Generate music (Lyria, Suno, Udio) | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
+| [chart-generation](skills/chart-generation/) | Data-driven charts (matplotlib) | None (`pip install matplotlib`) |
+| [slide-generation](skills/slide-generation/) | PowerPoint slides (PPTX) | None (`pip install python-pptx`) |
+| [media-utils](skills/media-utils/) | Concat/mix audio/video (FFmpeg) | None (`brew install ffmpeg`) |
 
 ---
 
-## Producer Agent Skills (Orchestrators)
+## Coding Skills
 
-**Producer agents combine multiple generation skills to create complete, polished media.** They handle the entire workflow: planning, generating assets, and assembling the final output.
+Skills for development workflows (no API keys needed):
+
+| Skill | What It Does |
+|-------|--------------|
+| [style-guide](skills/style-guide/) | Analyze codebase conventions, generate style guide |
+| [ios-to-android](skills/ios-to-android/) | Port iOS/Swift features to Android/Kotlin |
+| [android-to-ios](skills/android-to-ios/) | Port Android/Kotlin features to iOS/Swift |
+| [debug-council](skills/debug-council/) | Multi-agent debugging with majority voting |
+| [feature-council](skills/feature-council/) | Multi-agent feature implementation, synthesize best parts |
+| [parallel-builder](skills/parallel-builder/) | Decompose plans into parallel tasks |
+| [model-council](skills/model-council/) | Get consensus from multiple AI models |
+
+---
+
+## Agent Skills (Orchestrators)
+
+Agent skills are higher-level skills that:
+- **Call other base skills** (image-gen, chart-gen, voice-gen, etc.)
+- **Have specialized sub-agents** for different perspectives
+- **Handle complete workflows** from start to finish
+
+**All agent skills use the `-agent` suffix** to indicate they orchestrate other skills.
+
+### Professional Agents
+
+Business analysis, research, and strategy:
+
+| Agent | What It Does | Sub-Agents | Skills Used |
+|-------|--------------|------------|-------------|
+| [brand-research-agent](skills/brand-research-agent/) | Analyze brands from websites | 5 (visual, voice, product, audience, competitive) | None |
+| [product-engineer-agent](skills/product-engineer-agent/) | Design products with specs + visuals | 5 (industrial, mechanical, user, manufacturing, innovation) | image-generation |
+| [market-researcher-agent](skills/market-researcher-agent/) | Research markets (TAM/SAM/SOM) | 4 (trend, consumer, industry, opportunity) | chart-generation |
+| [patent-lawyer-agent](skills/patent-lawyer-agent/) | Patent drafting + IP guidance | 5 (prior-art, patentability, claims, strategy, drafter) | image-generation |
+| [competitive-intel-agent](skills/competitive-intel-agent/) | Analyze competitors | 4 (feature, pricing, positioning, market) | chart-generation, image-generation |
+| [copywriter-agent](skills/copywriter-agent/) | Marketing copy | 4 (headlines, body, ads, CTA) | None |
+| [review-analyst-agent](skills/review-analyst-agent/) | Analyze product reviews | 4 (scraper, sentiment, issues, recommendations) | chart-generation |
+| [pitch-deck-agent](skills/pitch-deck-agent/) | Create pitch decks | Workflow | slide-generation, chart-generation, image-generation |
+
+### Producer Agents
+
+Create complete media by combining multiple generation skills:
+
+| Agent | What It Creates | Skills Used |
+|-------|-----------------|-------------|
+| [video-producer-agent](skills/video-producer-agent/) | Complete videos with voiceover + music | video-gen, voice-gen, music-gen, media-utils |
+| [podcast-producer-agent](skills/podcast-producer-agent/) | Podcast episodes, dialogues | voice-gen, music-gen, media-utils |
+| [audio-producer-agent](skills/audio-producer-agent/) | Audiobooks, ads, jingles | voice-gen, music-gen, media-utils |
+| [social-producer-agent](skills/social-producer-agent/) | Multi-asset content packs | image-gen, video-gen, voice-gen |
+
+---
+
+## How Agents Use Skills
+
+Example: **patent-lawyer-agent** workflow:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│              PRODUCER AGENTS (Orchestrators)                │
-│         Plan → Generate → Assemble → Deliver                │
-├─────────────────────────────────────────────────────────────┤
-│  video-producer-agent    podcast-producer-agent             │
-│  audio-producer-agent    social-producer-agent              │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ uses
-┌───────────────────────────▼─────────────────────────────────┐
-│              GENERATION SKILLS (Single-purpose)             │
-├─────────────────────────────────────────────────────────────┤
-│  image-generation   video-generation   music-generation     │
-│  voice-generation   slide-generation                        │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ uses
-┌───────────────────────────▼─────────────────────────────────┐
-│                    MEDIA UTILS (Assembly)                   │
-├─────────────────────────────────────────────────────────────┤
-│  audio_concat    audio_mix    video_concat    video_merge   │
-└─────────────────────────────────────────────────────────────┘
+User: "Draft a patent for my self-watering planter"
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────┐
+│             patent-lawyer-agent                     │
+│                                                     │
+│  1. prior-art-searcher    → Finds existing patents  │
+│  2. patentability-analyst → Assesses novelty        │
+│  3. claims-strategist     → Drafts claims           │
+│  4. ip-strategy-advisor   → Recommends approach     │
+│  5. patent-drafter        → Writes full application │
+│                    │                                │
+│                    ▼ calls                          │
+│         ┌─────────────────────┐                     │
+│         │  image-generation   │ → Patent figures    │
+│         └─────────────────────┘                     │
+│         ┌─────────────────────┐                     │
+│         │  chart-generation   │ → Patent landscape  │
+│         └─────────────────────┘                     │
+└─────────────────────────────────────────────────────┘
+                    │
+                    ▼
+Output: Complete patent document + generated figures
 ```
-
-| Producer Agent | Creates | Example |
-|----------------|---------|---------|
-| [video-producer-agent](skills/video-producer-agent/) | Complete videos with voiceover + music | "Create a 30s product video for my headphones" |
-| [podcast-producer-agent](skills/podcast-producer-agent/) | Podcast episodes, interviews, dialogues | "Create a 5min podcast about AI with two hosts" |
-| [audio-producer-agent](skills/audio-producer-agent/) | Audiobooks, voiceovers, jingles, ads | "Create a 30s radio ad for our coffee brand" |
-| [social-producer-agent](skills/social-producer-agent/) | Multi-asset content packs | "Create a launch kit: 1 reel, 5 carousel images" |
-
-**All producer agents use `GOOGLE_API_KEY`** (same key for video, images, voice, music) and require **FFmpeg** for assembly.
 
 ### How Producers Work
 
