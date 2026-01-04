@@ -1,11 +1,19 @@
 ---
 name: ios-to-android
-description: Use iOS/Swift code as the source of truth and implement the equivalent feature in Android/Kotlin/Compose. Understands the iOS feature behavior, data structures, and logic, then creates idiomatic Android code that achieves feature parity. Use when porting features from iOS to Android or ensuring platform consistency.
+description: Use iOS/Swift code as the source of truth and implement the equivalent feature in Android/Kotlin/Compose. Works with SwiftUI, UIKit, Storyboards, or any iOS UI approach. Understands the iOS feature behavior, data structures, and logic, then creates idiomatic Android code that achieves feature parity. Use when porting features from iOS to Android or ensuring platform consistency.
 ---
 
 # iOS to Android: Feature Parity Implementation
 
 Use iOS code as the reference to implement the equivalent Android feature. Not a literal translation - understand what the iOS code does, then implement it idiomatically for Android.
+
+**Accepts any iOS UI approach:**
+- SwiftUI
+- UIKit (programmatic)
+- Storyboards / XIBs
+- Mixed codebases
+
+**Always outputs:** Jetpack Compose (modern Android UI)
 
 **Use this when:**
 - Porting a feature from iOS to Android
@@ -27,23 +35,48 @@ iOS Code → Understand Feature → Implement for Android
 
 ## Platform Mapping Reference
 
+### Core Language
+
 | iOS/Swift | Android/Kotlin |
 |-----------|----------------|
-| UIKit / SwiftUI | Jetpack Compose |
-| Combine | Kotlin Flow / Coroutines |
-| async/await | suspend functions |
-| Core Data | Room |
-| URLSession | Retrofit / Ktor |
-| UserDefaults | DataStore / SharedPreferences |
-| Codable | Kotlinx Serialization |
-| @State / @Published | MutableStateFlow / mutableStateOf |
-| ObservableObject | ViewModel |
 | Protocols | Interfaces |
 | Extensions | Extension functions |
 | Structs | Data classes |
 | Enums with associated values | Sealed classes |
 | guard let / if let | ?.let / ?: / require |
 | throws | Result / runCatching |
+| Codable | Kotlinx Serialization |
+
+### Async & State
+
+| iOS/Swift | Android/Kotlin |
+|-----------|----------------|
+| Combine | Kotlin Flow / Coroutines |
+| async/await | suspend functions |
+| @Published | MutableStateFlow |
+| ObservableObject | ViewModel |
+
+### Data & Networking
+
+| iOS/Swift | Android/Kotlin |
+|-----------|----------------|
+| Core Data / SwiftData | Room |
+| URLSession / Alamofire | Retrofit / Ktor |
+| UserDefaults | DataStore / SharedPreferences |
+
+### UI (any iOS framework → Compose)
+
+| iOS/SwiftUI | iOS/UIKit | Android/Kotlin |
+|-------------|-----------|----------------|
+| View | UIViewController | @Composable |
+| VStack/HStack | UIStackView | Column/Row |
+| List | UITableView | LazyColumn |
+| NavigationStack | Storyboard segues | Navigation Compose |
+| @State | Instance properties | remember { } |
+| @Published | Combine/delegates | collectAsState |
+| .sheet/.fullScreenCover | present() | Dialog/BottomSheet |
+
+**Note:** Whether the iOS code uses SwiftUI, UIKit, Storyboards, or XIBs, the Android output is always **Jetpack Compose**.
 
 ---
 
@@ -326,7 +359,7 @@ fun loadUsers() {
 }
 ```
 
-### UI
+### UI - From SwiftUI
 
 ```swift
 // iOS (SwiftUI)
@@ -345,6 +378,55 @@ var body: some View {
 
 ```kotlin
 // Android (Compose)
+@Composable
+fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
+    val users by viewModel.users.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    
+    Column {
+        if (isLoading) {
+            CircularProgressIndicator()
+        } else {
+            LazyColumn {
+                items(users) { user ->
+                    UserRow(user = user)
+                }
+            }
+        }
+    }
+}
+```
+
+### UI - From UIKit/Storyboard
+
+```swift
+// iOS (UIKit)
+class UserViewController: UIViewController, UITableViewDataSource {
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
+    var users: [User] = []
+    var isLoading = false {
+        didSet {
+            activityIndicator.isHidden = !isLoading
+            tableView.isHidden = isLoading
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return users.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath)
+        cell.textLabel?.text = users[indexPath.row].name
+        return cell
+    }
+}
+```
+
+```kotlin
+// Android (Compose) - Same output regardless of iOS UI framework
 @Composable
 fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
     val users by viewModel.users.collectAsStateWithLifecycle()
