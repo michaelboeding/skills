@@ -13,6 +13,9 @@
 # - Music generation (Lyria)
 google-genai>=1.0.0
 
+# SSL certificates (fixes macOS SSL issues)
+certifi>=2024.0.0
+
 # =============================================================================
 # CHART & VISUALIZATION (For chart-generation skill)
 # =============================================================================

@@ -104,6 +104,7 @@ test_import() {
 }
 
 test_import "google.genai" "google-genai (AI generation)"
+test_import "certifi" "certifi (SSL certificates)"
 test_import "matplotlib" "matplotlib (chart generation)"
 test_import "numpy" "numpy (data processing)"
 test_import "pptx" "python-pptx (slide generation)"
@@ -163,6 +164,36 @@ check_key "GOOGLE_API_KEY" "Google AI" "https://aistudio.google.com/apikey"
 check_key "OPENAI_API_KEY" "OpenAI" "https://platform.openai.com/api-keys"
 check_key "ELEVENLABS_API_KEY" "ElevenLabs" "https://elevenlabs.io"
 check_key "FAL_KEY" "Fal.ai" "https://fal.ai/dashboard/keys"
+
+echo ""
+
+# =============================================================================
+# Fix SSL certificates (macOS issue)
+# =============================================================================
+echo -e "${BLUE}🔒 Configuring SSL certificates...${NC}"
+echo ""
+
+CERT_PATH=$($PYTHON_CMD -c "import certifi; print(certifi.where())" 2>/dev/null)
+if [ -n "$CERT_PATH" ]; then
+    echo -e "  ${GREEN}✓${NC} Certificate path: $CERT_PATH"
+    
+    # Add to shell profiles if not already there
+    for rcfile in ~/.bashrc ~/.bash_profile ~/.zshrc; do
+        if [ -f "$rcfile" ] && ! grep -q "SSL_CERT_FILE" "$rcfile" 2>/dev/null; then
+            echo '' >> "$rcfile"
+            echo '# SSL certificates for Python (added by skills install)' >> "$rcfile"
+            echo "export SSL_CERT_FILE=\"$CERT_PATH\"" >> "$rcfile"
+            echo "export REQUESTS_CA_BUNDLE=\"$CERT_PATH\"" >> "$rcfile"
+            echo -e "  ${GREEN}✓${NC} Added SSL_CERT_FILE to $rcfile"
+        fi
+    done
+    
+    # Export for current session
+    export SSL_CERT_FILE="$CERT_PATH"
+    export REQUESTS_CA_BUNDLE="$CERT_PATH"
+else
+    echo -e "  ${YELLOW}⚠${NC} Could not determine certificate path"
+fi
 
 echo ""
 
