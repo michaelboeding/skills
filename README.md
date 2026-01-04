@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.3.0** - Ask-first visuals, pitch deck images, competitive charts
+> **Version 5.4.0** - Added chart-generation skill for data-driven visualizations
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -78,6 +78,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | [voice-generation](skills/voice-generation/) | Generate speech using AI TTS (Gemini TTS, ElevenLabs, OpenAI). Multi-speaker support. | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
 | [music-generation](skills/music-generation/) | Generate music using AI (Lyria instrumental, Suno, Udio). | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
 | [slide-generation](skills/slide-generation/) | Create presentation slides (PPTX, Markdown). Used by pitch-deck-agent and others. | None (`pip install python-pptx`) |
+| [chart-generation](skills/chart-generation/) | Generate data-driven charts (bar, line, pie, positioning matrix, TAM/SAM/SOM). | None (`pip install matplotlib`) |
 
 ---
 
@@ -601,6 +602,22 @@ create slides from this content: [paste JSON]
 generate a PowerPoint presentation for my pitch
 
 make slides for my market research report
+```
+
+### chart-generation
+
+Generate data-driven charts from data:
+
+```
+create a bar chart comparing our features to competitors
+
+plot our monthly revenue: [100, 150, 220, 350]
+
+generate a competitive positioning matrix
+
+create a TAM/SAM/SOM chart: TAM $50B, SAM $5B, SOM $500M
+
+make a pie chart showing use of funds
 ```
 
 ---
