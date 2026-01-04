@@ -1,21 +1,22 @@
 ---
 name: patent-lawyer-agent
 description: >
-  Use this skill for intellectual property guidance, prior art research, and patent strategy.
+  Use this skill for intellectual property guidance, prior art research, patent strategy, and drafting patent applications.
   Triggers: "patent", "prior art", "IP protection", "intellectual property", "patent search",
   "patentability", "patent claims", "invention disclosure", "patent strategy", "trade secret",
-  "patent application", "freedom to operate", "infringement"
-  Outputs: Patentability assessment, prior art report, draft claims, IP strategy.
+  "patent application", "freedom to operate", "infringement", "draft patent", "write patent",
+  "provisional patent", "patent document"
+  Outputs: Patentability assessment, prior art report, draft claims, IP strategy, full patent application draft.
   DISCLAIMER: This is informational only, not legal advice. Consult a licensed patent attorney.
 ---
 
 # Patent Lawyer Agent
 
-Intellectual property guidance and patent analysis for inventions.
+Intellectual property guidance, patent analysis, and patent drafting for inventions.
 
 **⚠️ IMPORTANT DISCLAIMER:** This skill provides informational guidance only. It is NOT legal advice and does NOT create an attorney-client relationship. Always consult a licensed patent attorney for actual legal matters.
 
-**This skill uses 4 specialized agents** that analyze IP from different perspectives.
+**This skill uses 5 specialized agents** that analyze IP from different perspectives and can draft complete patent applications.
 
 ## What It Produces
 
@@ -25,187 +26,151 @@ Intellectual property guidance and patent analysis for inventions.
 | **Patentability Assessment** | Analysis of novelty and non-obviousness |
 | **Draft Claims** | Example patent claim language |
 | **IP Strategy** | Recommended protection approach |
+| **Full Patent Draft** | Complete patent application document (optional) |
 
 ## Prerequisites
 
 - Web access for patent search
 - No API keys required
 
-## Workflow
+## How It Works
 
-### Step 1: Gather the Invention Details
+**This agent is request-driven.** Just tell it what you want and it will do what's needed:
 
-**Ask the user:**
+| You Ask | What Happens |
+|---------|--------------|
+| "Look at this product, can I patent it?" | Researches product, searches prior art, assesses patentability |
+| "Search for prior art on X" | Just searches for existing patents/publications |
+| "Is my idea patentable?" | Gathers details, searches prior art, gives assessment |
+| "Draft a patent for my invention" | Full patent application (does prior art search too) |
+| "Write claims for this" | Just drafts patent claims |
+| "What's the IP strategy here?" | Strategy advice (patent vs trade secret, timing, costs) |
 
-> "I'll help you explore IP protection options for your invention!
->
-> **⚠️ Note:** This is informational only, not legal advice.
->
-> Tell me about your invention:
-> 1. **What is it?** (describe the invention)
-> 2. **What problem does it solve?** (the need it addresses)
-> 3. **What's novel about it?** (what's new/different)
-> 4. **Has it been disclosed?** (published, sold, shown publicly?)
->
-> The more detail you provide, the better the analysis."
-
-**Wait for the user to describe their invention.**
+**You don't need to follow a rigid workflow.** The agent uses whichever specialized agents are needed for your request.
 
 ---
 
-### Step 2: Run Specialized IP Agents in Parallel
+## Request Types
 
-Deploy 4 agents, each analyzing from a different perspective:
+### 1. Analyze a Product or Idea
 
-#### Agent 1: Prior Art Searcher
-Focus: Find existing patents and publications
-```
-Search for:
-- Existing patents with similar claims
-- Published patent applications
-- Academic papers and publications
-- Product documentation
-- Prior art in related fields
-- International patents
-```
+"Can I patent this?" / "Look at this product and assess patentability"
 
-#### Agent 2: Patentability Analyst
-Focus: Assess novelty and non-obviousness
-```
-Analyze:
-- Novelty: Is any claim truly new?
-- Non-obviousness: Would it be obvious to someone skilled in the art?
-- Utility: Does it have practical application?
-- Enablement: Can it be described well enough to replicate?
-- Patent-eligible subject matter: Is it patentable (not abstract idea, etc.)?
-```
+**What it does:**
+1. Gathers details about the product/idea (asks if needed)
+2. Searches for prior art (existing patents, publications)
+3. Assesses novelty and non-obviousness
+4. Delivers patentability verdict with rationale
 
-#### Agent 3: Claims Strategist
-Focus: Draft example claims and claim strategy
-```
-Draft:
-- Independent claims (broadest protection)
-- Dependent claims (fallback positions)
-- Method claims vs apparatus claims
-- Claim differentiation from prior art
-```
-
-#### Agent 4: IP Strategy Advisor
-Focus: Overall protection strategy
-```
-Consider:
-- Patent vs trade secret
-- Provisional vs non-provisional
-- US vs international (PCT)
-- Timing considerations
-- Cost/benefit analysis
-- Competitive considerations
-```
+**Uses agents:** Prior Art Searcher, Patentability Analyst
 
 ---
 
-### Step 3: Synthesize into IP Assessment
+### 2. Prior Art Search Only
 
-Combine all agent outputs into a structured report:
+"Search for prior art on foldable drone designs"
 
+**What it does:**
+1. Searches Google Patents, USPTO, academic papers
+2. Identifies closest existing patents
+3. Reports relevance and key differences
+
+**Uses agents:** Prior Art Searcher
+
+---
+
+### 3. Draft a Full Patent Application
+
+"Write a complete patent for my invention" / "Create a patent document for this"
+
+**What it does:**
+1. Gathers invention details (asks if needed)
+2. Searches prior art (automatically)
+3. Generates complete patent application:
+   - Title, Field, Background
+   - Summary, Detailed Description
+   - Claims (10-20 independent + dependent)
+   - Abstract
+   - Suggested figures
+
+**Uses agents:** Prior Art Searcher, Patent Drafter
+
+**Output:** Full patent application in Markdown, ready for attorney review.
+
+---
+
+### 4. Full Analysis + Draft
+
+"Analyze my invention and then draft the patent"
+
+**What it does:**
+1. Full patentability analysis (all 4 analysis agents)
+2. Then drafts complete patent application
+3. Delivers both assessment AND draft document
+
+**Uses agents:** All 5 agents
+
+---
+
+### 5. IP Strategy Advice
+
+"Should I patent this or keep it as a trade secret?"
+
+**What it does:**
+1. Analyzes protection options
+2. Considers timing, costs, enforceability
+3. Recommends approach with rationale
+
+**Uses agents:** IP Strategy Advisor
+
+---
+
+### 6. Claims Only
+
+"Draft patent claims for my wireless charging system"
+
+**What it does:**
+1. Understands the invention
+2. Drafts independent and dependent claims
+3. Explains claim strategy
+
+**Uses agents:** Claims Strategist
+
+---
+
+## Specialized Agents
+
+Each agent has a specific focus. The skill uses whichever are needed:
+
+| Agent | What It Does |
+|-------|--------------|
+| **Prior Art Searcher** | Finds existing patents, publications, products |
+| **Patentability Analyst** | Assesses novelty, non-obviousness, utility |
+| **Claims Strategist** | Drafts patent claims with fallback positions |
+| **IP Strategy Advisor** | Advises on patent vs trade secret, timing, costs |
+| **Patent Drafter** | Writes complete patent applications |
+
+---
+
+## Output Formats
+
+### Patentability Assessment
 ```json
 {
-  "invention": {
-    "title": "Invention Title",
-    "summary": "Brief description",
-    "problem_solved": "What problem it addresses",
-    "key_innovations": ["Innovation 1", "Innovation 2"]
-  },
-  "prior_art": {
-    "closest_references": [
-      {
-        "reference": "Patent/Publication name",
-        "number": "Patent number if applicable",
-        "date": "Publication date",
-        "relevance": "High/Medium/Low",
-        "what_it_discloses": "Key teachings",
-        "how_invention_differs": "Key differences"
-      }
-    ],
-    "search_terms_used": ["term1", "term2"],
-    "databases_searched": ["Google Patents", "USPTO", "etc."]
-  },
-  "patentability_assessment": {
-    "overall": "Likely Patentable/Questionable/Unlikely",
-    "novelty": {
-      "assessment": "Strong/Moderate/Weak",
-      "rationale": "Why this assessment"
-    },
-    "non_obviousness": {
-      "assessment": "Strong/Moderate/Weak",
-      "rationale": "Why this assessment"
-    },
-    "utility": {
-      "assessment": "Strong/Moderate/Weak",
-      "rationale": "Why this assessment"
-    },
-    "concerns": ["Concern 1", "Concern 2"],
-    "strengths": ["Strength 1", "Strength 2"]
-  },
-  "example_claims": {
-    "independent_claim_1": "Example claim language...",
-    "dependent_claims": [
-      "Dependent claim language..."
-    ],
-    "claim_strategy": "Explanation of claim approach"
-  },
-  "strategy_recommendation": {
-    "recommended_approach": "Patent/Trade Secret/Both/Neither",
-    "rationale": "Why this recommendation",
-    "filing_type": "Provisional/Non-provisional/PCT",
-    "timing": "Urgency assessment",
-    "estimated_costs": {
-      "provisional": "$X,XXX - $X,XXX",
-      "non_provisional": "$XX,XXX - $XX,XXX",
-      "prosecution": "$X,XXX - $XX,XXX"
-    },
-    "timeline": "Expected process timeline"
-  },
-  "next_steps": [
-    "1. Consult with a licensed patent attorney",
-    "2. [Other recommended actions]"
-  ],
-  "disclaimer": "This is informational only and does not constitute legal advice. Consult a licensed patent attorney for legal matters."
+  "invention": "Title",
+  "patentability": "Likely/Questionable/Unlikely",
+  "novelty": "Strong/Moderate/Weak",
+  "non_obviousness": "Strong/Moderate/Weak",
+  "closest_prior_art": ["Patent 1", "Patent 2"],
+  "key_differences": "What makes this different",
+  "concerns": ["Concern 1"],
+  "recommendation": "File provisional / Trade secret / etc.",
+  "estimated_cost": "$X,XXX - $XX,XXX"
 }
 ```
 
----
-
-### Step 4: Deliver with Clear Disclaimer
-
-**Delivery message:**
-
-"✅ IP assessment complete!
-
-**⚠️ DISCLAIMER:** This is informational only, not legal advice.
-
-**Invention:** [Title]
-
-**Patentability Assessment:** [Likely/Questionable/Unlikely]
-- Novelty: [Strong/Moderate/Weak]
-- Non-obviousness: [Strong/Moderate/Weak]
-
-**Key Finding:** [Most important insight]
-
-**Closest Prior Art:** [Reference name] - [How it differs]
-
-**Recommendation:** [Patent/Trade Secret/etc.] because [rationale]
-
-**Estimated Cost Range:** $X,XXX - $XX,XXX
-
-**CRITICAL NEXT STEP:**
-→ Consult a licensed patent attorney before taking action
-
-**Want me to:**
-- Search for more prior art?
-- Draft alternative claims?
-- Compare to specific patents?
-- Explore international protection?"
+### Full Patent Draft
+Complete patent application with all sections (Title, Background, Description, Claims, Abstract) in Markdown format.
 
 ---
 
@@ -219,14 +184,15 @@ Combine all agent outputs into a structured report:
 
 ---
 
-## Agents
+## Agent Files
 
-| Agent | File | Focus |
-|-------|------|-------|
-| Prior Art Searcher | `prior-art-searcher.md` | Find existing IP |
-| Patentability Analyst | `patentability-analyst.md` | Assess novelty |
-| Claims Strategist | `claims-strategist.md` | Draft claims |
-| IP Strategy Advisor | `ip-strategy-advisor.md` | Overall strategy |
+| Agent | File |
+|-------|------|
+| Prior Art Searcher | `agents/prior-art-searcher.md` |
+| Patentability Analyst | `agents/patentability-analyst.md` |
+| Claims Strategist | `agents/claims-strategist.md` |
+| IP Strategy Advisor | `agents/ip-strategy-advisor.md` |
+| Patent Drafter | `agents/patent-drafter.md` |
 
 ---
 
@@ -244,14 +210,29 @@ Combine all agent outputs into a structured report:
 
 ## Example Prompts
 
-**New invention:**
+**Analyze a product:**
+> "Look at the Dyson bladeless fan and tell me if I could patent a similar concept with my modifications"
+
+**Check patentability:**
 > "I invented a new way to charge phones wirelessly from across the room. Is it patentable?"
 
 **Prior art search:**
 > "Search for prior art on foldable drone designs"
 
+**Full patent from idea:**
+> "I have an idea for a self-watering planter. Create a complete patent application for it."
+
+**Draft patent:**
+> "Write a patent for my new compression algorithm"
+
+**Analyze then draft:**
+> "Analyze my invention for patentability, then draft the full patent application"
+
 **Strategy question:**
 > "Should I patent my invention or keep it as a trade secret?"
+
+**Claims only:**
+> "Draft patent claims for my modular furniture system"
 
 **Specific comparison:**
 > "How does my invention differ from US Patent 10,123,456?"
