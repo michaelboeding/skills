@@ -18,18 +18,19 @@ See the repository README for setup instructions.
 
 ## Available APIs
 
+### Google Veo 3 (Recommended - Default)
+- **Best for**: Realistic videos, natural motion, high fidelity
+- **Resolutions**: Up to 1080p
+- **Durations**: Up to 8 seconds per generation
+- **Aspect ratios**: 16:9, 9:16, 1:1
+- **Features**: Text-to-video, high fidelity, natural physics, same API key as image generation
+
 ### OpenAI Sora
 - **Best for**: Creative videos, cinematic quality, complex motion
 - **Resolutions**: 480p, 720p, 1080p
 - **Durations**: 5s, 10s, 15s, 20s
 - **Aspect ratios**: 16:9, 9:16, 1:1
 - **Features**: Text-to-video, image-to-video, video extensions
-
-### Google Veo 3
-- **Best for**: Realistic videos, natural motion, longer content
-- **Resolutions**: Up to 1080p
-- **Durations**: Up to 8 seconds per generation
-- **Features**: Text-to-video, high fidelity, natural physics
 
 ## Workflow
 
@@ -58,14 +59,21 @@ Transform the user request into an effective video generation prompt:
 
 ### Step 3: Select the API
 
-Choose based on availability and use case:
+**Default: Google Veo 3** (uses same API key as image generation)
+
+1. **If only one API is available**: Use it automatically.
+
+2. **If both APIs are available**: Default to **Veo 3** unless user specifically requests Sora.
+   - Veo 3 uses the same `GOOGLE_API_KEY` as image generation
+   - Only use Sora if user asks for it or needs features Veo lacks
 
 | Use Case | Recommended API | Reason |
 |----------|----------------|--------|
-| Cinematic/artistic | Sora | Best creative control |
+| Default / Quick | Veo 3 | Same API key, faster |
 | Realistic scenes | Veo 3 | Natural physics |
-| Quick generation | Veo 3 | Faster processing |
+| Cinematic/artistic | Sora | Best creative control |
 | Complex motion | Sora | Better motion understanding |
+| Longer videos (>8s) | Sora | Supports up to 20s |
 
 ### Step 4: Generate the Video
 
@@ -130,12 +138,14 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
 
 ## API Comparison
 
-| Feature | Sora | Veo 3 |
-|---------|------|-------|
-| Provider | OpenAI | Google |
-| Max duration | 20 seconds | 8 seconds |
+| Feature | Veo 3 (Default) | Sora |
+|---------|-----------------|------|
+| Provider | Google | OpenAI |
+| API Key | `GOOGLE_API_KEY` | `OPENAI_API_KEY` |
+| Max duration | 8 seconds | 20 seconds |
 | Resolution | Up to 1080p | Up to 1080p |
 | Aspect ratios | 16:9, 9:16, 1:1 | 16:9, 9:16, 1:1 |
 | Image-to-video | Yes | Yes |
-| Best for | Creative, cinematic | Realistic, fast |
-| Speed | Slower | Faster |
+| Best for | Realistic, fast | Creative, cinematic |
+| Speed | Faster | Slower |
+| Same key as images | ✅ Yes | ❌ No |
