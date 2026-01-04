@@ -29,6 +29,29 @@ import time
 import base64
 from pathlib import Path
 
+# Check for google-genai package
+try:
+    from google import genai
+    from google.genai import types
+    HAS_GENAI_SDK = True
+except ImportError:
+    HAS_GENAI_SDK = False
+    print("""
+╭─────────────────────────────────────────────────────────────────╮
+│  Missing Dependency: google-genai                               │
+╰─────────────────────────────────────────────────────────────────╯
+
+To install all skill dependencies, run:
+
+   ./scripts/install.sh
+   
+Or: pip install -r requirements.txt
+Or: pip install google-genai
+
+Note: Requires Python 3.10+
+""", file=sys.stderr)
+    sys.exit(1)
+
 
 def load_env():
     """Load environment variables from .env file.
@@ -323,148 +346,127 @@ def generate_video(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
     if resolution == "1080p" and duration != 8:
         return {"error": "1080p resolution only supports 8 second duration"}
     
-    # API endpoint
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateVideo?key={api_key}"
-    
-    headers = {
-        "Content-Type": "application/json"
-    }
-    
-    # Build request data
-    data = {
-        "prompt": prompt,
-        "generationConfig": {
-            "videoDuration": f"{duration}s",
-            "aspectRatio": aspect_ratio,
-            "resolution": resolution,
-            "numberOfVideos": 1
-        }
-    }
-    
-    if negative_prompt:
-        data["negativePrompt"] = negative_prompt
-    
-    # Add image if provided (for image-to-video)
-    if image:
-        try:
-            img_data, mime_type = load_image_as_base64(image)
-            data["image"] = {
-                "bytesBase64Encoded": img_data,
-                "mimeType": mime_type
-            }
-        except FileNotFoundError as e:
-            return {"error": str(e)}
-    
     try:
-        # Create generation request
-        request = Request(url, data=json.dumps(data).encode(), headers=headers, method="POST")
-        with urlopen(request, timeout=60) as response:
-            result = json.loads(response.read().decode())
+        # Use google-genai SDK for reliable API access
+        client = genai.Client(api_key=api_key)
         
-        # Check for operation/job ID
-        operation_name = result.get("name") or result.get("operationId")
+        # Build generation config
+        config = types.GenerateVideosConfig(
+            aspect_ratio=aspect_ratio,
+            duration_seconds=duration,
+            number_of_videos=1,
+        )
         
-        if operation_name:
-            # Poll for completion
-            poll_url = f"https://generativelanguage.googleapis.com/v1beta/{operation_name}?key={api_key}"
-            print("Generating video... This may take a few minutes.")
-            print("(Veo generates high-quality video with audio - please be patient)")
-            
-            max_attempts = 72  # Up to 6 minutes
-            for attempt in range(max_attempts):
-                try:
-                    poll_request = Request(poll_url, headers=headers)
-                    with urlopen(poll_request, timeout=30) as response:
-                        status = json.loads(response.read().decode())
-                    
-                    if status.get("done"):
-                        if "error" in status:
-                            return {"error": f"Generation failed: {status['error']}"}
-                        
-                        # Extract video from response
-                        video_response = status.get("response", {})
-                        videos = video_response.get("generatedVideos", [])
-                        
-                        if not videos:
-                            return {"error": "No videos generated"}
-                        
-                        video_data = videos[0]
-                        video_obj = video_data.get("video", {})
-                        video_uri = video_obj.get("uri") or video_data.get("uri")
-                        
-                        # Download or decode video
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        filename = f"veo_{model}_{timestamp}.mp4"
-                        
-                        if video_uri:
-                            print(f"Downloading video to {filename}...")
-                            urlretrieve(video_uri, filename)
-                        elif "bytesBase64Encoded" in video_obj:
-                            print(f"Saving video to {filename}...")
-                            video_bytes = base64.b64decode(video_obj["bytesBase64Encoded"])
-                            with open(filename, "wb") as f:
-                                f.write(video_bytes)
-                        else:
-                            return {"error": "No video data in response"}
-                        
-                        return {
-                            "success": True,
-                            "file": filename,
-                            "model": model_id,
-                            "duration": duration,
-                            "aspect_ratio": aspect_ratio,
-                            "resolution": resolution,
-                            "has_audio": model in ["veo-3.1", "veo-3.1-fast", "veo-3", "veo-3-fast"],
-                            "prompt": prompt
-                        }
-                    
-                    if attempt % 6 == 0:
-                        elapsed = attempt * 5
-                        print(f"Still generating... ({elapsed}s elapsed)")
-                    time.sleep(5)
-                    
-                except Exception as poll_error:
-                    if attempt < max_attempts - 1:
-                        time.sleep(5)
-                        continue
-                    return {"error": f"Polling failed: {str(poll_error)}"}
-            
-            return {"error": "Generation timed out after 6 minutes"}
+        # Add negative prompt if provided
+        if negative_prompt:
+            config.negative_prompt = negative_prompt
         
+        # Handle image input for image-to-video
+        image_obj = None
+        if image:
+            try:
+                img_data, mime_type = load_image_as_base64(image)
+                image_obj = types.Image(
+                    image_bytes=base64.b64decode(img_data),
+                    mime_type=mime_type
+                )
+            except FileNotFoundError as e:
+                return {"error": str(e)}
+        
+        print("Generating video... This may take a few minutes.")
+        print("(Veo generates high-quality video with audio - please be patient)")
+        
+        # Start video generation
+        if image_obj:
+            operation = client.models.generate_videos(
+                model=model_id,
+                prompt=prompt,
+                image=image_obj,
+                config=config
+            )
         else:
-            # Synchronous response (unlikely but handle it)
-            videos = result.get("generatedVideos", [])
-            if videos:
-                video_data = videos[0]
-                video_obj = video_data.get("video", {})
+            operation = client.models.generate_videos(
+                model=model_id,
+                prompt=prompt,
+                config=config
+            )
+        
+        # Poll for completion
+        max_attempts = 72  # Up to 6 minutes
+        for attempt in range(max_attempts):
+            # Refresh operation status
+            operation = client.operations.get(operation=operation)
+            
+            if operation.done:
+                if operation.error:
+                    return {"error": f"Generation failed: {operation.error}"}
+                
+                # Get the result - try different response formats
+                videos = None
+                if operation.response and hasattr(operation.response, 'generated_videos'):
+                    videos = operation.response.generated_videos
+                elif operation.result and hasattr(operation.result, 'generated_videos'):
+                    videos = operation.result.generated_videos
+                
+                if not videos:
+                    return {"error": "No videos generated"}
+                
+                video = videos[0]
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 filename = f"veo_{model}_{timestamp}.mp4"
                 
-                if "bytesBase64Encoded" in video_obj:
-                    video_bytes = base64.b64decode(video_obj["bytesBase64Encoded"])
-                    with open(filename, "wb") as f:
-                        f.write(video_bytes)
-                    
-                    return {
-                        "success": True,
-                        "file": filename,
-                        "model": model_id,
-                        "duration": duration,
-                        "aspect_ratio": aspect_ratio,
-                        "resolution": resolution,
-                        "prompt": prompt
-                    }
+                # Try to get video data
+                video_saved = False
+                if hasattr(video, 'video'):
+                    if hasattr(video.video, 'video_bytes') and video.video.video_bytes:
+                        # Prefer direct bytes if available
+                        print(f"Saving video to {filename}...")
+                        with open(filename, "wb") as f:
+                            f.write(video.video.video_bytes)
+                        video_saved = True
+                    elif hasattr(video.video, 'uri') and video.video.uri:
+                        # Download from URI with API key auth
+                        print(f"Downloading video to {filename}...")
+                        video_url = video.video.uri
+                        # Add API key if not already in URL
+                        if "key=" not in video_url:
+                            separator = "&" if "?" in video_url else "?"
+                            video_url = f"{video_url}{separator}key={api_key}"
+                        try:
+                            req = Request(video_url)
+                            with urlopen(req, timeout=120) as resp:
+                                with open(filename, "wb") as f:
+                                    f.write(resp.read())
+                            video_saved = True
+                        except Exception as dl_error:
+                            # Try without auth as fallback
+                            try:
+                                urlretrieve(video.video.uri, filename)
+                                video_saved = True
+                            except Exception:
+                                return {"error": f"Failed to download video: {dl_error}"}
+                
+                if not video_saved:
+                    return {"error": "No video data in response"}
+                
+                return {
+                    "success": True,
+                    "file": filename,
+                    "model": model_id,
+                    "duration": duration,
+                    "aspect_ratio": aspect_ratio,
+                    "resolution": resolution,
+                    "has_audio": model in ["veo-3.1", "veo-3.1-fast", "veo-3", "veo-3-fast"],
+                    "prompt": prompt
+                }
             
-            return {"error": f"Unexpected response format: {json.dumps(result)[:200]}"}
-            
-    except HTTPError as e:
-        error_body = e.read().decode() if e.fp else str(e)
-        try:
-            error_json = json.loads(error_body)
-            error_message = error_json.get("error", {}).get("message", error_body)
-        except:
-            error_message = error_body
-        return {"error": f"API error ({e.code}): {error_message}"}
+            if attempt % 6 == 0:
+                elapsed = attempt * 5
+                print(f"Still generating... ({elapsed}s elapsed)")
+            time.sleep(5)
+        
+        return {"error": "Generation timed out after 6 minutes"}
+        
     except Exception as e:
         return {"error": f"Request failed: {str(e)}"}
 
