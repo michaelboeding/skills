@@ -1,0 +1,34 @@
+# Skills Plugin - Python Dependencies
+# Install with: pip install -r requirements.txt
+# Requires: Python 3.10+ (for google-genai)
+
+# =============================================================================
+# CORE DEPENDENCIES (Required for most skills)
+# =============================================================================
+
+# Google AI SDK - Required for:
+# - Image generation (Imagen 3)
+# - Video generation (Veo 3.1)
+# - Voice generation (Gemini TTS)
+# - Music generation (Lyria)
+google-genai>=1.0.0
+
+# =============================================================================
+# CHART & VISUALIZATION (For chart-generation skill)
+# =============================================================================
+matplotlib>=3.7.0
+numpy>=1.24.0
+
+# =============================================================================
+# SLIDE GENERATION (For slide-generation skill)
+# =============================================================================
+python-pptx>=0.6.21
+Pillow>=10.0.0
+
+# =============================================================================
+# OPTIONAL - Alternative Providers
+# =============================================================================
+# Note: OpenAI and ElevenLabs are called via urllib (no pip package needed)
+# If you prefer using official SDKs, uncomment these:
+# openai>=1.0.0
+# elevenlabs>=0.2.0

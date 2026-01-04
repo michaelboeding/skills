@@ -22,6 +22,43 @@ Copy the `skills/` folder to your project or follow your tool's skill installati
 
 ---
 
+## Python Dependencies
+
+Many skills require Python packages. Run the install script:
+
+```bash
+# From the skills directory
+./scripts/install.sh
+```
+
+Or install manually:
+
+```bash
+pip install -r requirements.txt
+```
+
+**Requirements:**
+- Python 3.10+ (for `google-genai` package)
+- pip
+
+**What gets installed:**
+
+| Package | Version | Used By |
+|---------|---------|---------|
+| `google-genai` | ≥1.0.0 | image-generation, video-generation, voice-generation, music-generation |
+| `matplotlib` | ≥3.7.0 | chart-generation |
+| `numpy` | ≥1.24.0 | chart-generation |
+| `python-pptx` | ≥0.6.21 | slide-generation |
+| `Pillow` | ≥10.0.0 | slide-generation, image processing |
+
+**Optional tools:**
+
+| Tool | Install | Used By |
+|------|---------|---------|
+| `ffmpeg` | `brew install ffmpeg` | media-utils, audio/video processing |
+
+---
+
 ## Setup
 
 ### API Keys (Required for some skills)
