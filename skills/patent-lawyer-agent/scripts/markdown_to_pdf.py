@@ -30,8 +30,18 @@ def check_dependencies():
         missing.append("weasyprint")
     
     if missing:
-        print(f"Error: Missing required packages: {', '.join(missing)}", file=sys.stderr)
-        print(f"Install with: pip install {' '.join(missing)}", file=sys.stderr)
+        print(f"""
+╭─────────────────────────────────────────────────────────────────╮
+│  Missing Dependencies: {', '.join(missing):<39} │
+╰─────────────────────────────────────────────────────────────────╯
+
+To install all skill dependencies, run:
+
+   ./scripts/install.sh
+   
+Or: pip install -r requirements.txt
+Or: pip install {' '.join(missing)}
+""", file=sys.stderr)
         return False
     return True
 

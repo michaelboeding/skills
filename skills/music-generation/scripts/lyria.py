@@ -24,8 +24,20 @@ try:
     from google import genai
     from google.genai import types
 except ImportError:
-    print("Error: google-genai package not installed.", file=sys.stderr)
-    print("Install with: pip install google-genai", file=sys.stderr)
+    print("""
+╭─────────────────────────────────────────────────────────────────╮
+│  Missing Dependency: google-genai                               │
+╰─────────────────────────────────────────────────────────────────╯
+
+To install all skill dependencies, run:
+
+   ./scripts/install.sh
+   
+Or: pip install -r requirements.txt
+Or: pip install google-genai
+
+Note: Requires Python 3.10+
+""", file=sys.stderr)
     sys.exit(1)
 
 

@@ -16,7 +16,18 @@ try:
     import matplotlib
     matplotlib.use('Agg')  # Non-interactive backend
 except ImportError:
-    print("Error: matplotlib not installed. Run: pip install matplotlib", file=sys.stderr)
+    print("""
+╭─────────────────────────────────────────────────────────────────╮
+│  Missing Dependency: matplotlib                                 │
+╰─────────────────────────────────────────────────────────────────╯
+
+To install all skill dependencies, run:
+
+   ./scripts/install.sh
+   
+Or: pip install -r requirements.txt
+Or: pip install matplotlib
+""", file=sys.stderr)
     sys.exit(1)
 
 
