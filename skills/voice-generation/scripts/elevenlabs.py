@@ -11,6 +11,29 @@ import json
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from datetime import datetime
+from pathlib import Path
+
+
+def load_env():
+    """Load environment variables from .env file in repo root."""
+    current = Path(__file__).resolve().parent
+    for _ in range(10):
+        env_file = current / ".env"
+        if env_file.exists():
+            with open(env_file) as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        key, _, value = line.partition("=")
+                        key = key.strip()
+                        value = value.strip().strip('"').strip("'")
+                        if key and value and key not in os.environ:
+                            os.environ[key] = value
+            return
+        current = current.parent
+
+
+load_env()
 
 
 # Popular ElevenLabs voice IDs
