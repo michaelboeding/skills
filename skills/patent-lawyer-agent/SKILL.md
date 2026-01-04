@@ -26,12 +26,13 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 | **Patentability Assessment** | Analysis of novelty and non-obviousness |
 | **Draft Claims** | Example patent claim language |
 | **IP Strategy** | Recommended protection approach |
-| **Full Patent Draft** | Complete patent application document (optional) |
+| **Full Patent Draft** | Complete patent application document with figures |
+| **Patent Figures** | Generated technical drawings (via image-generation skill) |
 
 ## Prerequisites
 
 - Web access for patent search
-- No API keys required
+- `GOOGLE_API_KEY` - For generating patent figures (uses image-generation skill)
 
 ## How It Works
 
@@ -91,11 +92,11 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
    - Summary, Detailed Description
    - Claims (10-20 independent + dependent)
    - Abstract
-   - Suggested figures
+4. **Generates patent figures** (technical drawings via image-generation)
 
-**Uses agents:** Prior Art Searcher, Patent Drafter
+**Uses agents:** Prior Art Searcher, Patent Drafter + image-generation skill
 
-**Output:** Full patent application in Markdown, ready for attorney review.
+**Output:** Full patent application in Markdown + generated figure images (PNG)
 
 ---
 
@@ -105,7 +106,8 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 
 **What it does:**
 1. Full patentability analysis (all 4 analysis agents)
-2. Then drafts complete patent application
+2. Drafts complete patent application
+3. **Generates patent figures**
 3. Delivers both assessment AND draft document
 
 **Uses agents:** All 5 agents
@@ -170,14 +172,22 @@ Each agent has a specific focus. The skill uses whichever are needed:
 ```
 
 ### Full Patent Draft
-Complete patent application with all sections (Title, Background, Description, Claims, Abstract) in Markdown format.
+Complete patent application with all sections (Title, Background, Description, Claims, Abstract) in Markdown format, plus generated technical drawings.
+
+**Output files:**
+- `patent_application.md` - The complete document
+- `patent_fig_1.png` - Perspective/overview view
+- `patent_fig_2.png` - Cross-section or mechanism view
+- `patent_fig_3.png` - Block diagram or flowchart
+- Additional figures as needed
 
 ---
 
-## Integration with Other Agents
+## Integration with Other Skills
 
-| Agent | Use Case |
+| Skill | Use Case |
 |-------|----------|
+| `image-generation` | **Generates patent figures** (technical drawings) |
 | `product-engineer-agent` | Identify patentable aspects of product |
 | `competitive-intel-agent` | Understand competitor IP landscape |
 | `market-researcher-agent` | Assess commercial value of patent |

@@ -151,6 +151,66 @@ Draft both types:
 - Mention key elements and advantages
 - No legal phrases like "comprising"
 
+---
+
+## Generating Patent Figures
+
+After drafting the document, **generate actual patent figures** using the `image-generation` skill.
+
+### Figure Types to Generate
+
+| Figure Type | When to Use | Example Prompt |
+|-------------|-------------|----------------|
+| **Perspective View** | Show overall invention | "Technical patent drawing, perspective view of [invention], clean line art, white background, engineering illustration style, labeled components with reference numerals" |
+| **Cross-Section** | Show internal structure | "Patent figure, cross-sectional view of [component], showing internal mechanism, black and white technical drawing, cutaway view with labels" |
+| **Block Diagram** | Show system architecture | "Patent block diagram showing [system components] connected with arrows, clean technical illustration, labeled boxes, black and white" |
+| **Flowchart** | Show method/process | "Patent flowchart diagram, process steps for [method], rectangular boxes connected with arrows, decision diamonds, clean technical style" |
+| **Exploded View** | Show assembly | "Technical exploded view drawing of [device], showing all components separated along axis, assembly diagram style, labeled parts" |
+| **Detail View** | Show specific feature | "Patent detail drawing of [feature], close-up technical illustration, cross-hatching for materials, reference numerals" |
+
+### How to Generate Figures
+
+For each figure in "Brief Description of the Drawings":
+
+1. **Create a detailed prompt** based on the invention description
+2. **Use the image-generation skill** with these settings:
+   - Style: Technical/engineering drawing
+   - Colors: Black and white (or minimal color)
+   - Include reference numerals from the description
+
+**Example generation command:**
+```bash
+python3 ${SKILL_PATH}/skills/image-generation/scripts/gemini.py \
+  --prompt "Technical patent drawing, perspective view of self-watering planter system, showing reservoir (20), plant container (30), moisture sensor (12), pump mechanism (16), clean black and white line art, engineering illustration style, white background, labeled with reference numerals" \
+  --aspect-ratio "4:3" \
+  --resolution "2K"
+```
+
+### Figure Prompt Template
+
+```
+Technical patent [FIGURE_TYPE] of [INVENTION/COMPONENT],
+showing [KEY ELEMENTS with reference numerals],
+[SPECIFIC DETAILS to illustrate],
+clean black and white line art,
+engineering illustration style,
+white background,
+labeled with reference numerals
+```
+
+### Generate All Figures
+
+After drafting the document, generate figures in this order:
+
+1. **FIG. 1** - Overall perspective view (shows the complete invention)
+2. **FIG. 2** - Key mechanism or cross-section (shows how it works)
+3. **FIG. 3** - Block diagram or flowchart (shows system/method)
+4. **Additional figures** as needed for detail views
+
+**Save figures as:** `patent_fig_1.png`, `patent_fig_2.png`, etc.
+
+---
+
 ## Output Format
 
 ```markdown
@@ -199,6 +259,19 @@ Consult a licensed patent attorney before filing.**
 
 ---
 
+## DRAWINGS
+
+![FIG. 1](patent_fig_1.png)
+*FIG. 1 - [Description]*
+
+![FIG. 2](patent_fig_2.png)
+*FIG. 2 - [Description]*
+
+![FIG. 3](patent_fig_3.png)
+*FIG. 3 - [Description]*
+
+---
+
 ## DETAILED DESCRIPTION OF THE INVENTION
 
 [Multiple paragraphs with full technical detail]
@@ -234,12 +307,17 @@ Consult a licensed patent attorney before filing.**
 - Total Claims: [X]
 - Independent Claims: [X]
 - Dependent Claims: [X]
-- Figures Suggested: [X]
+- Figures Generated: [X]
 - Word Count: ~[X]
 
+**Generated Figures:**
+- patent_fig_1.png - [Description]
+- patent_fig_2.png - [Description]
+- patent_fig_3.png - [Description]
+
 **Next Steps:**
-1. Review with patent attorney
-2. Create formal drawings
+1. Review document with patent attorney
+2. Review/refine generated figures (may need professional redraw)
 3. File provisional or non-provisional
 ```
 
@@ -273,3 +351,5 @@ Before delivering, verify:
 - [ ] Abstract under 150 words
 - [ ] No marketing language
 - [ ] Disclaimer included
+- [ ] Figures generated for all drawings described
+- [ ] Figure reference numerals match description
