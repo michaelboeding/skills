@@ -1,5 +1,5 @@
 ---
-name: brand-research
+name: brand-research-agent
 description: >
   Use this skill to analyze a brand from their website before creating content.
   Triggers: "analyze brand", "research brand", "brand guidelines", "brand profile",
@@ -31,19 +31,22 @@ Analyze a brand's website to extract brand elements for content creation.
 
 ## Workflow
 
-### Step 1: Gather the Website URL
+### Step 1: Get the Website URL (REQUIRED)
 
-Ask the user for:
-- Company website URL
-- Optional: Specific pages to analyze (about, products, etc.)
-- Optional: Known competitors to compare against
+**FIRST, always ask for the website URL.** Do not proceed without it.
 
-**Example prompt to user:**
+**Say this to the user:**
 
-"I'll analyze that brand for you! Please provide:
-1. **Website URL** (e.g., https://example.com)
-2. **Any specific pages?** (about, products, pricing - or I'll find them)
-3. **Known competitors?** (optional, for positioning analysis)"
+> "I'll analyze that brand for you! 
+>
+> **What's the website URL?** (e.g., https://nike.com)
+>
+> Optional: Any specific pages to focus on? Any known competitors?"
+
+**Wait for the user to provide the URL before proceeding.**
+
+If the user just says "analyze Nike's brand", ask:
+> "I'll analyze Nike for you. Just to confirm - should I use https://nike.com?"
 
 ---
 

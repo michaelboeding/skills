@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 4.0.0** - Producer skills for complete media production (video, podcast, audio, social)
+> **Version 5.1.0** - Added slide-generation and review-analyst-agent
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -77,28 +77,47 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | [video-generation](skills/video-generation/) | Generate videos using AI (Veo 3.1 with audio, Sora). Text-to-video, image-to-video. | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
 | [voice-generation](skills/voice-generation/) | Generate speech using AI TTS (Gemini TTS, ElevenLabs, OpenAI). Multi-speaker support. | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
 | [music-generation](skills/music-generation/) | Generate music using AI (Lyria instrumental, Suno, Udio). | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
-| [brand-research](skills/brand-research/) | Analyze a brand from their website. Extracts colors, typography, voice, audience. Outputs reusable `brand_profile.json`. | None (uses browser) |
+| [slide-generation](skills/slide-generation/) | Create presentation slides (PPTX, Markdown). Used by pitch-deck-agent and others. | None (`pip install python-pptx`) |
 
 ---
 
-## Producer Skills (Orchestrators)
+## Professional Agent Skills
 
-**Producer skills combine multiple generation skills to create complete, polished media.** They handle the entire workflow: planning, generating assets, and assembling the final output.
+**Professional agents handle business operations** - research, strategy, design, and content creation. They use specialized sub-agents for comprehensive analysis.
+
+| Agent | Purpose | Multi-Agent |
+|-------|---------|-------------|
+| [brand-research-agent](skills/brand-research-agent/) | Analyze brands from websites. Extract colors, typography, voice, audience. | ✅ 5 agents |
+| [product-engineer-agent](skills/product-engineer-agent/) | Design new products. Create specs, BOM estimates, differentiation. | ✅ 5 agents |
+| [market-researcher-agent](skills/market-researcher-agent/) | Research markets. TAM/SAM/SOM, trends, opportunities. | ✅ 4 agents |
+| [patent-lawyer-agent](skills/patent-lawyer-agent/) | IP guidance. Prior art, patentability, claims drafting. | ✅ 4 agents |
+| [pitch-deck-agent](skills/pitch-deck-agent/) | Create pitch decks. Investor, partner, customer presentations. | No (workflow) |
+| [copywriter-agent](skills/copywriter-agent/) | Write marketing copy. Headlines, ads, landing pages, emails. | ✅ 4 agents |
+| [competitive-intel-agent](skills/competitive-intel-agent/) | Analyze competitors. Features, pricing, positioning, battlecards. | ✅ 4 agents |
+| [review-analyst-agent](skills/review-analyst-agent/) | Analyze product reviews. Find issues, prioritize improvements. | ✅ 4 agents |
+
+**All professional agents use the `-agent` suffix** to indicate they are top-level autonomous workflows.
+
+---
+
+## Producer Agent Skills (Orchestrators)
+
+**Producer agents combine multiple generation skills to create complete, polished media.** They handle the entire workflow: planning, generating assets, and assembling the final output.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              PRODUCER SKILLS (Orchestrators)                │
+│              PRODUCER AGENTS (Orchestrators)                │
 │         Plan → Generate → Assemble → Deliver                │
 ├─────────────────────────────────────────────────────────────┤
-│  video-producer    podcast-producer    audio-producer       │
-│  social-producer                                            │
+│  video-producer-agent    podcast-producer-agent             │
+│  audio-producer-agent    social-producer-agent              │
 └───────────────────────────┬─────────────────────────────────┘
                             │ uses
 ┌───────────────────────────▼─────────────────────────────────┐
 │              GENERATION SKILLS (Single-purpose)             │
 ├─────────────────────────────────────────────────────────────┤
 │  image-generation   video-generation   music-generation     │
-│  voice-generation                                           │
+│  voice-generation   slide-generation                        │
 └───────────────────────────┬─────────────────────────────────┘
                             │ uses
 ┌───────────────────────────▼─────────────────────────────────┐
@@ -108,14 +127,14 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 └─────────────────────────────────────────────────────────────┘
 ```
 
-| Producer | Creates | Example |
-|----------|---------|---------|
-| [video-producer](skills/video-producer/) | Complete videos with voiceover + music | "Create a 30s product video for my headphones" |
-| [podcast-producer](skills/podcast-producer/) | Podcast episodes, interviews, dialogues | "Create a 5min podcast about AI with two hosts" |
-| [audio-producer](skills/audio-producer/) | Audiobooks, voiceovers, jingles, ads | "Create a 30s radio ad for our coffee brand" |
-| [social-producer](skills/social-producer/) | Multi-asset content packs | "Create a launch kit: 1 reel, 5 carousel images" |
+| Producer Agent | Creates | Example |
+|----------------|---------|---------|
+| [video-producer-agent](skills/video-producer-agent/) | Complete videos with voiceover + music | "Create a 30s product video for my headphones" |
+| [podcast-producer-agent](skills/podcast-producer-agent/) | Podcast episodes, interviews, dialogues | "Create a 5min podcast about AI with two hosts" |
+| [audio-producer-agent](skills/audio-producer-agent/) | Audiobooks, voiceovers, jingles, ads | "Create a 30s radio ad for our coffee brand" |
+| [social-producer-agent](skills/social-producer-agent/) | Multi-asset content packs | "Create a launch kit: 1 reel, 5 carousel images" |
 
-**All producer skills use `GOOGLE_API_KEY`** (same key for video, images, voice, music) and require **FFmpeg** for assembly.
+**All producer agents use `GOOGLE_API_KEY`** (same key for video, images, voice, music) and require **FFmpeg** for assembly.
 
 ### How Producers Work
 
@@ -157,19 +176,19 @@ apt install ffmpeg        # Linux
 pip install google-genai
 ```
 
-### Using Brand Research with Producers
+### Using Professional Agents with Producers
 
-For on-brand content, analyze the brand first:
+Combine professional agents with producer agents for complete workflows:
 
 ```
 USER: "Analyze Nike's brand, then create a product video for my sneakers"
 
 WORKFLOW:
-1. brand-research analyzes nike.com
+1. brand-research-agent analyzes nike.com
    → Extracts colors, typography, voice, audience
    → Saves brand_profile.json
 
-2. video-producer uses brand_profile.json
+2. video-producer-agent uses brand_profile.json
    → Matches Nike's visual style
    → Uses appropriate music mood
    → Follows voice guidelines
@@ -177,12 +196,17 @@ WORKFLOW:
 RESULT: Video that feels "Nike-like"
 ```
 
-**Brand Research uses 5 specialized agents** that analyze in parallel:
-- Visual Analyst (colors, fonts, imagery)
-- Voice Analyst (tone, messaging, copy style)
-- Product Analyst (offerings, USPs, pricing)
-- Audience Analyst (demographics, pain points)
-- Competitive Analyst (market position, differentiation)
+```
+USER: "Research the smart home market, design a new product, then create a pitch deck"
+
+WORKFLOW:
+1. market-researcher-agent → Market report with TAM/SAM/SOM
+2. product-engineer-agent → Product spec with BOM
+3. patent-lawyer-agent → IP assessment
+4. pitch-deck-agent → Investor presentation
+
+RESULT: Complete product launch package
+```
 
 ---
 
@@ -232,7 +256,7 @@ Focus: File ownership, shared contracts, parallel execution, integration.
 
 Focus: Language-agnostic detection, real examples from codebase, structured output.
 
-### Brand Analysts (for brand-research)
+### Brand Analysts (for brand-research-agent)
 
 5 specialized brand analysts that work in parallel:
 
@@ -245,6 +269,73 @@ Focus: Language-agnostic detection, real examples from codebase, structured outp
 | `competitive-analyst` | Market position, competitors, differentiation |
 
 Focus: Web scraping, pattern extraction, structured brand profile output.
+
+### Product Engineers (for product-engineer-agent)
+
+5 specialized engineering perspectives:
+
+| Agent | Focus |
+|-------|-------|
+| `industrial-designer` | Form, ergonomics, aesthetics, user interaction |
+| `mechanical-engineer` | Mechanism, materials, durability, assembly |
+| `user-researcher` | User needs, pain points, usability |
+| `manufacturing-advisor` | Feasibility, costs, production |
+| `innovation-scout` | Existing solutions, patents, differentiation |
+
+### Market Researchers (for market-researcher-agent)
+
+4 specialized market analysis perspectives:
+
+| Agent | Focus |
+|-------|-------|
+| `trend-analyst` | Market size, growth, trends, future outlook |
+| `consumer-researcher` | Customer segments, behavior, needs |
+| `industry-analyst` | Market structure, players, dynamics |
+| `opportunity-finder` | Gaps, opportunities, entry points |
+
+### Patent Analysts (for patent-lawyer-agent)
+
+4 specialized IP perspectives:
+
+| Agent | Focus |
+|-------|-------|
+| `prior-art-searcher` | Find existing patents, publications |
+| `patentability-analyst` | Assess novelty, non-obviousness |
+| `claims-strategist` | Draft claims, claim strategy |
+| `ip-strategy-advisor` | Protection strategy, timing, costs |
+
+### Copywriters (for copywriter-agent)
+
+4 specialized copywriting perspectives:
+
+| Agent | Focus |
+|-------|-------|
+| `headlines-writer` | Headlines, hooks, taglines |
+| `body-copy-writer` | Long-form persuasive copy |
+| `ad-copy-writer` | Platform-specific ad copy |
+| `cta-specialist` | Calls to action, conversion copy |
+
+### Competitive Analysts (for competitive-intel-agent)
+
+4 specialized competitive analysis perspectives:
+
+| Agent | Focus |
+|-------|-------|
+| `feature-analyst` | Product features, capabilities |
+| `pricing-analyst` | Pricing models, value comparison |
+| `positioning-analyst` | Brand positioning, messaging |
+| `market-position-analyst` | Market share, company health |
+
+### Review Analysts (for review-analyst-agent)
+
+4 specialized review analysis perspectives:
+
+| Agent | Focus |
+|-------|-------|
+| `review-scraper` | Find and collect reviews from platforms |
+| `sentiment-analyzer` | Analyze sentiment, emotions, trends |
+| `issue-identifier` | Categorize complaints, find patterns |
+| `improvement-recommender` | Prioritize fixes, create action plans |
 
 ---
 
@@ -497,6 +588,170 @@ create an upbeat pop song about summer
 generate a cinematic orchestral soundtrack
 
 make a lo-fi hip hop beat for studying
+```
+
+### slide-generation
+
+Create presentation slides:
+
+```
+create slides from this content: [paste JSON]
+
+generate a PowerPoint presentation for my pitch
+
+make slides for my market research report
+```
+
+---
+
+## Professional Agent Examples
+
+### brand-research-agent
+
+Analyze a brand from their website:
+
+```
+analyze the Nike brand from their website
+
+research Apple's brand guidelines
+
+what's the brand voice for Stripe?
+```
+
+### product-engineer-agent
+
+Design new products:
+
+```
+design a new portable phone charger
+
+I have an idea for a smart water bottle, help me develop it
+
+create a product spec for a pet feeding device
+```
+
+### market-researcher-agent
+
+Research markets and opportunities:
+
+```
+what's the market size for smart home devices?
+
+research the plant-based food market trends
+
+is there an opportunity in sustainable packaging?
+```
+
+### patent-lawyer-agent
+
+IP guidance (informational only):
+
+```
+is my invention patentable?
+
+search for prior art on foldable drone designs
+
+should I patent this or keep it as trade secret?
+```
+
+### pitch-deck-agent
+
+Create investor presentations:
+
+```
+create a pitch deck for my AI startup
+
+build a seed round presentation
+
+make investor slides for my SaaS company
+```
+
+### copywriter-agent
+
+Write marketing copy:
+
+```
+write headlines for our product launch
+
+create ad copy for our Black Friday sale
+
+write landing page copy for our new app
+```
+
+### competitive-intel-agent
+
+Analyze competitors:
+
+```
+analyze our competitors: Salesforce, HubSpot, Pipedrive
+
+what are Notion's weaknesses?
+
+create a competitive battlecard for sales
+```
+
+### review-analyst-agent
+
+Analyze customer reviews:
+
+```
+analyze reviews for our product on Amazon
+
+what are people complaining about with [competitor]?
+
+find the top issues we should fix from customer feedback
+```
+
+---
+
+## Producer Agent Examples
+
+### video-producer-agent
+
+Create complete videos with voiceover and music:
+
+```
+create a 30-second product video for my headphones
+
+make a demo video for my SaaS app
+
+create an explainer video about how our service works
+```
+
+### podcast-producer-agent
+
+Create podcast episodes and dialogues:
+
+```
+create a 5-minute podcast about AI with two hosts
+
+make a fake interview between Einstein and Elon Musk
+
+create an educational podcast episode about climate change
+```
+
+### audio-producer-agent
+
+Create voiceovers, audiobooks, and audio ads:
+
+```
+create a 30-second radio ad for our coffee brand
+
+generate an audiobook narration for this chapter
+
+make a meditation audio with calming background music
+```
+
+### social-producer-agent
+
+Create social media content packs:
+
+```
+create a launch kit: 1 reel, 5 carousel images
+
+make a week of social content for our product
+
+create TikTok content for our new feature
 ```
 
 ---

@@ -1,5 +1,5 @@
 ---
-name: podcast-producer
+name: podcast-producer-agent
 description: >
   Use this skill to create podcast episodes, interviews, dialogues, and conversation-style audio.
   Triggers: "create podcast", "podcast episode", "interview audio", "dialogue", "conversation",

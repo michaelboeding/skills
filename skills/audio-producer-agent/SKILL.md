@@ -1,5 +1,5 @@
 ---
-name: audio-producer
+name: audio-producer-agent
 description: >
   Use this skill to create single-voice audio content like audiobooks, voiceovers, narrations, jingles, and audio ads.
   Triggers: "create audiobook", "generate voiceover", "narration", "audio ad", "radio ad",

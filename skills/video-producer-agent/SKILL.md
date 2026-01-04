@@ -1,5 +1,5 @@
 ---
-name: video-producer
+name: video-producer-agent
 description: >
   Use this skill to create complete videos with voiceover and music.
   Triggers: "create video", "product video", "explainer video", "promo video", "demo video",

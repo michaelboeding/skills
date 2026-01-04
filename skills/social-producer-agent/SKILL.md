@@ -1,5 +1,5 @@
 ---
-name: social-producer
+name: social-producer-agent
 description: >
   Use this skill to create multiple social media assets as a coordinated pack.
   Triggers: "social media content", "content pack", "social assets", "campaign assets",
