@@ -1,11 +1,40 @@
 ---
 name: image-generation
-description: This skill should be used when the user asks to "generate an image", "create an image", "make a picture", "draw", "visualize", "image of", "generate art", "create artwork", or needs AI image generation using OpenAI DALL-E or Google Gemini (Nano Banana / Nano Banana Pro). Handles prompt crafting, API selection, and image delivery.
+description: >
+  Use this skill for any image-related AI generation or editing task. Triggers include:
+  GENERATE: "generate image", "create image", "make picture", "draw", "visualize", "image of", "create art", "generate art"
+  EDIT: "edit image", "modify image", "change image", "update image", "fix image", "enhance image"
+  ADD/REMOVE: "add to image", "put in image", "remove from image", "delete from image", "add element"
+  STYLE: "style transfer", "make it look like", "convert style", "apply style", "in the style of"
+  PRODUCT: "product photo", "product placement", "place product", "mockup", "put product on"
+  COMPOSITE: "combine images", "merge images", "blend images", "create composite"
+  Supports text-to-image generation, image editing with references, product placement, style transfer, and multi-image composition using Google Gemini (Nano Banana Pro) or OpenAI DALL-E.
 ---
 
-# Image Generation Skill
+# Image Generation & Editing Skill
 
-Generate images using AI image generation APIs (OpenAI DALL-E 3, Google Gemini Nano Banana / Nano Banana Pro).
+Generate and edit images using AI (Google Gemini Nano Banana Pro, OpenAI DALL-E 3).
+
+**Capabilities:**
+- 🎨 **Generate**: Create new images from text descriptions
+- ✏️ **Edit**: Modify existing images (add/remove elements, change colors)
+- 🛍️ **Product Placement**: Put products into scenes
+- 🎭 **Style Transfer**: Apply artistic styles to photos
+- 🖼️ **Composite**: Combine multiple images into one
+
+## Quick Examples
+
+Users can specify what they want:
+
+| User Says | Mode | What Happens |
+|-----------|------|--------------|
+| "Generate an image of a sunset" | Generate | Text-to-image, no reference needed |
+| "Create a logo for my coffee shop" | Generate | Text-to-image with text rendering |
+| "Edit this image: add a hat to the cat" | Edit | User provides image, AI modifies it |
+| "Remove the background from this photo" | Edit | User provides image, AI edits it |
+| "Put this product on a kitchen counter" | Product | User provides product + optional scene |
+| "Make this photo look like Van Gogh painted it" | Style | User provides photo, AI applies style |
+| "Combine these photos into a group shot" | Composite | User provides multiple images |
 
 ## Prerequisites
 
