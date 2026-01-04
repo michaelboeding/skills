@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.2.0** - Patent drafting with figures, product engineering with visuals
+> **Version 5.3.0** - Ask-first visuals, pitch deck images, competitive charts
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -91,9 +91,9 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | [product-engineer-agent](skills/product-engineer-agent/) | Design new products with specs, BOM, and **generated visuals** (concept renders, exploded views). | ✅ 5 agents + visuals |
 | [market-researcher-agent](skills/market-researcher-agent/) | Research markets. TAM/SAM/SOM, trends, opportunities. | ✅ 4 agents |
 | [patent-lawyer-agent](skills/patent-lawyer-agent/) | IP guidance, patent drafting with **generated figures**. Prior art, claims, full applications. | ✅ 5 agents + figures |
-| [pitch-deck-agent](skills/pitch-deck-agent/) | Create pitch decks. Investor, partner, customer presentations. | No (workflow) |
+| [pitch-deck-agent](skills/pitch-deck-agent/) | Create pitch decks with **generated slide images** (charts, mockups, icons). | No (workflow) + visuals |
 | [copywriter-agent](skills/copywriter-agent/) | Write marketing copy. Headlines, ads, landing pages, emails. | ✅ 4 agents |
-| [competitive-intel-agent](skills/competitive-intel-agent/) | Analyze competitors. Features, pricing, positioning, battlecards. | ✅ 4 agents |
+| [competitive-intel-agent](skills/competitive-intel-agent/) | Analyze competitors with **visual comparison charts** (positioning matrix, features). | ✅ 4 agents + charts |
 | [review-analyst-agent](skills/review-analyst-agent/) | Analyze product reviews. Find issues, prioritize improvements. | ✅ 4 agents |
 
 **All professional agents use the `-agent` suffix** to indicate they are top-level autonomous workflows.

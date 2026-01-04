@@ -234,9 +234,79 @@ Visual: Brand imagery, contact details
 
 ---
 
-### Step 5: Offer Enhancements
+### Step 5: Generate Slide Images (If Requested)
 
-**Delivery message:**
+If user wants images, generate using the `image-generation` skill.
+
+**Ask first:**
+> "Want me to generate images for each slide?
+> - 📊 Charts & diagrams (market size, competitive matrix, growth graphs)
+> - 📸 Concept visuals (product mockups, icons, illustrations)
+> - 🎨 Both
+> - ❌ No images (content only)"
+
+**Image types by slide:**
+
+| Slide | Image Type | Example Prompt |
+|-------|------------|----------------|
+| Problem | Icon/illustration | "Simple icon illustration of [pain point], clean minimal style, single color" |
+| Solution | Product mockup | "Modern app screenshot mockup on iPhone, clean UI showing [feature]" |
+| Market | Chart | "Professional market size chart, TAM SAM SOM concentric circles, blue gradient, business presentation style" |
+| Product | Screenshot/demo | "Product dashboard screenshot, modern SaaS interface, clean design" |
+| Traction | Growth chart | "Line graph showing exponential growth, up and to the right, professional chart style, green trend line" |
+| Competition | 2x2 matrix | "Competitive positioning matrix, 2x2 grid with company logos, business presentation style" |
+| Team | Team grid | (Use actual photos if provided) |
+| Financials | Pie chart | "Use of funds pie chart, 4 segments, professional business colors" |
+
+**Prompt template:**
+```
+Professional pitch deck visual for [SLIDE_TYPE],
+[SPECIFIC CONTENT],
+clean modern design,
+business presentation style,
+[BRAND COLORS if known],
+minimal, high contrast
+```
+
+**Example generation:**
+```bash
+python3 ${SKILL_PATH}/skills/image-generation/scripts/gemini.py \
+  --prompt "Professional market opportunity chart, TAM $50B SAM $5B SOM $500M concentric circles, blue gradient colors, clean business presentation style, white background, labeled segments" \
+  --aspect-ratio "16:9" \
+  --resolution "2K"
+```
+
+**Save files as:**
+- `slide_01_title.png`
+- `slide_02_problem.png`
+- `slide_03_solution.png`
+- etc.
+
+---
+
+### Step 6: Deliver Complete Package
+
+**Delivery message (with images):**
+
+"✅ Pitch deck complete!
+
+**Deck:** [Company Name] - [Type] Pitch
+**Slides:** 11 core + appendix recommendations
+**Images:** Generated for [X] slides ✓
+
+**Files created:**
+- Slide content (Markdown/JSON)
+- slide_01_title.png through slide_11_closing.png
+
+**Want me to:**
+- Create appendix slides? (detailed metrics, etc.)
+- Adjust tone for different audience?
+- Regenerate specific slide images?
+- Export to PowerPoint? (uses slide-generation skill)"
+
+---
+
+**Delivery message (content only, no images):**
 
 "✅ Pitch deck content complete!
 
@@ -245,14 +315,13 @@ Visual: Brand imagery, contact details
 
 **Ready for:**
 - Copy to Google Slides/PowerPoint
-- Generate visuals for each slide
-- Create appendix slides for Q&A
+- Add your own visuals
 
 **Want me to:**
-- Generate images for each slide? (uses image-generation)
+- **Generate images for each slide?** (charts, mockups, illustrations)
 - Create appendix slides? (detailed metrics, etc.)
 - Adjust tone for different audience?
-- Add more slides for specific sections?"
+- Export to PowerPoint? (uses slide-generation skill)"
 
 ---
 

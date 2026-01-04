@@ -84,6 +84,20 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 
 "Write a complete patent for my invention" / "Create a patent document for this"
 
+**First, ask the user:**
+
+> "I'll draft a complete patent application for your invention!
+>
+> **⚠️ Note:** This is informational only, not legal advice.
+>
+> Before I start:
+> 1. **Tell me about your invention** (if not already described)
+> 2. **Want me to generate patent figures?**
+>    - 📐 Yes - perspective views, cross-sections, block diagrams (B&W technical drawings)
+>    - 📝 No - figure descriptions only (you'll create your own drawings)
+>
+> Generating figures requires `GOOGLE_API_KEY`."
+
 **What it does:**
 1. Gathers invention details (asks if needed)
 2. Searches prior art (automatically)
@@ -92,11 +106,11 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
    - Summary, Detailed Description
    - Claims (10-20 independent + dependent)
    - Abstract
-4. **Generates patent figures** (technical drawings via image-generation)
+4. **If user requested figures:** Generates patent figures (technical drawings)
 
-**Uses agents:** Prior Art Searcher, Patent Drafter + image-generation skill
+**Uses agents:** Prior Art Searcher, Patent Drafter + image-generation skill (if figures requested)
 
-**Output:** Full patent application in Markdown + generated figure images (PNG)
+**Output:** Full patent application in Markdown + generated figure images (if requested)
 
 ---
 
@@ -107,10 +121,12 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 **What it does:**
 1. Full patentability analysis (all 4 analysis agents)
 2. Drafts complete patent application
-3. **Generates patent figures**
-3. Delivers both assessment AND draft document
+3. **If user requested figures:** Generates patent figures
+4. Delivers both assessment AND draft document
 
-**Uses agents:** All 5 agents
+**Uses agents:** All 5 agents + image-generation (if figures requested)
+
+**Note:** Will ask about figure generation preference (same as section 3)
 
 ---
 

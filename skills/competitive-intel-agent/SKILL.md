@@ -23,11 +23,12 @@ Analyze competitors and develop strategies to win against them.
 | **Gap Analysis** | Where you can differentiate |
 | **Battlecard** | Quick reference for sales/marketing |
 | **Strategy Recommendations** | How to position against each competitor |
+| **Visual Charts** | Positioning matrix, feature comparison, pricing charts (optional) |
 
 ## Prerequisites
 
 - Web access for research
-- No API keys required
+- `GOOGLE_API_KEY` - For generating comparison charts (optional, uses image-generation skill)
 
 ## Workflow
 
@@ -42,6 +43,9 @@ Analyze competitors and develop strategies to win against them.
 > 2. **Who are your main competitors?** (company names/URLs)
 > 3. **What aspects to compare?** (features, pricing, market position)
 > 4. **What's your goal?** (differentiate, enter market, win deals)
+> 5. **Want me to generate visual charts?**
+>    - 📊 Yes - positioning matrix, feature comparison, pricing charts
+>    - 📝 No - text/tables only
 >
 > If you don't know competitors, I can help identify them."
 
@@ -178,19 +182,60 @@ Combine all agent outputs into structured intelligence:
 
 ---
 
-### Step 4: Deliver Actionable Intelligence
+### Step 4: Generate Comparison Charts (If Requested)
 
-**Delivery message:**
+If user wants visual charts, generate using the `image-generation` skill.
+
+**Charts to generate:**
+
+| Chart Type | Purpose | Example Prompt |
+|------------|---------|----------------|
+| **Positioning Matrix** | Show competitive landscape | "Competitive positioning 2x2 matrix, X-axis: Price (low to high), Y-axis: Features (basic to advanced), with company logos/names plotted, clean business style" |
+| **Feature Comparison** | Compare capabilities | "Feature comparison chart, [Your Product] vs [Comp A] vs [Comp B], checkmarks and X marks, clean table visualization" |
+| **Pricing Chart** | Compare price points | "Bar chart comparing pricing, [Products] on X-axis, price on Y-axis, professional business colors" |
+| **Market Share** | Show market positions | "Pie chart showing market share, [Company names] with percentages, business presentation style" |
+
+**Prompt template:**
+```
+Professional competitive analysis chart,
+[CHART TYPE] showing [COMPETITORS],
+[DATA TO VISUALIZE],
+clean business presentation style,
+professional colors,
+easy to read labels
+```
+
+**Example generation:**
+```bash
+python3 ${SKILL_PATH}/skills/image-generation/scripts/gemini.py \
+  --prompt "Competitive positioning 2x2 matrix, X-axis labeled 'Price' from Low to High, Y-axis labeled 'Features' from Basic to Enterprise, showing Salesforce in top-right, HubSpot in middle, Pipedrive in bottom-left, clean business presentation style, professional blue colors, labeled quadrants" \
+  --aspect-ratio "16:9" \
+  --resolution "2K"
+```
+
+**Save files as:**
+- `competitive_matrix.png` - 2x2 positioning matrix
+- `feature_comparison.png` - Feature checkmark grid
+- `pricing_comparison.png` - Pricing bar chart
+
+---
+
+### Step 5: Deliver Actionable Intelligence
+
+**Delivery message (with charts):**
 
 "✅ Competitive analysis complete!
 
 **You vs [# competitors analyzed]**
 
 **Your Biggest Advantage:** [Key differentiator]
-
 **Biggest Threat:** [Competitor] because [reason]
-
 **Best Opportunity:** [Gap or segment to exploit]
+
+**Generated Charts:**
+- competitive_matrix.png (positioning 2x2)
+- feature_comparison.png
+- pricing_comparison.png
 
 **Quick Battlecard:**
 - Against [Competitor 1]: Lead with [differentiator]
@@ -200,8 +245,29 @@ Combine all agent outputs into structured intelligence:
 - Deep dive on any competitor?
 - Create detailed battlecards for sales?
 - Analyze additional competitors?
-- Research specific features?
-- Monitor for changes?"
+- Research specific features?"
+
+---
+
+**Delivery message (analysis only, no charts):**
+
+"✅ Competitive analysis complete!
+
+**You vs [# competitors analyzed]**
+
+**Your Biggest Advantage:** [Key differentiator]
+**Biggest Threat:** [Competitor] because [reason]
+**Best Opportunity:** [Gap or segment to exploit]
+
+**Quick Battlecard:**
+- Against [Competitor 1]: Lead with [differentiator]
+- Against [Competitor 2]: Emphasize [strength]
+
+**Want me to:**
+- **Generate visual charts?** (positioning matrix, comparisons)
+- Deep dive on any competitor?
+- Create detailed battlecards for sales?
+- Analyze additional competitors?"
 
 ---
 
@@ -242,10 +308,11 @@ OBJECTION HANDLING:
 
 ---
 
-## Integration with Other Agents
+## Integration with Other Skills
 
-| Agent | Use Case |
+| Skill | Use Case |
 |-------|----------|
+| `image-generation` | **Generate comparison charts** (positioning matrix, features, pricing) |
 | `brand-research-agent` | Deep dive on competitor's brand |
 | `market-researcher-agent` | Market size and dynamics |
 | `product-engineer-agent` | Design features to differentiate |
