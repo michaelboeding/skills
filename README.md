@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.1.0** - Added slide-generation and review-analyst-agent
+> **Version 5.2.0** - Patent drafting with figures, product engineering with visuals
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -88,9 +88,9 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | Agent | Purpose | Multi-Agent |
 |-------|---------|-------------|
 | [brand-research-agent](skills/brand-research-agent/) | Analyze brands from websites. Extract colors, typography, voice, audience. | ✅ 5 agents |
-| [product-engineer-agent](skills/product-engineer-agent/) | Design new products. Create specs, BOM estimates, differentiation. | ✅ 5 agents |
+| [product-engineer-agent](skills/product-engineer-agent/) | Design new products with specs, BOM, and **generated visuals** (concept renders, exploded views). | ✅ 5 agents + visuals |
 | [market-researcher-agent](skills/market-researcher-agent/) | Research markets. TAM/SAM/SOM, trends, opportunities. | ✅ 4 agents |
-| [patent-lawyer-agent](skills/patent-lawyer-agent/) | IP guidance. Prior art, patentability, claims drafting. | ✅ 4 agents |
+| [patent-lawyer-agent](skills/patent-lawyer-agent/) | IP guidance, patent drafting with **generated figures**. Prior art, claims, full applications. | ✅ 5 agents + figures |
 | [pitch-deck-agent](skills/pitch-deck-agent/) | Create pitch decks. Investor, partner, customer presentations. | No (workflow) |
 | [copywriter-agent](skills/copywriter-agent/) | Write marketing copy. Headlines, ads, landing pages, emails. | ✅ 4 agents |
 | [competitive-intel-agent](skills/competitive-intel-agent/) | Analyze competitors. Features, pricing, positioning, battlecards. | ✅ 4 agents |
@@ -272,12 +272,12 @@ Focus: Web scraping, pattern extraction, structured brand profile output.
 
 ### Product Engineers (for product-engineer-agent)
 
-5 specialized engineering perspectives:
+5 specialized engineering perspectives + visual generation:
 
 | Agent | Focus |
 |-------|-------|
-| `industrial-designer` | Form, ergonomics, aesthetics, user interaction |
-| `mechanical-engineer` | Mechanism, materials, durability, assembly |
+| `industrial-designer` | Form, ergonomics, aesthetics + **generates concept renders** |
+| `mechanical-engineer` | Mechanism, materials, assembly + **generates exploded views** |
 | `user-researcher` | User needs, pain points, usability |
 | `manufacturing-advisor` | Feasibility, costs, production |
 | `innovation-scout` | Existing solutions, patents, differentiation |
@@ -295,7 +295,7 @@ Focus: Web scraping, pattern extraction, structured brand profile output.
 
 ### Patent Analysts (for patent-lawyer-agent)
 
-4 specialized IP perspectives:
+5 specialized IP perspectives:
 
 | Agent | Focus |
 |-------|-------|
@@ -303,6 +303,7 @@ Focus: Web scraping, pattern extraction, structured brand profile output.
 | `patentability-analyst` | Assess novelty, non-obviousness |
 | `claims-strategist` | Draft claims, claim strategy |
 | `ip-strategy-advisor` | Protection strategy, timing, costs |
+| `patent-drafter` | Draft complete patent applications with generated figures |
 
 ### Copywriters (for copywriter-agent)
 
@@ -620,7 +621,7 @@ what's the brand voice for Stripe?
 
 ### product-engineer-agent
 
-Design new products:
+Design new products with specs and visuals:
 
 ```
 design a new portable phone charger
@@ -628,6 +629,10 @@ design a new portable phone charger
 I have an idea for a smart water bottle, help me develop it
 
 create a product spec for a pet feeding device
+
+design a modular desk organizer and show me concept renders
+
+create an exploded view of my product design
 ```
 
 ### market-researcher-agent
@@ -644,7 +649,7 @@ is there an opportunity in sustainable packaging?
 
 ### patent-lawyer-agent
 
-IP guidance (informational only):
+IP guidance and patent drafting (informational only):
 
 ```
 is my invention patentable?
@@ -652,6 +657,10 @@ is my invention patentable?
 search for prior art on foldable drone designs
 
 should I patent this or keep it as trade secret?
+
+draft a full patent application for my invention
+
+create a patent with figures for my self-watering planter
 ```
 
 ### pitch-deck-agent
