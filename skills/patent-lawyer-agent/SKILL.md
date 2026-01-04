@@ -33,6 +33,7 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 
 - Web access for patent search
 - `GOOGLE_API_KEY` - For generating patent figures (uses image-generation skill)
+- `pip install markdown weasyprint` - For PDF generation
 
 ## How It Works
 
@@ -191,7 +192,8 @@ Each agent has a specific focus. The skill uses whichever are needed:
 Complete patent application with all sections (Title, Background, Description, Claims, Abstract) in Markdown format, plus generated technical drawings.
 
 **Output files:**
-- `patent_application.md` - The complete document
+- `patent_application.pdf` - **Final PDF with all figures embedded**
+- `patent_application.md` - Editable source document
 - `patent_fig_1.png` - Perspective/overview view
 - `patent_fig_2.png` - Cross-section or mechanism view
 - `patent_fig_3.png` - Block diagram or flowchart

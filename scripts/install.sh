@@ -108,6 +108,8 @@ test_import "matplotlib" "matplotlib (chart generation)"
 test_import "numpy" "numpy (data processing)"
 test_import "pptx" "python-pptx (slide generation)"
 test_import "PIL" "Pillow (image processing)"
+test_import "markdown" "markdown (document conversion)"
+test_import "weasyprint" "weasyprint (PDF generation)"
 
 echo ""
 

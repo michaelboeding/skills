@@ -26,6 +26,12 @@ python-pptx>=0.6.21
 Pillow>=10.0.0
 
 # =============================================================================
+# PDF GENERATION (For patent-lawyer-agent PDF export)
+# =============================================================================
+markdown>=3.4.0
+weasyprint>=60.0
+
+# =============================================================================
 # OPTIONAL - Alternative Providers
 # =============================================================================
 # Note: OpenAI and ElevenLabs are called via urllib (no pip package needed)

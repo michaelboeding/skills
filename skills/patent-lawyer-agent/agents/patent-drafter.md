@@ -385,6 +385,33 @@ Consult a licensed patent attorney before filing.**
 - Avoid absolute terms ("always", "never", "must")
 - Use "substantially", "approximately" for flexibility
 
+## Final Step: Generate PDF
+
+After completing the Markdown document and generating all figures, **merge everything into a single PDF**:
+
+```bash
+python3 ${SKILL_PATH}/skills/patent-lawyer-agent/scripts/markdown_to_pdf.py \
+  --input patent_application.md \
+  --output patent_application.pdf \
+  --title "Patent Application - [INVENTION TITLE]"
+```
+
+**What this does:**
+1. Reads the Markdown document
+2. Embeds all images (patent_fig_*.png) as base64
+3. Applies patent-appropriate formatting (Times New Roman, 1" margins)
+4. Adds page numbers and headers
+5. Generates a professional PDF ready for attorney review
+
+**Output files delivered to user:**
+- `patent_application.md` - Editable source document
+- `patent_application.pdf` - Final formatted PDF with embedded figures
+- `patent_fig_*.png` - Individual figure files (for editing if needed)
+
+**Requires:** `pip install markdown weasyprint`
+
+---
+
 ## Quality Checklist
 
 Before delivering, verify:
@@ -399,3 +426,4 @@ Before delivering, verify:
 - [ ] Disclaimer included
 - [ ] Figures generated for all drawings described
 - [ ] Figure reference numerals match description
+- [ ] PDF generated with all figures embedded
