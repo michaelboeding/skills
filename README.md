@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 3.1.0** - Add parallel-builder for divide-and-conquer implementation
+> **Version 3.2.0** - Add codebase-style for convention analysis
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -66,6 +66,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 | Skill | Description | API Keys |
 |-------|-------------|----------|
+| [codebase-style](skills/codebase-style/) | Analyze codebase conventions with specialized agents (structure, naming, patterns, testing, frontend). Generates `.claude/codebase-style.md` style guide. | None |
 | [debug-council](skills/debug-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent debugs independently, majority voting. For bugs & algorithms. | None |
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation. Each agent builds the feature independently, then synthesizes best parts from each. | None |
 | [parallel-builder](skills/parallel-builder/) | Divide-and-conquer from specs/plans. Decomposes a plan into independent tasks, assigns each to an agent, executes in parallel waves, then integrates. | None |
@@ -109,6 +110,20 @@ Focus: Codebase pattern matching, edge case coverage, comprehensive implementati
 
 Focus: File ownership, shared contracts, parallel execution, integration.
 
+### Style Analyzers (for codebase-style)
+
+5 specialized analyzer agents, each focused on one aspect:
+
+| Agent | Focus |
+|-------|-------|
+| `style-structure` | Folder organization, file layout, module patterns |
+| `style-naming` | Naming conventions for files, variables, functions, classes |
+| `style-patterns` | Error handling, data access, logging, configuration |
+| `style-testing` | Test location, naming, structure, assertions |
+| `style-frontend` | Component patterns, styling, state (if applicable) |
+
+Focus: Language-agnostic detection, real examples from codebase, structured output.
+
 ---
 
 Both debug and feature agent types:
@@ -143,6 +158,36 @@ These agents are invoked automatically by their skills and should not be called 
 ---
 
 ## Usage Examples
+
+### codebase-style
+
+Analyze a codebase to extract its conventions and patterns. Generates a reusable style guide:
+
+```
+analyze codebase style
+
+generate style guide for this project
+
+what are the conventions in this codebase
+```
+
+How it works:
+1. **Quick language detection** - Identifies project type
+2. **5 specialized analyzers spawn in parallel**:
+   - Structure: folder layout, modules
+   - Naming: files, variables, functions, classes
+   - Patterns: error handling, data access, logging
+   - Testing: test location, naming, structure
+   - Frontend: components, styling (if applicable)
+3. **Synthesize findings** into comprehensive guide
+4. **Save to `.claude/codebase-style.md`**
+
+**Output:**
+- Structured style guide with real examples
+- Can be referenced by other skills (feature-council, debug-council)
+- Run once per codebase, update when patterns change
+
+---
 
 ### debug-council
 
