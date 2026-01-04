@@ -23,10 +23,12 @@ Design and develop new product concepts with comprehensive specifications.
 | **BOM Estimate** | Bill of materials with rough cost estimates |
 | **Differentiation** | How it differs from existing products |
 | **Next Steps** | Recommended path to prototype/production |
+| **Concept Renders** | Product visualization images (via image-generation) |
+| **Engineering Drawings** | Exploded views, cross-sections, assembly diagrams |
 
 ## Prerequisites
 
-- No API keys required (analysis only)
+- `GOOGLE_API_KEY` - For generating product visuals (uses image-generation skill)
 - Works with any product category
 
 ## Workflow
@@ -41,10 +43,22 @@ Design and develop new product concepts with comprehensive specifications.
 > 2. **Who is it for?** (target user)
 > 3. **Any must-have features?** (key requirements)
 > 4. **Any constraints?** (budget, size, materials, etc.)
+> 5. **Want me to generate visuals?**
+>    - 🎨 Concept renders (what it looks like)
+>    - 🔧 Engineering drawings (exploded views, cross-sections)
+>    - Both
+>    - No visuals (spec document only)
 >
 > Share as much or as little as you have - I'll help fill in the gaps!"
 
 **Wait for the user to describe their product idea.**
+
+**Parse visual preferences:**
+- If user says "yes", "visuals", "show me", "render", "drawings" → Generate all visuals
+- If user says "concept only" → Just concept render + lifestyle
+- If user says "engineering only" → Just exploded/technical views
+- If user says "no visuals" or doesn't mention → Skip visual generation
+- If unclear → Default to generating visuals (they add value)
 
 ---
 
@@ -176,9 +190,69 @@ Combine all agent outputs into a structured specification:
 
 ---
 
-### Step 4: Deliver and Iterate
+### Step 4: Generate Product Visuals (If Requested)
 
-**Delivery message:**
+**Only generate visuals if user requested them in Step 1.**
+
+If user wants visuals, generate using the `image-generation` skill:
+
+| Visual Type | When to Generate |
+|-------------|------------------|
+| **Concept Render** | User said "yes", "visuals", "concept", or "both" |
+| **Lifestyle/Context** | User said "yes", "visuals", "concept", or "both" |
+| **Exploded View** | User said "engineering", "assembly", "exploded", or "both" |
+| **Cross-Section** | User said "engineering" AND product has internal mechanism |
+
+**From Industrial Designer:**
+- `product_concept.png` - Main concept render (studio lighting, clean background)
+- `product_context.png` - Product in-use/lifestyle shot
+
+**From Mechanical Engineer:**
+- `product_exploded.png` - Exploded view showing all components
+- `product_section.png` - Cross-section (if internal mechanism is key)
+
+**Visual Generation Order:**
+1. Concept render first (shows overall design)
+2. In-context shot (shows usage)
+3. Exploded view (shows engineering)
+4. Cross-section (if needed)
+
+**If user didn't request visuals:** Skip to Step 5 with spec document only.
+
+---
+
+### Step 5: Deliver Complete Package
+
+**Delivery message (with visuals):**
+
+"✅ Product design complete!
+
+**Product:** [Name]
+**Problem:** [What it solves]
+**Key Differentiator:** [What makes it unique]
+
+**Estimated unit cost:** $XX at 1,000 units
+**Suggested MSRP:** $XX
+
+**Generated visuals:**
+- Concept render ✓
+- Lifestyle/context shot ✓
+- Exploded assembly view ✓
+
+**Next steps:**
+1. [First recommended action]
+2. [Second recommended action]
+
+**Want me to:**
+- Deep dive on any section?
+- Generate additional views or angles?
+- Explore alternative designs?
+- Estimate costs for different volumes?
+- Compare to specific competitors?"
+
+---
+
+**Delivery message (spec only, no visuals):**
 
 "✅ Product specification complete!
 
@@ -194,21 +268,22 @@ Combine all agent outputs into a structured specification:
 2. [Second recommended action]
 
 **Want me to:**
+- **Generate visuals?** (concept renders, engineering drawings)
 - Deep dive on any section?
-- Explore alternative approaches?
-- Estimate costs for different volumes?
-- Compare to specific competitors?"
+- Explore alternative designs?
+- Estimate costs for different volumes?"
 
 ---
 
-## Integration with Other Agents
+## Integration with Other Skills
 
 This skill works well with:
 
-| Agent | Use Case |
+| Skill | Use Case |
 |-------|----------|
+| `image-generation` | **Generates concept renders and engineering drawings** |
 | `brand-research-agent` | Ensure product fits brand guidelines |
-| `patent-lawyer-agent` | Check patentability of innovations |
+| `patent-lawyer-agent` | Check patentability and draft patents |
 | `market-researcher-agent` | Validate market opportunity |
 | `pitch-deck-agent` | Create investor presentation |
 
@@ -226,6 +301,20 @@ This skill works well with:
 
 ---
 
+## Output Files
+
+When generating a complete product design, you'll receive:
+
+```
+product_spec.md           ← Complete specification document
+product_concept.png       ← 3D concept render
+product_context.png       ← Lifestyle/in-use shot
+product_exploded.png      ← Exploded assembly view
+product_section.png       ← Cross-section (if applicable)
+```
+
+---
+
 ## Example Prompts
 
 **Basic:**
@@ -239,3 +328,9 @@ This skill works well with:
 
 **Competitive:**
 > "Design something better than [competitor product]"
+
+**With visuals:**
+> "Design a smart water bottle and show me what it would look like"
+
+**Engineering focus:**
+> "Design a modular desk organizer and show me the exploded assembly view"
