@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 3.3.0** - Add ios-to-android and android-to-ios for platform parity
+> **Version 3.4.0** - Gemini Nano Banana Pro image generation, ~/.config/skills/.env support
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
