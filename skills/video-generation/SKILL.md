@@ -26,23 +26,21 @@ At least one API key is required:
 
 ## Available Models
 
-### Google Veo Models (Recommended - Default)
+### Google Veo Models
 
-| Model | Description | Audio | Best For |
-|-------|-------------|-------|----------|
-| `veo-3.1` | Latest, highest quality | ✅ Yes | Professional, dialogue, reference images |
-| `veo-3.1-fast` | Faster processing | ✅ Yes | Quick iterations |
-| `veo-3` | Previous generation | ✅ Yes | Standard quality |
-| `veo-3-fast` | Fast previous gen | ✅ Yes | Rapid prototyping |
-| `veo-2` | Older, silent | ❌ No | Silent videos only |
+| Model | Description | Best For |
+|-------|-------------|----------|
+| `veo-3.1` | Highest quality (default) | Professional videos, dialogue, reference images |
+| `veo-3.1-fast` | Faster processing | Quick iterations, batch generation |
 
-**Veo 3.1 Features:**
+**Both models include:**
 - 720p/1080p resolution
 - 4, 6, or 8 second duration
 - Native audio (dialogue, SFX, ambient)
 - Image-to-video (animate images)
 - Reference images (up to 3)
 - Video extension
+- Batch/parallel generation
 
 ### OpenAI Sora
 - **Best for**: Creative videos, cinematic quality, complex motion
@@ -101,15 +99,14 @@ Transform the user request into an effective video prompt:
 
 ### Step 3: Select the Model
 
-**Default: Google Veo 3.1** (latest, with audio)
+**Default: veo-3.1** (highest quality, with audio)
 
 | Use Case | Recommended Model | Reason |
 |----------|------------------|--------|
-| Default / Best quality | veo-3.1 | Latest, audio, reference images |
-| Quick iteration | veo-3.1-fast | Faster with audio |
+| Best quality | veo-3.1 (default) | Highest quality, audio |
+| Quick iteration | veo-3.1-fast | Faster processing |
+| Batch generation | veo-3.1-fast | Speed matters for multiple clips |
 | Longer videos (>8s) | sora | Supports up to 20s |
-| Silent videos | veo-2 | No audio processing |
-| Cinematic/artistic | sora | Best creative control |
 
 ### Step 4: Generate the Video
 
@@ -147,13 +144,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/sora.py \
   --prompt "your enhanced prompt" \
   --duration 20 \
   --resolution "1080p"
-```
-
-**Silent video (no audio):**
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
-  --prompt "your prompt" \
-  --silent
 ```
 
 **List available models:**
@@ -315,6 +305,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
 | Image-to-video | ✅ Yes | ✅ Yes | ✅ Yes |
 | Reference images | ✅ Up to 3 | ✅ Up to 3 | ❌ No |
 | Video extension | ✅ Yes | ✅ Yes | ❌ No |
-| Same key as images | ✅ Yes | ✅ Yes | ❌ No |
-| Speed | Standard | Faster | Slower |
-| Best for | Professional, dialogue | Quick iterations | Longer videos |
+| Batch generation | ✅ Yes | ✅ Yes | ❌ No |
+| Speed | Best quality | ~2x faster | Slower |
+| Best for | Professional | Batch workflows | Longer videos |

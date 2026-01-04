@@ -3,19 +3,16 @@
 Google Veo Video Generation Script
 Requires: GOOGLE_API_KEY environment variable
 
-Models (newest to oldest):
-- veo-3.1-generate-preview (Veo 3.1 - latest, with audio, reference images, extensions)
-- veo-3.1-fast-generate-preview (Veo 3.1 Fast - faster, with audio)
-- veo-3-generate-preview (Veo 3 - with audio)
-- veo-3-fast-generate-preview (Veo 3 Fast - faster, with audio)
-- veo-2 (Veo 2 - silent, older)
+Models:
+- veo-3.1 (default) - Highest quality, with audio
+- veo-3.1-fast - Faster processing, with audio
 
-Features (Veo 3.1):
+Features:
 - Text-to-video with audio (dialogue, sound effects, ambient)
 - Image-to-video (use image as first frame)
 - Reference images (up to 3 images to guide content)
-- First/last frame interpolation
 - Video extension (extend existing Veo videos)
+- Batch/parallel generation for multi-scene workflows
 """
 
 import argparse
@@ -107,13 +104,10 @@ def load_env():
 
 load_env()
 
-# Available Veo models
+# Available Veo models (only latest recommended)
 MODELS = {
-    "veo-3.1": "veo-3.1-generate-preview",
-    "veo-3.1-fast": "veo-3.1-fast-generate-preview",
-    "veo-3": "veo-3-generate-preview",
-    "veo-3-fast": "veo-3-fast-generate-preview",
-    "veo-2": "veo-2",
+    "veo-3.1": "veo-3.1-generate-preview",      # Best quality, with audio
+    "veo-3.1-fast": "veo-3.1-fast-generate-preview",  # Faster, with audio
 }
 
 DEFAULT_MODEL = "veo-3.1"
@@ -473,7 +467,7 @@ def generate_video(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
                     "duration": duration,
                     "aspect_ratio": aspect_ratio,
                     "resolution": resolution,
-                    "has_audio": model in ["veo-3.1", "veo-3.1-fast", "veo-3", "veo-3-fast"],
+                    "has_audio": True,  # All supported models have audio
                     "prompt": prompt
                 }
             
@@ -488,8 +482,11 @@ def generate_video(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
         return {"error": f"Request failed: {str(e)}"}
 
 
-# Thread-safe print lock for batch mode
+# Thread-safe state for batch mode
 _print_lock = threading.Lock()
+_batch_status = {}  # {idx: "pending" | "running" | "complete" | "failed"}
+_batch_prompts = {}  # {idx: prompt_preview}
+_batch_files = {}  # {idx: output_filename}
 
 
 def _safe_print(msg: str):
@@ -498,13 +495,55 @@ def _safe_print(msg: str):
         print(msg)
 
 
-def _generate_single_for_batch(idx: int, config: dict, total: int) -> dict:
+def _update_status_display(start_time: float):
+    """Print current status of all batch jobs."""
+    with _print_lock:
+        total = len(_batch_status)
+        elapsed = time.time() - start_time
+        
+        # Count states
+        pending = sum(1 for s in _batch_status.values() if s == "pending")
+        running = sum(1 for s in _batch_status.values() if s == "running")
+        complete = sum(1 for s in _batch_status.values() if s == "complete")
+        failed = sum(1 for s in _batch_status.values() if s == "failed")
+        
+        # Build status display
+        print("\n" + "─" * 60)
+        print(f"📊 BATCH STATUS ({int(elapsed)}s elapsed)")
+        print("─" * 60)
+        
+        for idx in sorted(_batch_status.keys()):
+            status = _batch_status[idx]
+            prompt = _batch_prompts.get(idx, "")[:40]
+            scene = idx + 1
+            
+            if status == "pending":
+                icon = "⏳"
+                detail = "Waiting..."
+            elif status == "running":
+                icon = "🔄"
+                detail = "Generating..."
+            elif status == "complete":
+                icon = "✅"
+                detail = _batch_files.get(idx, "Done")
+            else:  # failed
+                icon = "❌"
+                detail = "Failed"
+            
+            print(f"  {icon} Scene {scene}: {prompt}... → {detail}")
+        
+        print("─" * 60)
+        print(f"  ⏳ Pending: {pending}  🔄 Running: {running}  ✅ Complete: {complete}  ❌ Failed: {failed}")
+        print("─" * 60 + "\n")
+
+
+def _generate_single_for_batch(idx: int, config: dict, start_time: float) -> dict:
     """Generate a single video as part of a batch (thread worker).
     
     Args:
         idx: Index of this video in the batch (0-based)
         config: Video configuration dict with prompt, model, duration, etc.
-        total: Total number of videos in batch
+        start_time: Batch start time for elapsed tracking
     
     Returns:
         dict with index, success/error, and file path
@@ -519,9 +558,13 @@ def _generate_single_for_batch(idx: int, config: dict, total: int) -> dict:
     negative_prompt = config.get("negative_prompt")
     output_name = config.get("output")  # Optional custom output filename
     
-    _safe_print(f"🎬 [{scene_num}/{total}] Starting: {prompt[:50]}...")
+    # Update status to running
+    with _print_lock:
+        _batch_status[idx] = "running"
     
-    # Suppress individual video prints during batch
+    _update_status_display(start_time)
+    
+    # Suppress individual video prints during batch by redirecting stdout temporarily
     result = generate_video(
         prompt=prompt,
         model=model,
@@ -540,10 +583,15 @@ def _generate_single_for_batch(idx: int, config: dict, total: int) -> dict:
         except OSError:
             pass  # Keep original name if rename fails
     
-    if result.get("success"):
-        _safe_print(f"✅ [{scene_num}/{total}] Complete: {result.get('file')}")
-    else:
-        _safe_print(f"❌ [{scene_num}/{total}] Failed: {result.get('error', 'Unknown error')}")
+    # Update status
+    with _print_lock:
+        if result.get("success"):
+            _batch_status[idx] = "complete"
+            _batch_files[idx] = result.get("file", "Done")
+        else:
+            _batch_status[idx] = "failed"
+    
+    _update_status_display(start_time)
     
     result["index"] = idx
     result["scene"] = scene_num
@@ -573,6 +621,8 @@ def generate_videos_batch(configs: list, max_workers: int = 5) -> dict:
             - failed: Count of failed generations
             - total_time: Total execution time in seconds
     """
+    global _batch_status, _batch_prompts, _batch_files
+    
     if not configs:
         return {"error": "No video configs provided"}
     
@@ -582,21 +632,30 @@ def generate_videos_batch(configs: list, max_workers: int = 5) -> dict:
             return {"error": f"Config {i+1} missing required 'prompt' field"}
     
     total = len(configs)
+    
+    # Initialize batch tracking
+    _batch_status = {i: "pending" for i in range(total)}
+    _batch_prompts = {i: cfg.get("prompt", "")[:40] for i, cfg in enumerate(configs)}
+    _batch_files = {}
+    
     print(f"\n🎬 Batch Video Generation")
-    print(f"=" * 50)
+    print(f"=" * 60)
     print(f"Videos to generate: {total}")
     print(f"Parallel workers: {min(max_workers, total)}")
-    print(f"=" * 50)
-    print()
+    print(f"Model: {configs[0].get('model', DEFAULT_MODEL)}")
+    print(f"=" * 60)
     
     start_time = time.time()
     results = []
+    
+    # Show initial status
+    _update_status_display(start_time)
     
     # Use ThreadPoolExecutor for parallel generation
     with ThreadPoolExecutor(max_workers=min(max_workers, total)) as executor:
         # Submit all jobs
         futures = {
-            executor.submit(_generate_single_for_batch, i, cfg, total): i
+            executor.submit(_generate_single_for_batch, i, cfg, start_time): i
             for i, cfg in enumerate(configs)
         }
         
@@ -618,22 +677,39 @@ def generate_videos_batch(configs: list, max_workers: int = 5) -> dict:
     
     elapsed = time.time() - start_time
     successful = [r for r in results if r.get("success")]
-    failed = [r for r in results if not r.get("success")]
+    failed_list = [r for r in results if not r.get("success")]
     
+    # Final status display
+    print("\n" + "═" * 60)
+    print(f"🎬 BATCH COMPLETE")
+    print("═" * 60)
+    print(f"  Total time: {elapsed:.1f}s ({elapsed/60:.1f} minutes)")
+    print(f"  Successful: {len(successful)}/{total}")
+    if failed_list:
+        print(f"  Failed: {len(failed_list)}/{total}")
     print()
-    print(f"=" * 50)
-    print(f"✅ Batch complete in {elapsed:.1f}s")
-    print(f"   Successful: {len(successful)}/{total}")
-    if failed:
-        print(f"   Failed: {len(failed)}/{total}")
-    print(f"=" * 50)
+    
+    if successful:
+        print("📁 Generated files:")
+        for r in successful:
+            scene = r.get("scene", r.get("index", 0) + 1)
+            print(f"   Scene {scene}: {r.get('file')}")
+    
+    if failed_list:
+        print("\n❌ Failed generations:")
+        for r in failed_list:
+            scene = r.get("scene", r.get("index", 0) + 1)
+            error = r.get("error", "Unknown error")[:50]
+            print(f"   Scene {scene}: {error}")
+    
+    print("═" * 60)
     
     return {
-        "success": len(failed) == 0,
+        "success": len(failed_list) == 0,
         "results": results,
         "files": [r.get("file") for r in successful if r.get("file")],
         "successful": len(successful),
-        "failed": len(failed),
+        "failed": len(failed_list),
         "total": total,
         "total_time": round(elapsed, 1),
         "avg_time_per_video": round(elapsed / total, 1) if total > 0 else 0
@@ -645,12 +721,9 @@ def main():
         description="Generate videos using Google Veo",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Models (newest first):
-  veo-3.1       Veo 3.1 - Latest, with audio, reference images, extensions (default)
-  veo-3.1-fast  Veo 3.1 Fast - Faster processing, with audio
-  veo-3         Veo 3 - With audio
-  veo-3-fast    Veo 3 Fast - Faster, with audio
-  veo-2         Veo 2 - Silent, older
+Models:
+  veo-3.1       Highest quality, with audio (default)
+  veo-3.1-fast  Faster processing, with audio
 
 Examples:
   # Basic text-to-video
@@ -727,8 +800,6 @@ BATCH MODE (parallel generation):
                         help="What NOT to include in the video")
     parser.add_argument("--list-models", "-l", action="store_true",
                         help="List available models")
-    parser.add_argument("--silent", "-s", action="store_true",
-                        help="Generate silent video (uses veo-2, no audio)")
     
     # Extension options
     parser.add_argument("--extend", "-e",
@@ -809,24 +880,20 @@ BATCH MODE (parallel generation):
     if not args.prompt:
         parser.error("--prompt/-p is required for video generation (use --extend for extension)")
     
-    # --silent flag overrides model to veo-2
-    if args.silent:
-        args.model = "veo-2"
-    
     if args.list_models:
         print("Available Veo models:")
         print("-" * 60)
         for name, model_id in MODELS.items():
             default = " (default)" if name == DEFAULT_MODEL else ""
-            audio = "with audio" if name != "veo-2" else "silent"
-            print(f"  {name:15} {model_id:30} [{audio}]{default}")
+            speed = "fastest" if "fast" in name else "best quality"
+            print(f"  {name:15} {model_id:35} [{speed}]{default}")
+        print("\nAll models include audio (dialogue, sound effects, ambient)")
         return
     
     model_id = MODELS.get(args.model, MODELS[DEFAULT_MODEL])
-    has_audio = args.model in ["veo-3.1", "veo-3.1-fast", "veo-3", "veo-3-fast"]
     
     print(f"🎬 Generating video with Google Veo...")
-    print(f"Model: {model_id} {'(with audio)' if has_audio else '(silent)'}")
+    print(f"Model: {model_id} (with audio)")
     print(f"Prompt: {args.prompt[:100]}{'...' if len(args.prompt) > 100 else ''}")
     print(f"Duration: {args.duration}s, Aspect: {args.aspect_ratio}, Resolution: {args.resolution}")
     if args.image:

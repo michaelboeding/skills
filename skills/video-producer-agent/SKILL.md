@@ -48,7 +48,8 @@ When user asks for video content, gather:
 | **Duration** | How long? (30s, 1min, 2min) |
 | **Style** | Premium, fun, corporate, casual? |
 | **Visuals** | User has images? Or generate everything? |
-| **Voiceover** | Tone, voice preference? |
+| **Audio source** | Use Veo's generated audio, custom voiceover, or strip audio? |
+| **Voiceover** | Tone, voice preference (if custom VO)? |
 | **Music** | Style, energy level? |
 | **Format** | Aspect ratio? (16:9, 9:16 for social) |
 
@@ -59,9 +60,13 @@ When user asks for video content, gather:
 1. **Do you have product images?** (I can use them or generate visuals)
 2. **How long?** (30s, 1min, etc.)
 3. **Style?** (Premium/luxury, fun/playful, corporate/professional)
-4. **Voiceover tone?** (Professional, friendly, energetic)
-5. **Music vibe?** (Modern electronic, cinematic, upbeat pop)
-6. **Aspect ratio?** (16:9 landscape, 9:16 vertical for social)"
+4. **Audio preference?**
+   - Veo-generated audio (dialogue, SFX, ambient - included in clips)
+   - Custom voiceover + music (I'll generate separately and mix)
+   - Silent video (I'll strip audio from clips)
+5. **Voiceover tone?** (Professional, friendly, energetic)
+6. **Music vibe?** (Modern electronic, cinematic, upbeat pop)
+7. **Aspect ratio?** (16:9 landscape, 9:16 vertical for social)"
 
 ---
 
@@ -281,7 +286,16 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/media-utils/scripts/video_audio_merge.py \
 ## Limitations
 
 - **Veo video duration**: Max 8 seconds per clip (concatenate for longer)
-- **Veo 3.1 always has audio**: Use `--silent` flag to get Veo 2 for silent clips, or strip audio in assembly
+- **Veo 3.1 includes audio**: All clips have generated audio (dialogue, SFX, ambient)
+
+**To strip audio from clips (for custom VO/music):**
+```bash
+# Strip audio from single clip
+ffmpeg -i clip.mp4 -an -c:v copy clip_silent.mp4
+
+# Strip audio from all clips in directory
+for f in scene*.mp4; do ffmpeg -i "$f" -an -c:v copy "silent_$f"; done
+```
 - **Processing time**: Video generation takes 1-3 minutes per clip
 - **Resolution**: Currently 720p or 1080p (1080p for 8s only)
 
