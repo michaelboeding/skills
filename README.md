@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 3.2.0** - Add codebase-style for convention analysis
+> **Version 3.3.0** - Add ios-to-android and android-to-ios for platform parity
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -67,6 +67,8 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 | Skill | Description | API Keys |
 |-------|-------------|----------|
 | [style-guide](skills/style-guide/) | Analyze codebase conventions with specialized agents (structure, naming, patterns, testing, frontend). Generates `.claude/codebase-style.md` style guide. | None |
+| [ios-to-android](skills/ios-to-android/) | Use iOS/Swift as source of truth, implement equivalent feature in Android/Kotlin/Compose. Feature parity, not literal translation. | None |
+| [android-to-ios](skills/android-to-ios/) | Use Android/Kotlin as source of truth, implement equivalent feature in iOS/Swift/SwiftUI. Feature parity, not literal translation. | None |
 | [debug-council](skills/debug-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent debugs independently, majority voting. For bugs & algorithms. | None |
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation. Each agent builds the feature independently, then synthesizes best parts from each. | None |
 | [parallel-builder](skills/parallel-builder/) | Divide-and-conquer from specs/plans. Decomposes a plan into independent tasks, assigns each to an agent, executes in parallel waves, then integrates. | None |
@@ -186,6 +188,44 @@ How it works:
 - Structured style guide with real examples
 - Can be referenced by other skills (feature-council, debug-council)
 - Run once per codebase, update when patterns change
+
+---
+
+### ios-to-android
+
+Use iOS/Swift code as reference to implement the equivalent Android feature:
+
+```
+ios to android: implement this feature for Android
+
+convert this Swift code to Kotlin
+
+port UserProfile from iOS to Android
+```
+
+How it works:
+1. **Analyze iOS code** - Understand feature behavior, data structures, logic
+2. **Check Android context** - Look for existing patterns, style-guide
+3. **Create implementation plan** - Map iOS components to Android equivalents
+4. **Implement idiomatically** - Kotlin/Compose, not literal translation
+
+**Key principle:** Same behavior, same data shapes, but idiomatic for each platform.
+
+---
+
+### android-to-ios
+
+Use Android/Kotlin code as reference to implement the equivalent iOS feature:
+
+```
+android to ios: implement this feature for iOS
+
+convert this Kotlin code to Swift
+
+port UserProfile from Android to iOS
+```
+
+Works the same as ios-to-android but in reverse direction.
 
 ---
 
