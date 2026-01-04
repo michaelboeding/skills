@@ -217,11 +217,22 @@ How it works:
 - Agents respect **file ownership** (no overlaps)
 - Results are **integrated** (not synthesized)
 
+**Where it shines (maximum speedup):**
+- Multi-file specs (types + services + routes + UI)
+- CRUD APIs (each resource in separate files)
+- Microservices (independent service files)
+- Plugin/module systems
+
+**Falls back to sequential when:**
+- Multiple tasks modify the same file (to avoid conflicts)
+- Still useful for organized task breakdown
+
 **Output shows:**
 - Wave execution progress
 - Files created per agent
 - Integration results
 - Verification status
+- Estimated vs actual speedup
 
 ### model-council
 

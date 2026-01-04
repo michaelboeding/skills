@@ -26,6 +26,80 @@ Decomposes a plan/spec into independent tasks, spawns builder agents to implemen
 
 ---
 
+## Where Parallel-Builder Shines
+
+### 🚀 Maximum Speedup: Multi-File Specs
+
+Parallel-builder is **fastest** when your spec produces **multiple independent files**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  IDEAL: Each agent owns different files                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Wave 2: TRUE PARALLEL EXECUTION                            │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌────────────────┐│
+│  │ Agent 1         │ │ Agent 2         │ │ Agent 3        ││
+│  │ userService.ts  │ │ authService.ts  │ │ apiClient.ts   ││
+│  └─────────────────┘ └─────────────────┘ └────────────────┘│
+│          ↓                   ↓                   ↓          │
+│      [PARALLEL - All 3 run simultaneously]                  │
+│                                                             │
+│  Speedup: ~3× faster than sequential                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Great use cases:**
+- Full-stack features (types + services + routes + UI components)
+- Microservice implementations (multiple independent services)
+- CRUD APIs (each resource in its own files)
+- Plugin/module systems (each module independent)
+- Test suites (test files for different modules)
+
+### ⚠️ Falls Back to Sequential: Single-File Specs
+
+When multiple tasks modify the **same file**, parallel execution would cause conflicts. The skill automatically falls back to sequential:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  LIMITED: All agents modify same file                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Wave 3: SEQUENTIAL (conflict avoidance)                    │
+│  ┌─────────────────┐                                       │
+│  │ Agent 1         │ → modifies BG600L.cpp                 │
+│  └────────┬────────┘                                       │
+│           ↓                                                 │
+│  ┌─────────────────┐                                       │
+│  │ Agent 2         │ → modifies BG600L.cpp                 │
+│  └────────┬────────┘                                       │
+│           ↓                                                 │
+│  ┌─────────────────┐                                       │
+│  │ Agent 3         │ → modifies BG600L.cpp                 │
+│  └─────────────────┘                                       │
+│                                                             │
+│  No speedup, but still provides organized task breakdown    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Still useful for:**
+- Organized task breakdown and tracking
+- Clear separation of concerns
+- Systematic implementation of complex single-file changes
+
+### Speedup Estimate
+
+| Spec Type | Parallel Potential | Expected Speedup |
+|-----------|-------------------|------------------|
+| Multi-file, independent modules | High | 50-80% faster |
+| Multi-file, some shared | Medium | 30-50% faster |
+| Few files, many functions | Low | 10-20% faster |
+| Single file, many changes | Minimal | ~0% (sequential) |
+
+The skill will show you the estimated speedup in the execution plan before you confirm.
+
+---
+
 ## Step 0: Accept Plan Input
 
 First, get the plan from the user. Accept one of:
