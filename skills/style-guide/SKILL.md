@@ -1,9 +1,9 @@
 ---
-name: codebase-style
+name: style-guide
 description: Analyze a codebase to extract its conventions, patterns, and style. Spawns specialized analyzer agents that each focus on one aspect (structure, naming, patterns, testing, frontend). Generates a comprehensive style guide that other skills can reference. Use when starting work on an unfamiliar codebase, or to create explicit documentation of implicit conventions.
 ---
 
-# Codebase Style: Multi-Agent Convention Analyzer
+# Style Guide: Multi-Agent Convention Analyzer
 
 Spawns specialized analyzer agents to discover and document a codebase's conventions, patterns, and style. Each agent focuses on one aspect and explores independently.
 
@@ -300,8 +300,9 @@ Run `codebase-style` again when:
 ## Triggers
 
 ```
-"analyze codebase style"
+"style guide"
 "generate style guide"
+"analyze codebase style"
 "what are the conventions in this codebase"
 "codebase conventions"
 "analyze this codebase"

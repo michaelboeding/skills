@@ -66,7 +66,7 @@ Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to t
 
 | Skill | Description | API Keys |
 |-------|-------------|----------|
-| [codebase-style](skills/codebase-style/) | Analyze codebase conventions with specialized agents (structure, naming, patterns, testing, frontend). Generates `.claude/codebase-style.md` style guide. | None |
+| [style-guide](skills/style-guide/) | Analyze codebase conventions with specialized agents (structure, naming, patterns, testing, frontend). Generates `.claude/codebase-style.md` style guide. | None |
 | [debug-council](skills/debug-council/) | Research-aligned self-consistency (Wang et al., 2022). Each agent debugs independently, majority voting. For bugs & algorithms. | None |
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation. Each agent builds the feature independently, then synthesizes best parts from each. | None |
 | [parallel-builder](skills/parallel-builder/) | Divide-and-conquer from specs/plans. Decomposes a plan into independent tasks, assigns each to an agent, executes in parallel waves, then integrates. | None |
@@ -110,7 +110,7 @@ Focus: Codebase pattern matching, edge case coverage, comprehensive implementati
 
 Focus: File ownership, shared contracts, parallel execution, integration.
 
-### Style Analyzers (for codebase-style)
+### Style Analyzers (for style-guide)
 
 5 specialized analyzer agents, each focused on one aspect:
 
@@ -159,16 +159,16 @@ These agents are invoked automatically by their skills and should not be called 
 
 ## Usage Examples
 
-### codebase-style
+### style-guide
 
 Analyze a codebase to extract its conventions and patterns. Generates a reusable style guide:
 
 ```
-analyze codebase style
+style guide
 
 generate style guide for this project
 
-what are the conventions in this codebase
+analyze codebase conventions
 ```
 
 How it works:
