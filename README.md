@@ -66,7 +66,10 @@ pip install -r requirements.txt
 Some skills require API keys to function. Copy the example environment file and add your keys:
 
 ```bash
-cp env.example .env
+# Copy to your config directory (recommended - keeps keys safe from git)
+mkdir -p ~/.config/skills
+cp env.example ~/.config/skills/.env
+# Edit ~/.config/skills/.env with your keys
 ```
 
 Then export the variables in your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/.bash_profile`):
@@ -74,7 +77,7 @@ Then export the variables in your shell profile (`~/.bashrc`, `~/.zshrc`, or `~/
 ```bash
 # Core APIs (used by multiple skills)
 export OPENAI_API_KEY="sk-..."          # DALL-E, Sora, TTS
-export GOOGLE_API_KEY="..."             # Imagen, Veo, Gemini
+export GOOGLE_API_KEY="..."             # Imagen, Gemini (AI Studio)
 export ELEVENLABS_API_KEY="..."         # ElevenLabs TTS
 
 # Music Generation
@@ -88,14 +91,62 @@ export XAI_API_KEY="..."                # Grok API
 
 Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to take effect.
 
+### Google Cloud / Vertex AI (Recommended for Video Generation)
+
+For video generation, Vertex AI has **1400x higher rate limits** than AI Studio:
+
+| Backend | Rate Limit | Setup |
+|---------|-----------|-------|
+| **Vertex AI** | 10 req/minute | GCP project + auth |
+| AI Studio | 10 req/day | API key only |
+
+**Setup Vertex AI:**
+
+```bash
+# 1. Install Google Cloud SDK: https://cloud.google.com/sdk/docs/install
+
+# 2. Login and set project
+gcloud auth application-default login
+gcloud config set project YOUR_PROJECT_ID
+
+# 3. Enable Vertex AI API
+gcloud services enable aiplatform.googleapis.com
+
+# 4. Export project (add to .env or shell profile)
+export GOOGLE_CLOUD_PROJECT="your-project-id"
+export GOOGLE_CLOUD_LOCATION="us-central1"  # or us-east4
+```
+
+The video generation scripts auto-detect and use Vertex AI when `GOOGLE_CLOUD_PROJECT` is set.
+
 **Where to get API keys:**
 - OpenAI: https://platform.openai.com/api-keys
-- Google: https://aistudio.google.com/apikey
+- Google AI Studio: https://aistudio.google.com/apikey
+- Google Cloud: https://console.cloud.google.com/
 - ElevenLabs: https://elevenlabs.io
 - Suno: https://suno.com
 - Udio: https://udio.com
 - Anthropic: https://console.anthropic.com/
 - xAI: https://console.x.ai/
+
+### ⚠️ Credential Security
+
+| ✅ Do | ❌ Don't |
+|-------|---------|
+| Store keys in `~/.config/skills/.env` | Commit `.env` files to git |
+| Use `gcloud auth` for local dev | Hardcode keys in scripts |
+| Use service accounts for CI/CD | Share API keys publicly |
+| Rotate keys if exposed | Store keys in repo, even private |
+
+**For CI/CD / Production:**
+
+```bash
+# Option 1: Service Account (recommended)
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
+
+# Option 2: Workload Identity (GKE/Cloud Run)
+# Automatically authenticated, no keys needed
+```
 
 ---
 

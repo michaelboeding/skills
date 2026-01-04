@@ -19,9 +19,30 @@ Generate videos using AI (Google Veo 3.1, OpenAI Sora).
 
 ## Prerequisites
 
-At least one API key is required:
+### Recommended: Vertex AI (10 requests/minute)
 
-- `GOOGLE_API_KEY` - For Google Veo (same key as image generation) ✅
+```bash
+# 1. Install SDK
+pip install google-cloud-aiplatform
+
+# 2. Set your project
+export GOOGLE_CLOUD_PROJECT=your-project-id
+
+# 3. Authenticate
+gcloud auth application-default login
+
+# 4. Enable the API
+gcloud services enable aiplatform.googleapis.com
+```
+
+### Alternative: AI Studio (10 requests/day)
+
+Simpler setup but heavily rate-limited:
+
+- `GOOGLE_API_KEY` - Get from https://aistudio.google.com/apikey
+
+### For Sora (OpenAI)
+
 - `OPENAI_API_KEY` - For OpenAI Sora
 
 ## Available Models

@@ -35,6 +35,13 @@ markdown>=3.4.0
 weasyprint>=60.0
 
 # =============================================================================
+# VERTEX AI (Higher rate limits for video generation)
+# =============================================================================
+# Recommended for production use - 10 requests/minute vs 10/day
+# Requires: gcloud auth application-default login
+google-cloud-aiplatform>=1.40.0
+
+# =============================================================================
 # OPTIONAL - Alternative Providers
 # =============================================================================
 # Note: OpenAI and ElevenLabs are called via urllib (no pip package needed)

@@ -1,4 +1,20 @@
 .DS_Store
 *.skill
 .claude/
-.env.env
+
+# Credentials - NEVER commit these
+.env
+.env.*
+*.env
+credentials.json
+service-account*.json
+*-key.json
+
+# Generated outputs
+*.mp4
+*.mp3
+*.wav
+*.png
+*.jpg
+*.jpeg
+*.pptx
