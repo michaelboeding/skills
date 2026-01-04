@@ -1,82 +1,26 @@
 ---
 name: ios-to-android
-description: Use iOS/Swift code as the source of truth and implement the equivalent feature in Android/Kotlin/Compose. Works with SwiftUI, UIKit, Storyboards, or any iOS UI approach. Understands the iOS feature behavior, data structures, and logic, then creates idiomatic Android code that achieves feature parity. Use when porting features from iOS to Android or ensuring platform consistency.
+description: Use iOS/Swift code as the source of truth and implement the equivalent feature in Android/Kotlin. Understands the feature behavior, data structures, and logic from iOS, then creates idiomatic Android code that matches the target codebase's existing patterns. Use when porting features from iOS to Android or ensuring platform consistency.
 ---
 
 # iOS to Android: Feature Parity Implementation
 
 Use iOS code as the reference to implement the equivalent Android feature. Not a literal translation - understand what the iOS code does, then implement it idiomatically for Android.
 
-**Accepts any iOS UI approach:**
-- SwiftUI
-- UIKit (programmatic)
-- Storyboards / XIBs
-- Mixed codebases
-
-**Always outputs:** Jetpack Compose (modern Android UI)
-
 **Use this when:**
 - Porting a feature from iOS to Android
 - iOS is the "source of truth" for a feature
 - Ensuring feature parity between platforms
-- Android implementation should match iOS behavior
 
 ## Key Principle
 
 ```
-iOS Code → Understand Feature → Implement for Android
-              (what)                 (how)
+iOS Code → Understand Feature → Match Android Codebase Patterns → Implement
+              (what)                    (how it's done here)
 ```
 
 **Preserved:** Feature behavior, data structure shapes, business logic, user flows
-**Adapted:** Language idioms, UI framework, platform patterns
-
----
-
-## Platform Mapping Reference
-
-### Core Language
-
-| iOS/Swift | Android/Kotlin |
-|-----------|----------------|
-| Protocols | Interfaces |
-| Extensions | Extension functions |
-| Structs | Data classes |
-| Enums with associated values | Sealed classes |
-| guard let / if let | ?.let / ?: / require |
-| throws | Result / runCatching |
-| Codable | Kotlinx Serialization |
-
-### Async & State
-
-| iOS/Swift | Android/Kotlin |
-|-----------|----------------|
-| Combine | Kotlin Flow / Coroutines |
-| async/await | suspend functions |
-| @Published | MutableStateFlow |
-| ObservableObject | ViewModel |
-
-### Data & Networking
-
-| iOS/Swift | Android/Kotlin |
-|-----------|----------------|
-| Core Data / SwiftData | Room |
-| URLSession / Alamofire | Retrofit / Ktor |
-| UserDefaults | DataStore / SharedPreferences |
-
-### UI (any iOS framework → Compose)
-
-| iOS/SwiftUI | iOS/UIKit | Android/Kotlin |
-|-------------|-----------|----------------|
-| View | UIViewController | @Composable |
-| VStack/HStack | UIStackView | Column/Row |
-| List | UITableView | LazyColumn |
-| NavigationStack | Storyboard segues | Navigation Compose |
-| @State | Instance properties | remember { } |
-| @Published | Combine/delegates | collectAsState |
-| .sheet/.fullScreenCover | present() | Dialog/BottomSheet |
-
-**Note:** Whether the iOS code uses SwiftUI, UIKit, Storyboards, or XIBs, the Android output is always **Jetpack Compose**.
+**Adapted:** Language idioms, frameworks, patterns to match the Android codebase
 
 ---
 
@@ -109,8 +53,6 @@ Thoroughly understand:
 | **UI Flow** | Screens, navigation, user interactions |
 | **Edge Cases** | Error handling, loading states, empty states |
 
-Create a **Feature Summary**:
-
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                     iOS FEATURE ANALYSIS
@@ -122,9 +64,7 @@ Create a **Feature Summary**:
 [User-facing description]
 
 ### Data Structures
-```swift
-// Key models from iOS
-```
+[Key models and their relationships]
 
 ### Business Logic
 [Core logic summary]
@@ -145,34 +85,46 @@ Create a **Feature Summary**:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-### Step 3: Check Android Codebase Context
+### Step 3: Analyze Android Codebase Patterns
 
-Before implementing, understand the target:
+**Before implementing, understand how THIS Android codebase does things:**
 
-1. **Check for style guide**: Does `.claude/codebase-style.md` exist?
-2. **Explore existing patterns**: How does this Android codebase handle similar features?
-3. **Identify conventions**: Naming, architecture (MVVM/MVI), DI patterns
+1. Check if `.claude/codebase-style.md` exists
+2. Find similar features in the codebase
+3. Note the patterns used:
+   - Architecture pattern
+   - UI framework and patterns
+   - State management approach
+   - Networking approach
+   - Dependency injection
+   - File/folder organization
+   - Naming conventions
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                 ANDROID CONTEXT CHECK
+               ANDROID CODEBASE PATTERNS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Style Guide: [Found / Not found]
-Architecture: [MVVM / MVI / Clean / etc.]
-DI Framework: [Hilt / Koin / Manual / etc.]
-Networking: [Retrofit / Ktor / etc.]
-State: [StateFlow / Compose State / etc.]
-Navigation: [Compose Navigation / etc.]
 
-Similar features in codebase: [list if any]
+Patterns observed from existing code:
+- Architecture: [what pattern is used]
+- UI: [how UI is built]
+- State: [how state is managed]
+- Networking: [how API calls are made]
+- DI: [how dependencies are injected]
+- Navigation: [how navigation works]
+
+Similar features to reference:
+- [Feature 1]: [path]
+- [Feature 2]: [path]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ### Step 4: Create Implementation Plan
 
-Map iOS components to Android equivalents:
+Map the iOS feature to Android equivalents **using the patterns from Step 3**:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -183,40 +135,26 @@ Map iOS components to Android equivalents:
 
 | # | File | Purpose | iOS Equivalent |
 |---|------|---------|----------------|
-| 1 | data/model/User.kt | Data model | User.swift |
-| 2 | data/repository/UserRepository.kt | Data access | UserService.swift |
-| 3 | ui/screen/UserScreen.kt | Compose UI | UserViewController.swift |
-| 4 | ui/viewmodel/UserViewModel.kt | State holder | UserViewModel.swift |
+| 1 | [path matching codebase conventions] | [purpose] | [iOS file] |
+| 2 | ... | ... | ... |
 
-## Data Structure Mapping
+## Key Mappings
 
-| iOS (Swift) | Android (Kotlin) |
-|-------------|------------------|
-| struct User | data class User |
-| enum Status | sealed class Status |
-| protocol UserService | interface UserRepository |
-
-## Implementation Order
-
-1. Models (no dependencies)
-2. Repository interfaces
-3. Repository implementations
-4. ViewModels
-5. Compose UI
+| iOS Concept | Android Equivalent (matching codebase patterns) |
+|-------------|------------------------------------------------|
+| [iOS thing] | [Android equivalent as done in this codebase] |
+| ... | ... |
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-### Step 5: Implement for Android
+### Step 5: Implement
 
-Create idiomatic Kotlin/Compose code:
+Create the Android implementation:
 
-**Guidelines:**
-- Use Kotlin idioms (data classes, sealed classes, extension functions)
-- Use Jetpack Compose for all UI
-- Use Kotlin Flow for reactive streams
-- Use coroutines for async work
-- Match the Android codebase's existing patterns
+- **Match the codebase's existing patterns exactly**
+- Use the same architecture, UI patterns, state management as other features
+- Follow the same naming conventions
 - Keep data structure shapes equivalent for API compatibility
 
 ### Step 6: Report Results
@@ -233,33 +171,15 @@ Create idiomatic Kotlin/Compose code:
 | File | Purpose |
 |------|---------|
 | [path] | [description] |
-| ... | ... |
-
-### Mapping Summary
-
-| iOS | Android |
-|-----|---------|
-| User.swift | User.kt |
-| UserService.swift | UserRepository.kt |
-| UserViewController.swift | UserScreen.kt |
-| UserViewModel.swift | UserViewModel.kt |
-
-### Key Adaptations
-
-| Aspect | iOS Approach | Android Approach |
-|--------|--------------|------------------|
-| UI | UIKit/SwiftUI | Jetpack Compose |
-| State | Combine | StateFlow |
-| Async | async/await | Coroutines |
-| [other] | [iOS way] | [Android way] |
 
 ### Feature Parity Checklist
 
-- [x] Core functionality matches
+- [x] Core functionality matches iOS
 - [x] Data structures equivalent
 - [x] Error handling preserved
 - [x] Loading states preserved
 - [x] Edge cases handled
+- [x] Matches Android codebase patterns
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -274,184 +194,23 @@ Create idiomatic Kotlin/Compose code:
 "port this swift to kotlin"
 "implement this ios feature for android"
 "android version of this ios code"
-"swift to kotlin"
 ```
 
 ---
 
 ## Integration with style-guide
 
-If `.claude/codebase-style.md` exists for the Android project:
+If `.claude/codebase-style.md` exists:
 - Reference it before implementing
-- Match existing naming conventions
-- Follow established architecture patterns
-- Use the same libraries already in use
-
----
-
-## Common Conversions
-
-### Models
-
-```swift
-// iOS
-struct User: Codable {
-    let id: String
-    let name: String
-    let email: String?
-    let status: UserStatus
-}
-
-enum UserStatus: String, Codable {
-    case active, inactive, pending
-}
-```
-
-```kotlin
-// Android
-@Serializable
-data class User(
-    val id: String,
-    val name: String,
-    val email: String?,
-    val status: UserStatus
-)
-
-@Serializable
-enum class UserStatus {
-    @SerialName("active") ACTIVE,
-    @SerialName("inactive") INACTIVE,
-    @SerialName("pending") PENDING
-}
-```
-
-### Async/State
-
-```swift
-// iOS
-@Published var users: [User] = []
-@Published var isLoading = false
-
-func loadUsers() async throws {
-    isLoading = true
-    defer { isLoading = false }
-    users = try await userService.fetchUsers()
-}
-```
-
-```kotlin
-// Android
-private val _users = MutableStateFlow<List<User>>(emptyList())
-val users: StateFlow<List<User>> = _users.asStateFlow()
-
-private val _isLoading = MutableStateFlow(false)
-val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-fun loadUsers() {
-    viewModelScope.launch {
-        _isLoading.value = true
-        try {
-            _users.value = userRepository.fetchUsers()
-        } finally {
-            _isLoading.value = false
-        }
-    }
-}
-```
-
-### UI - From SwiftUI
-
-```swift
-// iOS (SwiftUI)
-var body: some View {
-    VStack {
-        if isLoading {
-            ProgressView()
-        } else {
-            List(users) { user in
-                UserRow(user: user)
-            }
-        }
-    }
-}
-```
-
-```kotlin
-// Android (Compose)
-@Composable
-fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
-    val users by viewModel.users.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    
-    Column {
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            LazyColumn {
-                items(users) { user ->
-                    UserRow(user = user)
-                }
-            }
-        }
-    }
-}
-```
-
-### UI - From UIKit/Storyboard
-
-```swift
-// iOS (UIKit)
-class UserViewController: UIViewController, UITableViewDataSource {
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
-    var users: [User] = []
-    var isLoading = false {
-        didSet {
-            activityIndicator.isHidden = !isLoading
-            tableView.isHidden = isLoading
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return users.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath)
-        cell.textLabel?.text = users[indexPath.row].name
-        return cell
-    }
-}
-```
-
-```kotlin
-// Android (Compose) - Same output regardless of iOS UI framework
-@Composable
-fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
-    val users by viewModel.users.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    
-    Column {
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            LazyColumn {
-                items(users) { user ->
-                    UserRow(user = user)
-                }
-            }
-        }
-    }
-}
-```
+- Follow all documented patterns
+- Use the same conventions throughout
 
 ---
 
 ## Tips
 
 1. **Don't translate literally** - Understand the feature, then implement idiomatically
-2. **Match data shapes** - Keep API compatibility where possible
-3. **Check existing patterns** - Use what the Android codebase already does
+2. **Match the codebase** - Use the same patterns as existing Android code
+3. **Keep data shapes equivalent** - API compatibility matters
 4. **Handle platform differences** - Some things work differently (lifecycle, permissions)
 5. **Verify feature parity** - Same behavior, not same code
