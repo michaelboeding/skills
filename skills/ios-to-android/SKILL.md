@@ -26,18 +26,35 @@ iOS Code → Understand Feature → Match Android Codebase Patterns → Implemen
 
 ## Workflow
 
-### Step 1: Get the iOS Reference
+### Step 0: Gather Context
 
-Ask the user for the iOS code to reference:
+**Ask the user for both pieces of information:**
 
 ```
-What iOS code should I use as reference?
+To port a feature from iOS to Android, I need:
 
-Options:
-1. Paste the Swift code directly
-2. Provide a file path (if iOS repo is accessible)
-3. Describe the feature and I'll ask for specific files
+1. PATH TO iOS CODEBASE (source of truth)
+   Where is the iOS project located?
+   Example: /path/to/ios-app or ../ios-app
+
+2. FEATURE TO IMPLEMENT
+   What feature or component should I port?
+   Example: "UserProfile screen" or "the authentication flow" or "src/Features/Checkout"
 ```
+
+**Assumptions:**
+- Current working directory = Android codebase (target)
+- User provides path to iOS codebase (source)
+
+If the user already provided this info, proceed. Otherwise, ask.
+
+### Step 1: Locate the iOS Feature
+
+Navigate to the iOS codebase path and find the relevant files:
+
+1. Go to the iOS path provided
+2. Find files related to the feature
+3. Read and understand the implementation
 
 ### Step 2: Analyze the iOS Code
 

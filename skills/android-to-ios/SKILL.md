@@ -26,18 +26,35 @@ Android Code → Understand Feature → Match iOS Codebase Patterns → Implemen
 
 ## Workflow
 
-### Step 1: Get the Android Reference
+### Step 0: Gather Context
 
-Ask the user for the Android code to reference:
+**Ask the user for both pieces of information:**
 
 ```
-What Android code should I use as reference?
+To port a feature from Android to iOS, I need:
 
-Options:
-1. Paste the Kotlin code directly
-2. Provide a file path (if Android repo is accessible)
-3. Describe the feature and I'll ask for specific files
+1. PATH TO ANDROID CODEBASE (source of truth)
+   Where is the Android project located?
+   Example: /path/to/android-app or ../android-app
+
+2. FEATURE TO IMPLEMENT
+   What feature or component should I port?
+   Example: "UserProfile screen" or "the authentication flow" or "app/src/main/java/features/checkout"
 ```
+
+**Assumptions:**
+- Current working directory = iOS codebase (target)
+- User provides path to Android codebase (source)
+
+If the user already provided this info, proceed. Otherwise, ask.
+
+### Step 1: Locate the Android Feature
+
+Navigate to the Android codebase path and find the relevant files:
+
+1. Go to the Android path provided
+2. Find files related to the feature
+3. Read and understand the implementation
 
 ### Step 2: Analyze the Android Code
 
