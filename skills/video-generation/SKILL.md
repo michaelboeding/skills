@@ -64,7 +64,9 @@ Before generating, ask the user in a single message:
 
 1. **Do you have an image to animate?** (I can use it as the first frame)
 
-2. **Do you need dialogue or sound effects?** (Veo 3.1 generates audio)
+2. **Audio preference?**
+   - With audio (default) - Veo 3.1 generates dialogue, SFX, ambient
+   - Silent video - uses `--silent` flag (Veo 2)
 
 3. **Which model would you like?**
    - `veo-3.1` - Latest, highest quality with audio (default)
@@ -145,6 +147,13 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/sora.py \
   --prompt "your enhanced prompt" \
   --duration 20 \
   --resolution "1080p"
+```
+
+**Silent video (no audio):**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-generation/scripts/veo.py \
+  --prompt "your prompt" \
+  --silent
 ```
 
 **List available models:**

@@ -332,8 +332,14 @@ Examples:
                         help="What NOT to include in the video")
     parser.add_argument("--list-models", "-l", action="store_true",
                         help="List available models")
+    parser.add_argument("--silent", "-s", action="store_true",
+                        help="Generate silent video (uses veo-2, no audio)")
     
     args = parser.parse_args()
+    
+    # --silent flag overrides model to veo-2
+    if args.silent:
+        args.model = "veo-2"
     
     if args.list_models:
         print("Available Veo models:")
