@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.5.0** - Added parallel batch video generation, --output flag for TTS/music scripts
+> **Version 5.6.0** - Vertex AI default for all Google skills (1400x higher rate limits)
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
