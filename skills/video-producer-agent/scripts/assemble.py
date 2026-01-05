@@ -351,6 +351,21 @@ class VideoAssembler:
         if not scenes:
             return {"success": False, "error": "No scenes defined in project.json"}
         
+        # Validate durations - Veo only accepts 4, 6, or 8 seconds
+        VALID_DURATIONS = [4, 6, 8]
+        invalid_scenes = []
+        for scene in scenes:
+            dur = scene.get("duration", 6)
+            if dur not in VALID_DURATIONS:
+                invalid_scenes.append(f"Scene {scene.get('id', '?')}: {dur}s")
+        
+        if invalid_scenes:
+            self.log(f"Invalid scene durations detected (Veo requires 4, 6, or 8 seconds):", "error")
+            for s in invalid_scenes:
+                print(f"    ❌ {s}")
+            print(f"\n    💡 Fix: Edit project.json and set all scene durations to 4, 6, or 8")
+            return {"success": False, "error": f"Invalid durations: {', '.join(invalid_scenes)}. Veo only accepts 4, 6, or 8 seconds."}
+        
         batch_config = []
         for scene in scenes:
             batch_config.append({

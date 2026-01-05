@@ -116,7 +116,7 @@ Create complete videos with voiceover, music, and visuals.
 | Question | Determines |
 |----------|------------|
 | Subject | Scene content and prompts |
-| Duration | Scene count (~6s per scene) |
+| Duration | Scene count (Veo clips must be 4, 6, or 8 seconds) |
 | Style | Visual prompts and music selection |
 | Assets | Generate vs use existing |
 | Audio | custom, veo_audio, or silent |

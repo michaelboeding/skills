@@ -12,6 +12,20 @@ from pathlib import Path
 from datetime import datetime
 
 
+# Valid Veo durations (seconds)
+VALID_VEO_DURATIONS = [4, 6, 8]
+
+
+def snap_to_valid_duration(duration: int) -> int:
+    """Snap a duration to the nearest valid Veo duration (4, 6, or 8 seconds)."""
+    if duration <= 5:
+        return 4
+    elif duration <= 7:
+        return 6
+    else:
+        return 8
+
+
 # Default project template
 DEFAULT_PROJECT = {
     "name": "",
@@ -157,17 +171,27 @@ def init_project(
         project_config["audio_strategy"] = audio_strategy
         
         # Adjust scenes based on num_scenes and duration
-        scene_duration = duration // num_scenes
+        # Veo only supports 4, 6, or 8 second clips - snap to valid durations
+        raw_scene_duration = duration // num_scenes
+        scene_duration = snap_to_valid_duration(raw_scene_duration)
+        
         scenes = []
         for i in range(num_scenes):
+            # Use consistent valid duration for all scenes
             scenes.append({
                 "id": i + 1,
                 "name": f"scene{i+1}",
                 "prompt": f"Describe scene {i+1} visual...",
-                "duration": scene_duration if i < num_scenes - 1 else duration - (scene_duration * (num_scenes - 1)),
+                "duration": scene_duration,  # Always a valid Veo duration
                 "notes": ""
             })
         project_config["scenes"] = scenes
+        
+        # Note actual expected duration
+        actual_duration = scene_duration * num_scenes
+        if actual_duration != duration:
+            print(f"⚠️  Note: Scene durations adjusted to {scene_duration}s each (Veo requires 4, 6, or 8s)")
+            print(f"    Actual video length: ~{actual_duration}s (requested: {duration}s)")
         
         # Adjust music duration
         project_config["music"]["duration"] = duration + 5  # Extra for fade out
