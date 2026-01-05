@@ -217,6 +217,7 @@ Skills for development workflows (no API keys needed):
 | [style-guide](skills/style-guide/) | Analyze codebase conventions, generate style guide |
 | [ios-to-android](skills/ios-to-android/) | Port iOS/Swift features to Android/Kotlin |
 | [android-to-ios](skills/android-to-ios/) | Port Android/Kotlin features to iOS/Swift |
+| [add-to-xcode](skills/add-to-xcode/) | Auto-register new files with Xcode projects |
 | [debug-council](skills/debug-council/) | Multi-agent debugging with majority voting |
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation, synthesize best parts |
 | [parallel-builder](skills/parallel-builder/) | Decompose plans into parallel tasks |
@@ -593,6 +594,31 @@ port UserProfile from Android to iOS
 ```
 
 Works the same as ios-to-android but in reverse direction.
+
+---
+
+### add-to-xcode
+
+Automatically register newly created source files with Xcode projects:
+
+```
+Create a new ProfileViewModel.swift in the ViewModels folder
+```
+
+**What happens:**
+1. Agent creates the Swift file
+2. Agent runs `add_to_xcode.rb` to register it with the `.xcodeproj`
+3. File appears in Xcode navigator and compiles with the target
+
+**Manual usage:**
+```bash
+# After creating any source file in an Xcode project
+ruby ${CLAUDE_PLUGIN_ROOT}/skills/add-to-xcode/scripts/add_to_xcode.rb Sources/MyNewFile.swift
+```
+
+**Supported files:** `.swift`, `.m`, `.mm`, `.c`, `.cpp`, `.h`
+
+**Requires:** `gem install xcodeproj`
 
 ---
 
