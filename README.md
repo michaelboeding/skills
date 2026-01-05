@@ -91,16 +91,18 @@ export XAI_API_KEY="..."                # Grok API
 
 Restart your terminal or run `source ~/.bashrc` (or equivalent) for changes to take effect.
 
-### Google Cloud / Vertex AI (Recommended for Video Generation)
+### Google Cloud / Vertex AI (Default for All Google Skills) ⭐
 
-For video generation, Vertex AI has **1400x higher rate limits** than AI Studio:
+Vertex AI is the **default backend** for all Google-powered skills with higher rate limits:
 
-| Backend | Rate Limit | Setup |
-|---------|-----------|-------|
-| **Vertex AI** | 10 req/minute | GCP project + auth |
-| AI Studio | 10 req/day | API key only |
+| Skill | AI Studio | Vertex AI |
+|-------|-----------|-----------|
+| Video (Veo) | 10/day | 10/min |
+| Voice (Gemini TTS) | Limited | Higher |
+| Music (Lyria) | Limited | Higher |
+| Image (Imagen) | Limited | Higher |
 
-**Setup Vertex AI:**
+**Setup Vertex AI (one-time):**
 
 ```bash
 # 1. Install Google Cloud SDK: https://cloud.google.com/sdk/docs/install

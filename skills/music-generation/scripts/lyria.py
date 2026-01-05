@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
 Google Lyria RealTime Music Generation Script
-Requires: GOOGLE_API_KEY environment variable
-Requires: pip install google-genai
+
+Supports two backends (auto-detected):
+- Vertex AI (default): Set GOOGLE_CLOUD_PROJECT + gcloud auth
+- AI Studio (fallback): Set GOOGLE_API_KEY
 
 This wraps the Lyria RealTime WebSocket API to generate music files.
 The model generates instrumental music only (no vocals).
@@ -93,6 +95,49 @@ def load_env():
 
 load_env()
 
+
+def get_backend() -> str:
+    """Detect which backend to use based on available credentials."""
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    
+    if project_id:
+        return "vertex"
+    
+    # Try to auto-detect project from gcloud
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["gcloud", "config", "get-value", "project"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            os.environ["GOOGLE_CLOUD_PROJECT"] = result.stdout.strip()
+            return "vertex"
+    except Exception:
+        pass
+    
+    if api_key:
+        return "ai_studio"
+    
+    return None
+
+
+def get_client():
+    """Get a genai Client configured for the appropriate backend."""
+    backend = get_backend()
+    
+    if backend == "vertex":
+        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+        location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+        return genai.Client(vertexai=True, project=project_id, location=location), backend
+    elif backend == "ai_studio":
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        return genai.Client(api_key=api_key), backend
+    else:
+        return None, None
+
+
 # Musical scales available
 SCALES = {
     "C": "C_MAJOR_A_MINOR",
@@ -138,9 +183,10 @@ async def generate_music(
         dict with success/error and file path
     """
     
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        return {"error": "GOOGLE_API_KEY environment variable not set. Get your key at https://aistudio.google.com/apikey"}
+    # Get backend - Lyria uses live API which requires special http_options
+    backend = get_backend()
+    if not backend:
+        return {"error": "No credentials found. Set GOOGLE_CLOUD_PROJECT (Vertex AI) or GOOGLE_API_KEY (AI Studio)"}
     
     # Validate parameters
     if bpm is not None and (bpm < 60 or bpm > 200):
@@ -177,7 +223,21 @@ async def generate_music(
     print()
     
     try:
-        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1alpha'})
+        # Create client with v1alpha API version for Lyria RealTime
+        if backend == "vertex":
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+            location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+            client = genai.Client(
+                vertexai=True, 
+                project=project_id, 
+                location=location,
+                http_options={'api_version': 'v1alpha'}
+            )
+            print(f"🚀 Using Vertex AI backend")
+        else:
+            api_key = os.environ.get("GOOGLE_API_KEY")
+            client = genai.Client(api_key=api_key, http_options={'api_version': 'v1alpha'})
+            print(f"⚠️  Using AI Studio backend")
         
         async def receive_audio(session):
             nonlocal audio_chunks, total_samples

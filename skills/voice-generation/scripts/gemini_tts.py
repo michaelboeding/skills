@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
 Google Gemini Text-to-Speech Script
-Requires: GOOGLE_API_KEY environment variable
-Requires: pip install google-genai
+
+Supports two backends (auto-detected):
+- Vertex AI (default): Set GOOGLE_CLOUD_PROJECT + gcloud auth
+- AI Studio (fallback): Set GOOGLE_API_KEY
 
 Features:
 - Single-speaker and multi-speaker (up to 2) TTS
@@ -94,6 +96,49 @@ def load_env():
 
 load_env()
 
+
+def get_backend() -> str:
+    """Detect which backend to use based on available credentials."""
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    
+    if project_id:
+        return "vertex"
+    
+    # Try to auto-detect project from gcloud
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["gcloud", "config", "get-value", "project"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            os.environ["GOOGLE_CLOUD_PROJECT"] = result.stdout.strip()
+            return "vertex"
+    except Exception:
+        pass
+    
+    if api_key:
+        return "ai_studio"
+    
+    return None
+
+
+def get_client():
+    """Get a genai Client configured for the appropriate backend."""
+    backend = get_backend()
+    
+    if backend == "vertex":
+        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+        location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+        return genai.Client(vertexai=True, project=project_id, location=location), backend
+    elif backend == "ai_studio":
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        return genai.Client(api_key=api_key), backend
+    else:
+        return None, None
+
+
 # Available voices with descriptions
 VOICES = {
     # Bright/Upbeat
@@ -180,9 +225,10 @@ def generate_speech_single(
     Returns:
         dict with success/error and file path
     """
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        return {"error": "GOOGLE_API_KEY environment variable not set. Get your key at https://aistudio.google.com/apikey"}
+    # Get client (Vertex AI or AI Studio)
+    client, backend = get_client()
+    if not client:
+        return {"error": "No credentials found. Set GOOGLE_CLOUD_PROJECT (Vertex AI) or GOOGLE_API_KEY (AI Studio)"}
     
     # Validate voice
     if voice not in VOICES:
@@ -197,7 +243,6 @@ def generate_speech_single(
         content = f"{style}\n\n{text}"
     
     try:
-        client = genai.Client(api_key=api_key)
         
         response = client.models.generate_content(
             model=model_id,
@@ -267,9 +312,10 @@ def generate_speech_multi(
     Returns:
         dict with success/error and file path
     """
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        return {"error": "GOOGLE_API_KEY environment variable not set. Get your key at https://aistudio.google.com/apikey"}
+    # Get client (Vertex AI or AI Studio)
+    client, backend = get_client()
+    if not client:
+        return {"error": "No credentials found. Set GOOGLE_CLOUD_PROJECT (Vertex AI) or GOOGLE_API_KEY (AI Studio)"}
     
     if len(speakers) > 2:
         return {"error": "Gemini TTS supports maximum 2 speakers"}
@@ -283,7 +329,6 @@ def generate_speech_multi(
     model_id = MODELS.get(model, MODELS[DEFAULT_MODEL])
     
     try:
-        client = genai.Client(api_key=api_key)
         
         # Build speaker configs
         speaker_voice_configs = [
