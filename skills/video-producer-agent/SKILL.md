@@ -29,6 +29,8 @@ Create complete videos with voiceover, music, and visuals.
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Subject**
 > "I'll create that video! First — **what's it about?**
 > 

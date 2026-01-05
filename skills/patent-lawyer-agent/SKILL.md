@@ -85,7 +85,7 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 
 "Write a complete patent for my invention" / "Create a patent document for this"
 
-**Use interactive questioning — ask ONE question at a time:**
+**Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts.
 
 **Q1: Invention**
 > "I'll draft a complete patent application for your invention!

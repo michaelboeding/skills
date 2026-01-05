@@ -37,6 +37,8 @@ Create compelling marketing copy for products, brands, and campaigns.
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Product**
 > "I'll write compelling copy for you! First — **what's the product or service?**
 > 

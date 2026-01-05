@@ -74,6 +74,8 @@ See the repository README for setup instructions.
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Reference**
 > "I'll generate that image for you! First — **do you have any reference images?**
 > 

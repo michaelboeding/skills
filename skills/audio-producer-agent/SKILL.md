@@ -46,6 +46,8 @@ Create single-speaker audio content: audiobooks, voiceovers, narrations, jingles
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Type**
 > "I'll create that audio for you! First — **what type of audio?**
 > 

@@ -37,6 +37,8 @@ Research markets and validate opportunities with comprehensive analysis.
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Market**
 > "I'll research this market for you! First — **what market or industry?**
 > 

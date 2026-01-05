@@ -38,6 +38,8 @@ Analyze product reviews to find issues and prioritize improvements.
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Product**
 > "I'll analyze reviews for your product! First — **what's the product?**
 > 

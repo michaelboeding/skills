@@ -82,6 +82,8 @@ Only use if you don't have a GCP project:
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Image**
 > "I'll generate that video for you! First — **do you have an image to animate?**
 > 

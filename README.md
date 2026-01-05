@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.9.0** - Interactive questioning for all agent skills
+> **Version 5.10.0** - Explicit AskUserQuestion tool usage for interactive prompts
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 

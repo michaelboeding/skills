@@ -41,6 +41,8 @@ Create coordinated social media content packs with multiple assets.
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Platform**
 > "I'll create your social media content pack! First — **which platform(s)?**
 > 

@@ -39,6 +39,8 @@ Design and develop new product concepts with comprehensive specifications.
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Problem**
 > "I'll help you design this product! First — **what problem does it solve?**
 > 

@@ -54,6 +54,8 @@ Appendix: Detailed metrics, references, backup slides
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Business**
 > "I'll help you create a compelling pitch deck! First — **what does your company do?**
 > 

@@ -40,6 +40,8 @@ Create complete podcast episodes, interviews, and conversation-style audio conte
 
 #### Question Flow
 
+⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
 **Q1: Topic**
 > "I'll create that podcast episode! First — **what's the topic?**
 > 
