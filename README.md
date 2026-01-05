@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.14.0** - Patent lawyer now has design-around/FTO analysis capability
+> **Version 5.15.0** - Image generation now supports --output path argument
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 

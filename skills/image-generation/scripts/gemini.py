@@ -91,7 +91,7 @@ def load_image_as_base64(image_path: str) -> tuple:
 
 def generate_image(prompt: str, model: str = "gemini-3-pro-image-preview",
                    aspect_ratio: str = "1:1", resolution: str = "1K",
-                   reference_images: list = None) -> dict:
+                   reference_images: list = None, output_path: str = None) -> dict:
     """Generate an image using Google Gemini native image generation.
     
     Args:
@@ -100,6 +100,7 @@ def generate_image(prompt: str, model: str = "gemini-3-pro-image-preview",
         aspect_ratio: Output aspect ratio
         resolution: Output resolution (1K, 2K, 4K) - Pro only
         reference_images: List of image file paths to use as references
+        output_path: Output file path (optional, auto-generates if not provided)
     """
     
     api_key = os.environ.get("GOOGLE_API_KEY")
@@ -206,8 +207,15 @@ def generate_image(prompt: str, model: str = "gemini-3-pro-image-preview",
                 return {"error": "No image data in response. The model may have returned text only."}
             
             # Save the image
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"gemini_{model.split('-')[1]}_{timestamp}.png"
+            if output_path:
+                filename = output_path
+                # Create parent directories if needed
+                output_dir = Path(output_path).parent
+                if output_dir and not output_dir.exists():
+                    output_dir.mkdir(parents=True, exist_ok=True)
+            else:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"gemini_{model.split('-')[1]}_{timestamp}.png"
             
             with open(filename, "wb") as f:
                 f.write(base64.b64decode(image_data))
@@ -281,6 +289,8 @@ Examples:
                         help="Resolution - only for Nano Banana Pro (default: 1K)")
     parser.add_argument("--image", "-i", action="append", dest="images",
                         help="Reference image path (can be used multiple times for multiple images)")
+    parser.add_argument("--output", "-o", default=None,
+                        help="Output file path (default: auto-generated filename in current directory)")
     
     args = parser.parse_args()
     
@@ -296,6 +306,8 @@ Examples:
         print(f"Reference images: {len(args.images)}")
         for img in args.images:
             print(f"  - {img}")
+    if args.output:
+        print(f"Output: {args.output}")
     print()
     
     result = generate_image(
@@ -303,7 +315,8 @@ Examples:
         args.model, 
         args.aspect_ratio, 
         args.resolution,
-        args.images
+        args.images,
+        args.output
     )
     
     if "error" in result:

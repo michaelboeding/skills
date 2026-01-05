@@ -178,7 +178,8 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/gemini.py \
   --prompt "your enhanced prompt" \
   --model "gemini-3-pro-image-preview" \
   --aspect-ratio "1:1" \
-  --resolution "2K"
+  --resolution "2K" \
+  --output "/path/to/output.png"
 ```
 
 **For Google Gemini - With Reference Images (editing, product placement, etc.):**
