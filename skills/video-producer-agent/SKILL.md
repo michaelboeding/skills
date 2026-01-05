@@ -19,47 +19,65 @@ Create complete videos with voiceover, music, and visuals.
 - Video clip generation (Veo 3.1) or image animation
 - Final assembly (FFmpeg via media-utils)
 
-## Before Starting: Questions to Ask
+## Workflow
 
-When a user requests a video, gather this information first:
+### Step 1: Gather Requirements (REQUIRED)
+
+⚠️ **DO NOT skip this step. DO NOT run init_project.py until you have answers.**
+
+**Ask the user:**
+
+> "I'll create that video! First, a few quick questions:
+>
+> 1. **Subject** — What's the video about? (product, story, concept)
+> 2. **Duration** — How long? (15s, 30s, 60s, 2min)
+> 3. **Style** — Premium/luxury, fun/playful, corporate, dramatic?
+> 4. **Have assets?** — Do you have images or video clips to use?
+> 5. **Audio preference?**
+>    - Custom voiceover + background music (I generate both)
+>    - Veo's native audio (dialogue, SFX, ambient built into clips)
+>    - Silent video (add audio later)
+> 6. **Voice tone?** — Professional, friendly, energetic, calm, dramatic?
+> 7. **Music vibe?** — Modern electronic, cinematic, upbeat, ambient?
+> 8. **Format?** — 16:9 (YouTube), 9:16 (TikTok/Reels), 1:1 (Instagram)?
+>
+> Share what you know — I'll help with the rest!"
+
+**⏸️ Wait for the user to respond before proceeding.**
 
 | Question | Why It Matters |
 |----------|----------------|
-| **What is the video about?** | Subject, product, concept, story |
-| **How long?** | 15s, 30s, 60s — determines scene count |
-| **What style?** | Premium, fun, corporate, dramatic, playful |
-| **Do you have images/clips?** | Use existing assets or generate everything |
-| **Audio preference?** | Custom VO + music, Veo's native audio, or silent |
-| **Voiceover tone?** | Professional, friendly, energetic, calm |
-| **Music style?** | Electronic, cinematic, upbeat, ambient |
-| **Aspect ratio?** | 16:9 (YouTube), 9:16 (TikTok/Reels), 1:1 (Instagram) |
-
-**Example intake prompt:**
-
-> "I'll create that video! Quick questions:
-> 
-> 1. **Subject** — What's the video about?
-> 2. **Duration** — How long? (15s, 30s, 60s)
-> 3. **Style** — Premium/luxury, fun/playful, corporate, dramatic?
-> 4. **Have assets?** — Do you have images or video clips to use?
-> 5. **Audio** — Custom voiceover + music, or use Veo's generated audio?
-> 6. **Voice tone** — Professional, friendly, energetic?
-> 7. **Music vibe** — Modern electronic, cinematic, upbeat pop?
-> 8. **Format** — 16:9 landscape, 9:16 vertical for social?"
+| Subject | Determines scene content and prompts |
+| Duration | Determines scene count (6s per scene) |
+| Style | Affects visual prompts and music selection |
+| Have assets? | Use existing vs generate everything |
+| Audio preference | custom, veo_audio, or silent strategy |
+| Voice tone | Voice selection for TTS |
+| Music vibe | Lyria prompt |
+| Format | Aspect ratio for Veo |
 
 ---
 
-## Quick Start
+### Step 2: Initialize Project
+
+Once you have the user's answers, initialize the project with their preferences:
 
 ```bash
-# 1. Initialize a new project
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-producer-agent/scripts/init_project.py \
   --name "Product Launch Video" \
-  --duration 30
+  --duration 30 \
+  --aspect-ratio 16:9 \
+  --audio-strategy custom \
+  --scenes 5
+```
 
-# 2. Edit project.json with your scene prompts, voiceover text, music style
+### Step 3: Configure project.json
 
-# 3. Assemble the video
+Edit `project.json` with scene prompts, voiceover text, and music style based on user's answers.
+
+### Step 4: Assemble the Video
+
+```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-producer-agent/scripts/assemble.py \
   --project ~/my_video_project/
 ```
