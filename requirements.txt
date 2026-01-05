@@ -8,9 +8,11 @@
 
 # Google AI SDK - Required for:
 # - Image generation (Imagen 3)
-# - Video generation (Veo 3.1)
+# - Video generation (Veo 3.1) - supports both Vertex AI and AI Studio
 # - Voice generation (Gemini TTS)
 # - Music generation (Lyria)
+# Note: For Vertex AI (higher rate limits), just set GOOGLE_CLOUD_PROJECT
+#       and run: gcloud auth application-default login
 google-genai>=1.0.0
 
 # SSL certificates (fixes macOS SSL issues)
@@ -33,13 +35,6 @@ Pillow>=10.0.0
 # =============================================================================
 markdown>=3.4.0
 weasyprint>=60.0
-
-# =============================================================================
-# VERTEX AI (Higher rate limits for video generation)
-# =============================================================================
-# Recommended for production use - 10 requests/minute vs 10/day
-# Requires: gcloud auth application-default login
-google-cloud-aiplatform>=1.40.0
 
 # =============================================================================
 # OPTIONAL - Alternative Providers
