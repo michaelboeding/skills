@@ -104,10 +104,19 @@ Create complete videos with voiceover, music, and visuals.
 *Wait for response.*
 
 **Q8: Format**
-> "What aspect ratio?"
+> "What **aspect ratio**?
+> 
 > - 16:9 (YouTube, web)
 > - 9:16 (TikTok, Reels, Shorts)
-> - 1:1 (Instagram feed)
+> - 1:1 (Instagram feed)"
+
+*Wait for response.*
+
+**Q9: Resolution**
+> "What **resolution**?
+> 
+> - 720p (faster generation)
+> - 1080p (standard HD)"
 
 *Wait for response.*
 
@@ -123,6 +132,7 @@ Create complete videos with voiceover, music, and visuals.
 | Voice | TTS voice selection |
 | Music | Lyria prompt |
 | Format | Aspect ratio for Veo |
+| Resolution | 720p or 1080p output quality |
 
 ---
 

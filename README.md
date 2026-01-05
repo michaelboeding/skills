@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.11.0** - Fix Veo duration validation (4, 6, or 8 seconds only)
+> **Version 5.12.0** - Video producer now asks resolution + duration validation fix
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
