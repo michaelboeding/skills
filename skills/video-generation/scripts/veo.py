@@ -36,12 +36,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 
 # Check for google-genai SDK (supports both AI Studio and Vertex AI)
-HAS_GENAI_SDK = False
-
 try:
     from google import genai
     from google.genai import types
-    HAS_GENAI_SDK = True
 except ImportError as e:
     error_msg = str(e)
     if "incompatible architecture" in error_msg or "mach-o file" in error_msg:
@@ -108,7 +105,7 @@ def load_env():
 
 load_env()
 
-# Available Veo models (google-genai SDK works for both Vertex AI and AI Studio)
+# Available Veo models (same for both AI Studio and Vertex AI)
 MODELS = {
     "veo-3.1": "veo-3.1-generate-preview",
     "veo-3.1-fast": "veo-3.1-fast-generate-preview",
@@ -120,22 +117,21 @@ DEFAULT_MODEL = "veo-3.1"
 def get_backend() -> str:
     """Detect which backend to use based on available credentials.
     
-    The google-genai SDK supports both backends:
-    - Vertex AI: vertexai=True, project=..., location=...
-    - AI Studio: api_key=...
+    Both use the same google-genai SDK, but with different auth:
+    - Vertex AI: Uses GOOGLE_CLOUD_PROJECT + ADC (10 req/min)
+    - AI Studio: Uses GOOGLE_API_KEY (10 req/day)
     
     Returns:
-        'vertex' if GCP project configured (10 req/min)
-        'ai_studio' if API key configured (10 req/day)
-        None if no credentials found
+        'vertex' if GCP project configured, 'ai_studio' otherwise
     """
-    # Check for Vertex AI credentials (preferred - higher rate limits)
     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+    api_key = os.environ.get("GOOGLE_API_KEY")
     
+    # Prefer Vertex AI (higher rate limits)
     if project_id:
         return "vertex"
     
-    # Try to auto-detect project from gcloud config
+    # Try to auto-detect project from gcloud
     try:
         import subprocess
         result = subprocess.run(
@@ -148,21 +144,21 @@ def get_backend() -> str:
     except Exception:
         pass
     
-    # Fall back to AI Studio if we have an API key
-    if os.environ.get("GOOGLE_API_KEY"):
+    # Fall back to AI Studio
+    if api_key:
         return "ai_studio"
     
     return None
 
 
-def get_genai_client():
-    """Get a google-genai client configured for the detected backend."""
+def get_client():
+    """Get a genai Client configured for the appropriate backend."""
     backend = get_backend()
     
     if backend == "vertex":
-        project = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
         location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-        return genai.Client(vertexai=True, project=project, location=location), backend
+        return genai.Client(vertexai=True, project=project_id, location=location), backend
     elif backend == "ai_studio":
         api_key = os.environ.get("GOOGLE_API_KEY")
         return genai.Client(api_key=api_key), backend
@@ -375,10 +371,10 @@ def extend_video(
     return final_result
 
 
-def generate_video_impl(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
-                        aspect_ratio: str = "16:9", resolution: str = "720p",
-                        image: str = None, negative_prompt: str = None) -> dict:
-    """Generate a video using Google Veo (auto-detects Vertex AI or AI Studio).
+def _generate_video_internal(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
+                              aspect_ratio: str = "16:9", resolution: str = "720p",
+                              image: str = None, negative_prompt: str = None) -> dict:
+    """Internal video generation using google-genai SDK (works with both backends).
     
     Args:
         prompt: Text description for the video (supports audio cues for Veo 3+)
@@ -389,10 +385,10 @@ def generate_video_impl(prompt: str, model: str = DEFAULT_MODEL, duration: int =
         image: Optional image path to use as first frame
         negative_prompt: What not to include in the video
     """
-    # Get the appropriate client
-    client, backend = get_genai_client()
     
-    if client is None:
+    # Get the appropriate client (Vertex AI or AI Studio)
+    client, backend = get_client()
+    if not client:
         return {"error": """No credentials found. Set one of:
   
   Vertex AI (recommended - 10 requests/minute):
@@ -402,15 +398,6 @@ def generate_video_impl(prompt: str, model: str = DEFAULT_MODEL, duration: int =
   AI Studio (simple - 10 requests/day):
     export GOOGLE_API_KEY=your-api-key
 """}
-    
-    # Show which backend we're using
-    if backend == "vertex":
-        project = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
-        location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-        print(f"🚀 Using Vertex AI backend (10 requests/minute)")
-        print(f"   Project: {project}, Location: {location}")
-    else:
-        print("⚠️  Using AI Studio backend (10 requests/DAY - consider setting up Vertex AI)")
     
     # Get model ID
     model_id = MODELS.get(model, MODELS[DEFAULT_MODEL])
@@ -433,7 +420,7 @@ def generate_video_impl(prompt: str, model: str = DEFAULT_MODEL, duration: int =
         return {"error": "1080p resolution only supports 8 second duration"}
     
     try:
-        # client is already configured via get_genai_client()
+        # Client is already configured for the right backend
         
         # Build generation config
         config = types.GenerateVideosConfig(
@@ -510,12 +497,11 @@ def generate_video_impl(prompt: str, model: str = DEFAULT_MODEL, duration: int =
                             f.write(video.video.video_bytes)
                         video_saved = True
                     elif hasattr(video.video, 'uri') and video.video.uri:
-                        # Download from URI with API key auth (if using AI Studio)
+                        # Download from URI with API key auth
                         print(f"Downloading video to {filename}...")
                         video_url = video.video.uri
-                        # Add API key if not already in URL and using AI Studio
-                        api_key = os.environ.get("GOOGLE_API_KEY")
-                        if api_key and "key=" not in video_url:
+                        # Add API key if not already in URL
+                        if "key=" not in video_url:
                             separator = "&" if "?" in video_url else "?"
                             video_url = f"{video_url}{separator}key={api_key}"
                         try:
@@ -543,7 +529,6 @@ def generate_video_impl(prompt: str, model: str = DEFAULT_MODEL, duration: int =
                     "aspect_ratio": aspect_ratio,
                     "resolution": resolution,
                     "has_audio": True,  # All supported models have audio
-                    "backend": backend,
                     "prompt": prompt
                 }
             
@@ -579,8 +564,25 @@ def generate_video(prompt: str, model: str = DEFAULT_MODEL, duration: int = 8,
     Returns:
         dict with success/error and file path
     """
-    return generate_video_impl(prompt, model, duration, aspect_ratio, 
-                               resolution, image, negative_prompt)
+    backend = get_backend()
+    
+    if backend == "vertex":
+        print("🚀 Using Vertex AI backend (10 requests/minute)")
+    elif backend == "ai_studio":
+        print("⚠️  Using AI Studio backend (10 requests/DAY - consider Vertex AI)")
+    else:
+        return {"error": """No credentials found. Set one of:
+  
+  Vertex AI (recommended - 10 requests/minute):
+    export GOOGLE_CLOUD_PROJECT=your-project-id
+    gcloud auth application-default login
+    
+  AI Studio (simple - 10 requests/day):
+    export GOOGLE_API_KEY=your-api-key
+"""}
+    
+    return _generate_video_internal(prompt, model, duration, aspect_ratio, 
+                                    resolution, image, negative_prompt)
 
 
 # Thread-safe state for batch mode
@@ -977,12 +979,11 @@ BATCH MODE (parallel generation):
             print(json.dumps(result, indent=2))
         return
     
-    # Regular generation mode - prompt is required
-    if not args.prompt:
-        parser.error("--prompt/-p is required for video generation (use --extend for extension)")
-    
+    # List models
     if args.list_models:
-        print("Available Veo models:")
+        backend = get_backend()
+        print(f"Backend: {backend or 'not configured'}")
+        print("\nAvailable Veo models:")
         print("-" * 60)
         for name, model_id in MODELS.items():
             default = " (default)" if name == DEFAULT_MODEL else ""
@@ -990,6 +991,10 @@ BATCH MODE (parallel generation):
             print(f"  {name:15} {model_id:35} [{speed}]{default}")
         print("\nAll models include audio (dialogue, sound effects, ambient)")
         return
+    
+    # Regular generation mode - prompt is required
+    if not args.prompt:
+        parser.error("--prompt/-p is required for video generation (use --extend for extension)")
     
     model_id = MODELS.get(args.model, MODELS[DEFAULT_MODEL])
     
