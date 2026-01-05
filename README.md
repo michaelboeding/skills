@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.18.0** - add-to-xcode now uses imperative language so agents always run it
+> **Version 5.19.0** - Fixed add-to-xcode path doubling bug (files no longer show red in Xcode)
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 

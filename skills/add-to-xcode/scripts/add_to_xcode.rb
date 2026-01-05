@@ -50,11 +50,12 @@ end
 
 # Add file if not already present
 filename = File.basename(relative_path)
-unless group.files.any? { |f| f.path == filename }
-  file_ref = group.new_file(relative_path)
+unless group.files.any? { |f| f.path == filename || File.basename(f.path || '') == filename }
+  # Use just the filename since we've already navigated to the correct group
+  file_ref = group.new_file(filename)
   
   # Add to first target if source file
-  if relative_path.match?(/\.(swift|m|mm|c|cpp)$/)
+  if filename.match?(/\.(swift|m|mm|c|cpp)$/)
     target = project.targets.first
     target&.source_build_phase&.add_file_reference(file_ref)
     puts "✓ Added #{relative_path} to #{project_file} (target: #{target&.name})"
