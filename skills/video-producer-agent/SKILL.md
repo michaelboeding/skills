@@ -120,6 +120,16 @@ Create complete videos with voiceover, music, and visuals.
 
 *Wait for response.*
 
+**Q10: Model**
+> "Which **Veo model**?
+> 
+> - `veo-3.1` — Latest, highest quality (default)
+> - `veo-3.1-fast` — Faster generation, slightly lower quality
+> - `veo-3` — Previous generation
+> - `veo-3-fast` — Previous gen, faster"
+
+*Wait for response.*
+
 #### Quick Reference
 
 | Question | Determines |
@@ -133,6 +143,7 @@ Create complete videos with voiceover, music, and visuals.
 | Music | Lyria prompt |
 | Format | Aspect ratio for Veo |
 | Resolution | 720p or 1080p output quality |
+| Model | veo-3.1, veo-3.1-fast, veo-3, veo-3-fast |
 
 ---
 
