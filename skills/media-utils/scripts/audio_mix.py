@@ -28,12 +28,18 @@ def mix_audio(
         music_file: Path to background music
         output_file: Output file path (auto-generated if None)
         music_volume: Volume level for music (0.0-1.0, default 0.3)
-        duck_music: Whether to duck music when voice is present
+        duck_music: DEPRECATED - ducking via sidechaincompress was unreliable.
+                    Music volume is simply lowered; this param is ignored.
         fade_in: Fade in duration for music in seconds
         fade_out: Fade out duration for music in seconds
     
     Returns:
         dict with success/error and output file path
+    
+    Note:
+        Uses simple volume mixing which works reliably with any audio format.
+        The complex sidechaincompress ducking was removed due to FFmpeg
+        channel layout compatibility issues.
     """
     # Validate inputs
     if not os.path.exists(voice_file):
@@ -52,10 +58,7 @@ def mix_audio(
         if voice_duration is None:
             return {"error": "Could not determine voice file duration"}
         
-        # Build the filter chain
-        filters = []
-        
-        # Music processing: volume, optional fade, loop/trim to match voice
+        # Music processing: volume, optional fade
         music_filters = []
         
         # Adjust music volume
@@ -72,30 +75,13 @@ def mix_audio(
         
         music_filter_str = ",".join(music_filters) if music_filters else "anull"
         
-        # Normalize both inputs to stereo with consistent format
-        # This prevents channel layout mismatch errors
-        voice_norm = "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo"
-        music_norm = "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo"
-        
-        if duck_music:
-            # Use sidechaincompress for ducking
-            # Voice controls when music ducks
-            # NOTE: sidechaincompress requires matching layouts, so we ensure both are stereo
-            filter_complex = (
-                f"[0:a]{voice_norm}[voice];"
-                f"[1:a]{music_filter_str},{music_norm}[music_vol];"
-                f"[music_vol]aloop=loop=-1:size=2e+09,atrim=0:{voice_duration + 1}[music_trimmed];"
-                f"[music_trimmed][voice]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=400[ducked];"
-                f"[voice][ducked]amix=inputs=2:duration=first:dropout_transition=2[out]"
-            )
-        else:
-            # Simple mix without ducking
-            filter_complex = (
-                f"[0:a]{voice_norm}[voice];"
-                f"[1:a]{music_filter_str},{music_norm}[music_vol];"
-                f"[music_vol]aloop=loop=-1:size=2e+09,atrim=0:{voice_duration + 1}[music_trimmed];"
-                f"[voice][music_trimmed]amix=inputs=2:duration=first:dropout_transition=2[out]"
-            )
+        # Use simple, robust filter that works with any channel layout
+        # Sidechaincompress is too fragile with mono/stereo mismatches
+        # This approach: lower music volume, mix with voice, works reliably
+        filter_complex = (
+            f"[1:a]{music_filter_str}[music_adj];"
+            f"[0:a][music_adj]amix=inputs=2:duration=longest:dropout_transition=2[out]"
+        )
         
         cmd = [
             "ffmpeg",
@@ -117,7 +103,29 @@ def mix_audio(
         )
         
         if proc.returncode != 0:
-            return {"error": f"FFmpeg error: {proc.stderr[-500:]}"}
+            # Try even simpler fallback
+            fallback_cmd = [
+                "ffmpeg",
+                "-y",
+                "-i", voice_file,
+                "-i", music_file,
+                "-filter_complex",
+                f"[1:a]volume={music_volume}[m];[0:a][m]amix=inputs=2:duration=longest[out]",
+                "-map", "[out]",
+                "-c:a", "libmp3lame",
+                "-q:a", "2",
+                output_file
+            ]
+            
+            fallback_proc = subprocess.run(
+                fallback_cmd,
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+            
+            if fallback_proc.returncode != 0:
+                return {"error": f"FFmpeg error: {fallback_proc.stderr[-500:]}"}
         
         return {
             "success": True,

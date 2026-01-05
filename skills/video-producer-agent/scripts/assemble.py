@@ -47,31 +47,74 @@ def get_skill_path(skill_name: str, script_name: str) -> Path:
     raise FileNotFoundError(f"Could not find {skill_name}/{script_name}")
 
 
-def run_script(script_path: Path, args: list, cwd: str = None, timeout: int = 600) -> dict:
-    """Run a Python script and return result."""
+def run_script(script_path: Path, args: list, cwd: str = None, timeout: int = 600, stream: bool = True) -> dict:
+    """Run a Python script and return result.
+    
+    Args:
+        stream: If True, stream output to console in real-time
+    """
     cmd = [sys.executable, str(script_path)] + args
     
     try:
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=cwd,
-            timeout=timeout
-        )
-        
-        if proc.returncode != 0:
+        if stream:
+            # Stream output in real-time
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd=cwd,
+                bufsize=1
+            )
+            
+            output_lines = []
+            start = time.time()
+            
+            for line in proc.stdout:
+                output_lines.append(line)
+                # Show key progress lines
+                line_stripped = line.strip()
+                if any(x in line_stripped.lower() for x in ['generating', 'complete', 'error', '✅', '❌', '🔄', 'scene', 'batch', 'elapsed']):
+                    print(f"    {line_stripped}")
+                elif time.time() - start > 30 and 'still' in line_stripped.lower():
+                    print(f"    {line_stripped}")
+            
+            proc.wait(timeout=timeout)
+            
+            if proc.returncode != 0:
+                return {
+                    "success": False,
+                    "error": "".join(output_lines[-20:]),
+                    "stdout": "".join(output_lines)
+                }
+            
             return {
-                "success": False,
-                "error": proc.stderr[-1000:] if proc.stderr else "Unknown error",
-                "stdout": proc.stdout
+                "success": True,
+                "stdout": "".join(output_lines),
+                "stderr": ""
             }
-        
-        return {
-            "success": True,
-            "stdout": proc.stdout,
-            "stderr": proc.stderr
-        }
+        else:
+            # Capture output (original behavior)
+            proc = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                cwd=cwd,
+                timeout=timeout
+            )
+            
+            if proc.returncode != 0:
+                return {
+                    "success": False,
+                    "error": proc.stderr[-1000:] if proc.stderr else "Unknown error",
+                    "stdout": proc.stdout
+                }
+            
+            return {
+                "success": True,
+                "stdout": proc.stdout,
+                "stderr": proc.stderr
+            }
         
     except subprocess.TimeoutExpired:
         return {"success": False, "error": f"Timeout after {timeout}s"}
@@ -137,9 +180,56 @@ class VideoAssembler:
         icons = {"info": "ℹ️", "success": "✅", "error": "❌", "warning": "⚠️", "step": "🔄"}
         print(f"{icons.get(level, '•')} {msg}")
     
+    def print_progress_banner(self, current_step: int, step_name: str, step_times: dict):
+        """Print a progress banner showing all steps."""
+        steps = [
+            ("1", "Generate Scenes", "generate_scenes"),
+            ("2", "Strip Audio", "strip_audio"),
+            ("3", "Generate Voiceover", "generate_voiceover"),
+            ("4", "Generate Music", "generate_music"),
+            ("5", "Mix Audio", "mix_audio"),
+            ("6", "Concatenate Video", "concatenate_videos"),
+            ("7", "Merge Audio+Video", "merge_audio_video"),
+        ]
+        
+        # Filter based on audio strategy
+        if self.config["audio_strategy"] == "veo_audio":
+            steps = [s for s in steps if s[2] not in ["strip_audio", "generate_voiceover", "generate_music", "mix_audio", "merge_audio_video"]]
+        elif self.config["audio_strategy"] == "silent":
+            steps = [s for s in steps if s[2] not in ["generate_voiceover", "generate_music", "mix_audio", "merge_audio_video"]]
+        
+        print("\n" + "━" * 60)
+        print(f"📊 ASSEMBLY PROGRESS - {self.config['name']}")
+        print("━" * 60)
+        
+        for i, (num, name, key) in enumerate(steps):
+            if key in step_times:
+                if step_times[key].get("success"):
+                    status = f"✅ Complete ({step_times[key].get('time', 0):.1f}s)"
+                else:
+                    status = "❌ Failed"
+            elif key == step_name:
+                status = "🔄 Running..."
+            else:
+                status = "⏳ Pending"
+            
+            print(f"  {num}. {name:<20} → {status}")
+        
+        print("━" * 60 + "\n")
+    
     def assemble(self) -> dict:
         """Run the full assembly pipeline."""
         start_time = time.time()
+        step_times = {}
+        
+        print("\n" + "=" * 60)
+        print("🎬 VIDEO ASSEMBLY STARTING")
+        print("=" * 60)
+        print(f"  Project: {self.config['name']}")
+        print(f"  Scenes: {len(self.config.get('scenes', []))}")
+        print(f"  Audio: {self.config['audio_strategy']}")
+        print(f"  Duration: ~{self.config.get('duration_target', 30)}s target")
+        print("=" * 60 + "\n")
         
         self.log(f"Starting assembly for: {self.config['name']}", "step")
         self.log(f"Audio strategy: {self.config['audio_strategy']}")
@@ -152,52 +242,77 @@ class VideoAssembler:
         try:
             # Step 1: Generate video scenes
             if not self.skip_generation:
+                self.print_progress_banner(1, "generate_scenes", step_times)
+                step_start = time.time()
                 step_result = self.generate_scenes()
+                step_times["generate_scenes"] = {"success": step_result.get("success"), "time": time.time() - step_start}
                 results["steps"].append({"name": "generate_scenes", **step_result})
                 if not step_result.get("success"):
                     return {"success": False, "error": "Scene generation failed", **results}
             else:
                 self.log("Skipping scene generation (--skip-generation)", "warning")
+                step_times["generate_scenes"] = {"success": True, "time": 0}
             
             # Step 2: Handle audio based on strategy
             if self.config["audio_strategy"] == "custom":
                 # Strip audio from scenes
+                self.print_progress_banner(2, "strip_audio", step_times)
+                step_start = time.time()
                 step_result = self.strip_audio_from_scenes()
+                step_times["strip_audio"] = {"success": step_result.get("success"), "time": time.time() - step_start}
                 results["steps"].append({"name": "strip_audio", **step_result})
                 if not step_result.get("success"):
                     return {"success": False, "error": "Audio stripping failed", **results}
                 
                 # Generate voiceover
                 if self.config.get("voiceover", {}).get("enabled", True) and not self.skip_generation:
+                    self.print_progress_banner(3, "generate_voiceover", step_times)
+                    step_start = time.time()
                     step_result = self.generate_voiceover()
+                    step_times["generate_voiceover"] = {"success": step_result.get("success"), "time": time.time() - step_start}
                     results["steps"].append({"name": "generate_voiceover", **step_result})
                     if not step_result.get("success"):
                         self.log("Voiceover generation failed, continuing without", "warning")
                 
                 # Generate music
                 if self.config.get("music", {}).get("enabled", True) and not self.skip_generation:
+                    self.print_progress_banner(4, "generate_music", step_times)
+                    step_start = time.time()
                     step_result = self.generate_music()
+                    step_times["generate_music"] = {"success": step_result.get("success"), "time": time.time() - step_start}
                     results["steps"].append({"name": "generate_music", **step_result})
                     if not step_result.get("success"):
                         self.log("Music generation failed, continuing without", "warning")
                 
                 # Mix audio
+                self.print_progress_banner(5, "mix_audio", step_times)
+                step_start = time.time()
                 step_result = self.mix_audio()
+                step_times["mix_audio"] = {"success": step_result.get("success"), "time": time.time() - step_start}
                 results["steps"].append({"name": "mix_audio", **step_result})
                 
             elif self.config["audio_strategy"] == "silent":
+                self.print_progress_banner(2, "strip_audio", step_times)
+                step_start = time.time()
                 step_result = self.strip_audio_from_scenes()
+                step_times["strip_audio"] = {"success": step_result.get("success"), "time": time.time() - step_start}
                 results["steps"].append({"name": "strip_audio", **step_result})
             
             # Step 3: Concatenate video clips
+            self.print_progress_banner(6, "concatenate_videos", step_times)
+            step_start = time.time()
             step_result = self.concatenate_videos()
+            step_times["concatenate_videos"] = {"success": step_result.get("success"), "time": time.time() - step_start}
             results["steps"].append({"name": "concatenate_videos", **step_result})
             if not step_result.get("success"):
                 return {"success": False, "error": "Video concatenation failed", **results}
             
             # Step 4: Merge audio with video (if custom audio)
             if self.config["audio_strategy"] == "custom":
+                self.print_progress_banner(7, "merge_audio_video", step_times)
+                step_start = time.time()
                 step_result = self.merge_audio_video()
+                step_times["merge_audio_video"] = {"success": step_result.get("success"), "time": time.time() - step_start}
                 results["steps"].append({"name": "merge_audio_video", **step_result})
                 if not step_result.get("success"):
                     return {"success": False, "error": "Audio/video merge failed", **results}
@@ -207,6 +322,9 @@ class VideoAssembler:
             results["success"] = True
             results["total_time"] = round(elapsed, 1)
             results["output_file"] = str(self.get_output_filename())
+            
+            # Final progress banner
+            self.print_progress_banner(99, "done", step_times)
             
             self.log(f"Assembly complete in {elapsed:.1f}s", "success")
             self.log(f"Output: {results['output_file']}")

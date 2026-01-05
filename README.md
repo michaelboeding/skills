@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.7.0** - Video producer orchestration scripts + media-utils fixes
+> **Version 5.8.0** - Audio mixing reliability fixes + assemble streaming output
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
