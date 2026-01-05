@@ -2,9 +2,7 @@
 """
 Google Lyria RealTime Music Generation Script
 
-Supports two backends (auto-detected):
-- Vertex AI (default): Set GOOGLE_CLOUD_PROJECT + gcloud auth
-- AI Studio (fallback): Set GOOGLE_API_KEY
+Requires: GOOGLE_API_KEY (Lyria RealTime is AI Studio only - no Vertex AI support)
 
 This wraps the Lyria RealTime WebSocket API to generate music files.
 The model generates instrumental music only (no vocals).
@@ -223,21 +221,13 @@ async def generate_music(
     print()
     
     try:
-        # Create client with v1alpha API version for Lyria RealTime
-        if backend == "vertex":
-            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
-            location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-            client = genai.Client(
-                vertexai=True, 
-                project=project_id, 
-                location=location,
-                http_options={'api_version': 'v1alpha'}
-            )
-            print(f"🚀 Using Vertex AI backend")
-        else:
-            api_key = os.environ.get("GOOGLE_API_KEY")
-            client = genai.Client(api_key=api_key, http_options={'api_version': 'v1alpha'})
-            print(f"⚠️  Using AI Studio backend")
+        # Lyria RealTime only works with AI Studio (not Vertex AI)
+        api_key = os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            return {"error": "GOOGLE_API_KEY required for Lyria (Vertex AI not supported for live music). Get key at: https://aistudio.google.com/apikey"}
+        
+        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1alpha'})
+        print(f"ℹ️  Using AI Studio (Lyria requires API key)")
         
         async def receive_audio(session):
             nonlocal audio_chunks, total_samples
