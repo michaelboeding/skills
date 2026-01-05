@@ -76,6 +76,9 @@ def _concat_simple(input_files: list, output_file: str,
                    scale_filter: str, fps: int) -> dict:
     """Simple concatenation, re-encoding to ensure compatibility."""
     
+    # Check if all files have audio
+    all_have_audio = all(_has_audio(f) for f in input_files)
+    
     # Build filter for each input
     filter_parts = []
     for i in range(len(input_files)):
@@ -91,15 +94,17 @@ def _concat_simple(input_files: list, output_file: str,
         else:
             filter_parts.append(f"[{i}:v]null[v{i}]")
         
-        # Audio - just pass through
-        filter_parts.append(f"[{i}:a]anull[a{i}]")
+        # Audio - only if all files have audio
+        if all_have_audio:
+            filter_parts.append(f"[{i}:a]anull[a{i}]")
     
     # Concat all streams
     video_inputs = "".join(f"[v{i}]" for i in range(len(input_files)))
-    audio_inputs = "".join(f"[a{i}]" for i in range(len(input_files)))
-    
     filter_parts.append(f"{video_inputs}concat=n={len(input_files)}:v=1:a=0[outv]")
-    filter_parts.append(f"{audio_inputs}concat=n={len(input_files)}:v=0:a=1[outa]")
+    
+    if all_have_audio:
+        audio_inputs = "".join(f"[a{i}]" for i in range(len(input_files)))
+        filter_parts.append(f"{audio_inputs}concat=n={len(input_files)}:v=0:a=1[outa]")
     
     filter_complex = ";".join(filter_parts)
     
@@ -108,20 +113,27 @@ def _concat_simple(input_files: list, output_file: str,
     for f in input_files:
         inputs.extend(["-i", f])
     
+    # Build map arguments
+    map_args = ["-map", "[outv]"]
+    if all_have_audio:
+        map_args.extend(["-map", "[outa]"])
+    
     cmd = [
         "ffmpeg",
         "-y",
         *inputs,
         "-filter_complex", filter_complex,
-        "-map", "[outv]",
-        "-map", "[outa]",
+        *map_args,
         "-c:v", "libx264",
         "-preset", "medium",
         "-crf", "23",
-        "-c:a", "aac",
-        "-b:a", "192k",
-        output_file
     ]
+    
+    # Only add audio codec if we have audio
+    if all_have_audio:
+        cmd.extend(["-c:a", "aac", "-b:a", "192k"])
+    
+    cmd.append(output_file)
     
     proc = subprocess.run(
         cmd,
@@ -136,8 +148,22 @@ def _concat_simple(input_files: list, output_file: str,
     return {
         "success": True,
         "file": output_file,
-        "files_concatenated": len(input_files)
+        "files_concatenated": len(input_files),
+        "has_audio": all_have_audio
     }
+
+
+def _has_audio(file_path: str) -> bool:
+    """Check if a video file has an audio stream."""
+    try:
+        result = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-select_streams", "a",
+             "-show_entries", "stream=codec_type", "-of", "csv=p=0", file_path],
+            capture_output=True, text=True
+        )
+        return bool(result.stdout.strip())
+    except Exception:
+        return False
 
 
 def _concat_with_transition(input_files: list, output_file: str,
@@ -146,6 +172,9 @@ def _concat_with_transition(input_files: list, output_file: str,
     """Concatenation with transitions between clips."""
     
     n = len(input_files)
+    
+    # Check if any files have audio
+    has_audio = all(_has_audio(f) for f in input_files)
     
     # Build inputs
     inputs = []
@@ -192,29 +221,34 @@ def _concat_with_transition(input_files: list, output_file: str,
         current_label = out_label
         offset += durations[i] - duration
     
-    # Audio crossfade
-    current_audio = "[0:a]"
-    audio_offset = durations[0] - duration
-    
-    for i in range(1, n):
-        next_audio = f"[{i}:a]"
-        out_audio = f"[xa{i}]" if i < n - 1 else "[outa]"
+    # Audio crossfade (only if all files have audio)
+    if has_audio:
+        current_audio = "[0:a]"
+        audio_offset = durations[0] - duration
         
-        filter_parts.append(
-            f"{current_audio}{next_audio}acrossfade=d={duration}{out_audio}"
-        )
-        
-        current_audio = out_audio
+        for i in range(1, n):
+            next_audio = f"[{i}:a]"
+            out_audio = f"[xa{i}]" if i < n - 1 else "[outa]"
+            
+            filter_parts.append(
+                f"{current_audio}{next_audio}acrossfade=d={duration}{out_audio}"
+            )
+            
+            current_audio = out_audio
     
     filter_complex = ";".join(filter_parts)
+    
+    # Build command
+    map_args = ["-map", "[outv]"]
+    if has_audio:
+        map_args.extend(["-map", "[outa]"])
     
     cmd = [
         "ffmpeg",
         "-y",
         *inputs,
         "-filter_complex", filter_complex,
-        "-map", "[outv]",
-        "-map", "[outa]",
+        *map_args,
         "-c:v", "libx264",
         "-preset", "medium",
         "-crf", "23",

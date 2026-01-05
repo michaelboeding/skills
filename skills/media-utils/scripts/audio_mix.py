@@ -72,21 +72,29 @@ def mix_audio(
         
         music_filter_str = ",".join(music_filters) if music_filters else "anull"
         
+        # Normalize both inputs to stereo with consistent format
+        # This prevents channel layout mismatch errors
+        voice_norm = "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo"
+        music_norm = "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo"
+        
         if duck_music:
             # Use sidechaincompress for ducking
             # Voice controls when music ducks
+            # NOTE: sidechaincompress requires matching layouts, so we ensure both are stereo
             filter_complex = (
-                f"[1:a]{music_filter_str},aloop=loop=-1:size=2e+09[music];"
-                f"[music]atrim=0:{voice_duration + 1}[music_trimmed];"
-                f"[music_trimmed][0:a]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=400[ducked];"
-                f"[0:a][ducked]amix=inputs=2:duration=first:dropout_transition=2"
+                f"[0:a]{voice_norm}[voice];"
+                f"[1:a]{music_filter_str},{music_norm}[music_vol];"
+                f"[music_vol]aloop=loop=-1:size=2e+09,atrim=0:{voice_duration + 1}[music_trimmed];"
+                f"[music_trimmed][voice]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=400[ducked];"
+                f"[voice][ducked]amix=inputs=2:duration=first:dropout_transition=2[out]"
             )
         else:
             # Simple mix without ducking
             filter_complex = (
-                f"[1:a]{music_filter_str},aloop=loop=-1:size=2e+09[music];"
-                f"[music]atrim=0:{voice_duration + 1}[music_trimmed];"
-                f"[0:a][music_trimmed]amix=inputs=2:duration=first:dropout_transition=2"
+                f"[0:a]{voice_norm}[voice];"
+                f"[1:a]{music_filter_str},{music_norm}[music_vol];"
+                f"[music_vol]aloop=loop=-1:size=2e+09,atrim=0:{voice_duration + 1}[music_trimmed];"
+                f"[voice][music_trimmed]amix=inputs=2:duration=first:dropout_transition=2[out]"
             )
         
         cmd = [
@@ -95,6 +103,7 @@ def mix_audio(
             "-i", voice_file,
             "-i", music_file,
             "-filter_complex", filter_complex,
+            "-map", "[out]",
             "-c:a", "libmp3lame",
             "-q:a", "2",
             output_file

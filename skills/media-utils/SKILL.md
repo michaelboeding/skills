@@ -83,6 +83,23 @@ python3 video_audio_merge.py --video clip.mp4 --audio music.mp3 --mix
 python3 video_audio_merge.py --video clip.mp4 --audio audio.mp3 --offset 0.5
 ```
 
+### video_strip_audio.py
+Remove audio from video files (for replacing with custom audio).
+
+```bash
+# Strip audio from single file
+python3 video_strip_audio.py -i video.mp4 -o silent_video.mp4
+
+# Strip audio from multiple files (batch mode)
+python3 video_strip_audio.py -i clip1.mp4 clip2.mp4 clip3.mp4
+
+# Strip with custom output directory
+python3 video_strip_audio.py -i *.mp4 --output-dir ./silent/
+
+# Re-encode video instead of copying
+python3 video_strip_audio.py -i video.mp4 --reencode
+```
+
 ### check_ffmpeg.py
 Verify FFmpeg installation.
 
@@ -122,3 +139,4 @@ def concat_audio(files: list, output: str):
 | audio_mix | MP3 | MP3 |
 | video_concat | MP4 (H.264) | MP4 |
 | video_audio_merge | MP4 (H.264) | MP4 |
+| video_strip_audio | MP4 (copy) | MP4 |

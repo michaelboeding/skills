@@ -2,6 +2,12 @@
 *.skill
 .claude/
 
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+
 # Credentials - NEVER commit these
 .env
 .env.*

@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.6.0** - Vertex AI default for all Google skills (1400x higher rate limits)
+> **Version 5.7.0** - Video producer orchestration scripts + media-utils fixes
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -1032,6 +1032,32 @@ If a script fails to run:
    ```bash
    python3 ~/.claude/plugins/marketplaces/michaelboeding-skills/skills/image-generation/scripts/dalle.py --prompt "test" 
    ```
+
+### Architecture Mismatch Error (Apple Silicon Macs)
+
+If you see this error:
+```
+Architecture Mismatch Error
+dlopen(...pydantic_core...incompatible architecture (have 'x86_64', need 'arm64'))
+```
+
+**Cause:** Pip installed x86_64 packages when running under Rosetta emulation.
+
+**Fix:**
+```bash
+# Force arm64 architecture for pip installs
+/usr/bin/arch -arm64 pip3 install --force-reinstall pydantic pydantic-core google-genai
+```
+
+**Prevention:**
+1. Run the install script (it auto-detects Apple Silicon):
+   ```bash
+   ./scripts/install.sh
+   ```
+2. Or ensure Claude Code isn't running under Rosetta:
+   - Right-click Claude Code app → Get Info
+   - Uncheck "Open using Rosetta"
+   - Restart Claude Code
 
 ---
 

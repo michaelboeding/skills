@@ -54,6 +54,33 @@ fi
 
 PYTHON_VERSION=$($PYTHON_CMD --version)
 echo -e "${GREEN}✓ Found: $PYTHON_VERSION ($PYTHON_CMD)${NC}"
+
+# Check architecture
+PYTHON_ARCH=$($PYTHON_CMD -c "import platform; print(platform.machine())")
+echo -e "  Architecture: $PYTHON_ARCH"
+echo ""
+
+# =============================================================================
+# Create Virtual Environment (recommended for clean installs)
+# =============================================================================
+VENV_DIR="$PROJECT_ROOT/.venv"
+USE_VENV=false
+
+if [ ! -d "$VENV_DIR" ]; then
+    echo -e "${BLUE}📦 Creating virtual environment...${NC}"
+    $PYTHON_CMD -m venv "$VENV_DIR"
+    USE_VENV=true
+    echo -e "${GREEN}✓ Created .venv${NC}"
+else
+    echo -e "${GREEN}✓ Virtual environment exists (.venv)${NC}"
+    USE_VENV=true
+fi
+
+if [ "$USE_VENV" = true ]; then
+    source "$VENV_DIR/bin/activate"
+    PYTHON_CMD="python"
+    echo -e "  Activated: $VENV_DIR"
+fi
 echo ""
 
 # =============================================================================
@@ -71,13 +98,31 @@ echo -e "${GREEN}✓ $PIP_VERSION${NC}"
 echo ""
 
 # =============================================================================
+# Check Apple Silicon (prevent Rosetta architecture mismatch)
+# =============================================================================
+PIP_PREFIX=""
+if [[ "$(uname -s)" == "Darwin" ]] && [[ "$(uname -m)" == "arm64" ]]; then
+    # Check if Python is running as x86_64 under Rosetta
+    CURRENT_ARCH=$($PYTHON_CMD -c "import platform; print(platform.machine())")
+    if [[ "$CURRENT_ARCH" == "x86_64" ]]; then
+        echo -e "${YELLOW}⚠️  Warning: Python running under Rosetta (x86_64 on arm64 Mac)${NC}"
+        echo -e "  This may cause package compatibility issues."
+        echo -e "  Forcing native arm64 for pip installs..."
+        PIP_PREFIX="/usr/bin/arch -arm64"
+    else
+        echo -e "${GREEN}✓ Apple Silicon Mac - native arm64${NC}"
+    fi
+    echo ""
+fi
+
+# =============================================================================
 # Install Dependencies
 # =============================================================================
 echo -e "${BLUE}📥 Installing Python dependencies...${NC}"
 echo ""
 
-$PYTHON_CMD -m pip install --upgrade pip
-$PYTHON_CMD -m pip install -r "$PROJECT_ROOT/requirements.txt"
+$PIP_PREFIX $PYTHON_CMD -m pip install --upgrade pip
+$PIP_PREFIX $PYTHON_CMD -m pip install -r "$PROJECT_ROOT/requirements.txt"
 
 echo ""
 echo -e "${GREEN}✓ Dependencies installed successfully!${NC}"
