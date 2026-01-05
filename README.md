@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.8.0** - Audio mixing reliability fixes + assemble streaming output
+> **Version 5.9.0** - Interactive questioning for all agent skills
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
