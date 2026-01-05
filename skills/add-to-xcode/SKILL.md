@@ -36,7 +36,8 @@ ruby ${CLAUDE_PLUGIN_ROOT}/skills/add-to-xcode/scripts/add_to_xcode.rb <filepath
 
 ```bash
 # ALWAYS do this after creating any source file:
-ruby ${CLAUDE_PLUGIN_ROOT}/skills/add-to-xcode/scripts/add_to_xcode.rb NewFile.swift
+# Use subshell to get latest version (handles multiple cached versions)
+ruby "$(ls -1d ~/.claude/plugins/cache/michaelboeding-skills/skills/*/skills/add-to-xcode/scripts/add_to_xcode.rb 2>/dev/null | sort -V | tail -1)" NewFile.swift
 ```
 
 ---
