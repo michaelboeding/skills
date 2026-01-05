@@ -326,6 +326,23 @@ This skill works well with:
 | `patent-lawyer-agent` | Check patentability and draft patents |
 | `market-researcher-agent` | Validate market opportunity |
 | `pitch-deck-agent` | Create investor presentation |
+| `media-utils` | **Generate PDF report** from product spec |
+
+---
+
+## Generate PDF Report
+
+After completing the product specification, offer to generate a PDF:
+
+> "Would you like me to generate a **PDF report** of this product specification?"
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/media-utils/scripts/report_to_pdf.py \
+  --input product_spec.md \
+  --output product_spec.pdf \
+  --title "Product Specification" \
+  --style technical
+```
 
 ---
 

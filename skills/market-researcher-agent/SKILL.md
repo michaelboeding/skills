@@ -262,6 +262,23 @@ Combine all agent outputs into a structured report:
 | `competitive-intel-agent` | Deep competitive analysis |
 | `pitch-deck-agent` | Use market data in investor deck |
 | `brand-research-agent` | Understand competitor brands |
+| `media-utils` | **Generate PDF report** from analysis |
+
+---
+
+## Generate PDF Report
+
+After completing the analysis, offer to generate a PDF:
+
+> "Would you like me to generate a **PDF report** of this market research?"
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/media-utils/scripts/report_to_pdf.py \
+  --input market_research.md \
+  --output market_research.pdf \
+  --title "Market Research Report" \
+  --style executive
+```
 
 ---
 

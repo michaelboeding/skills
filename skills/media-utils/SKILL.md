@@ -109,6 +109,30 @@ python3 check_ffmpeg.py
 #    ffmpeg version 6.0 ...
 ```
 
+### report_to_pdf.py
+Convert Markdown reports to professional PDF documents.
+
+```bash
+# Basic conversion
+python3 report_to_pdf.py -i analysis.md -o analysis.pdf
+
+# With custom title and executive style
+python3 report_to_pdf.py -i report.md -o report.pdf --title "Q4 Market Analysis" --style executive
+
+# Technical documentation with table of contents
+python3 report_to_pdf.py -i docs.md -o docs.pdf --style technical --toc
+```
+
+**Available styles:**
+| Style | Description |
+|-------|-------------|
+| `business` | Clean, professional (default) |
+| `executive` | Executive summary with larger fonts |
+| `technical` | Technical documentation |
+| `minimal` | Minimal styling, maximum content |
+
+**Requires:** `pip install markdown weasyprint`
+
 ## Usage by Producer Skills
 
 These utilities are called by the producer skills to assemble final outputs:

@@ -331,6 +331,23 @@ copywriter-agent
 | `market-researcher-agent` | Validate market needs |
 | `copywriter-agent` | Address concerns in marketing |
 | `pitch-deck-agent` | Show customer-centric improvements |
+| `media-utils` | **Generate PDF report** from analysis |
+
+---
+
+## Generate PDF Report
+
+After completing the analysis, offer to generate a PDF:
+
+> "Would you like me to generate a **PDF report** of this review analysis?"
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/media-utils/scripts/report_to_pdf.py \
+  --input review_analysis.md \
+  --output review_analysis.pdf \
+  --title "Customer Review Analysis" \
+  --style business
+```
 
 ---
 

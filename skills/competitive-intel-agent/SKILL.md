@@ -360,6 +360,26 @@ OBJECTION HANDLING:
 | `market-researcher-agent` | Market size and dynamics |
 | `product-engineer-agent` | Design features to differentiate |
 | `copywriter-agent` | Write competitive messaging |
+| `media-utils` | **Generate PDF report** from analysis |
+
+---
+
+## Generate PDF Report
+
+After completing the analysis, offer to generate a PDF:
+
+> "Would you like me to generate a **PDF report** of this competitive analysis?"
+
+**To generate the PDF:**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/media-utils/scripts/report_to_pdf.py \
+  --input competitive_analysis.md \
+  --output competitive_analysis.pdf \
+  --title "Competitive Intelligence Report" \
+  --style business
+```
+
+**Available styles:** `business` (default), `executive`, `technical`, `minimal`
 
 ---
 

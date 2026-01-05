@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.15.0** - Image generation now supports --output path argument
+> **Version 5.16.0** - PDF report generation for all analysis skills
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
