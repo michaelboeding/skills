@@ -22,7 +22,11 @@ from pathlib import Path
 try:
     from pptx import Presentation
     from pptx.util import Inches, Pt
-    from pptx.dml.color import RgbColor
+    # RGBColor location varies by python-pptx version
+    try:
+        from pptx.util import RGBColor as RgbColor
+    except ImportError:
+        from pptx.dml.color import RgbColor
     from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
     from pptx.enum.shapes import MSO_SHAPE
     HAS_PPTX = True
