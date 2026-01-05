@@ -1,10 +1,9 @@
 ---
 name: add-to-xcode
 description: >
-  Automatically adds newly created files to Xcode projects. 
-  When an agent creates .swift, .m, .mm, .c, .cpp, .h, or other source files 
-  in a directory containing an .xcodeproj, this skill registers the file with 
-  the Xcode project and adds it to the appropriate build target.
+  REQUIRED: After creating ANY .swift, .m, .mm, .c, .cpp, or .h file in a directory 
+  containing a .xcodeproj, you MUST run add_to_xcode.rb to register it with the project.
+  Without this step, the file will NOT appear in Xcode and will NOT compile.
 triggers:
   - create swift file
   - create objective-c file
@@ -12,23 +11,46 @@ triggers:
   - new ios file
   - new macos file
   - xcode project
+  - .swift
+  - .xcodeproj
 ---
 
 # Add to Xcode
 
-**Automatically register newly created files with Xcode projects.**
+## ⚠️ MANDATORY: Run After Creating Source Files
 
-When you create source files in an Xcode project directory, they must be explicitly added to the `.xcodeproj` or they won't appear in Xcode's navigator or compile.
+**Every time you create a `.swift`, `.m`, `.mm`, `.c`, `.cpp`, or `.h` file in an Xcode project, you MUST run:**
 
-## When to Use
+```bash
+ruby ${CLAUDE_PLUGIN_ROOT}/skills/add-to-xcode/scripts/add_to_xcode.rb <filepath>
+```
 
-**After creating any of these file types in an Xcode project:**
-- `.swift` - Swift source files
-- `.m` - Objective-C implementation
-- `.mm` - Objective-C++ implementation  
-- `.c` - C source files
-- `.cpp` - C++ source files
-- `.h` - Header files
+**If you skip this step:**
+- ❌ File will NOT appear in Xcode's navigator
+- ❌ File will NOT compile with the app
+- ❌ User will have to manually add it
+
+---
+
+## Quick Reference
+
+```bash
+# ALWAYS do this after creating any source file:
+ruby ${CLAUDE_PLUGIN_ROOT}/skills/add-to-xcode/scripts/add_to_xcode.rb NewFile.swift
+```
+
+---
+
+## Supported File Types
+
+| Extension | Added to Compile Sources |
+|-----------|-------------------------|
+| `.swift` | ✅ Yes |
+| `.m` | ✅ Yes |
+| `.mm` | ✅ Yes |
+| `.c` | ✅ Yes |
+| `.cpp` | ✅ Yes |
+| `.h` | ❌ No (reference only) |
 
 ## Workflow
 

@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.17.0** - New add-to-xcode skill for automatic Xcode project file registration
+> **Version 5.18.0** - add-to-xcode now uses imperative language so agents always run it
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
