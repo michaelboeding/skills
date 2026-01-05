@@ -76,32 +76,67 @@ Only use if you don't have a GCP project:
 
 ## Workflow
 
-### Step 1: Ask Clarifying Questions
+### Step 1: Gather Requirements (REQUIRED)
 
-Before generating, ask the user in a single message:
+⚠️ **Use interactive questioning — ask ONE question at a time.**
 
----
+#### Question Flow
 
-**Example prompt to user:**
+**Q1: Image**
+> "I'll generate that video for you! First — **do you have an image to animate?**
+> 
+> - Yes (provide path — I'll use it as the first frame)
+> - No, generate from scratch"
 
-"I'll generate that video for you! Quick questions:
+*Wait for response.*
 
-1. **Do you have an image to animate?** (I can use it as the first frame)
+**Q2: Audio**
+> "What **audio preference**?
+> 
+> - With audio (default) — Veo 3.1 generates dialogue, SFX, ambient
+> - Silent video — no audio"
 
-2. **Audio preference?**
-   - With audio (default) - Veo 3.1 generates dialogue, SFX, ambient
-   - Silent video - uses `--silent` flag (Veo 2)
+*Wait for response.*
 
-3. **Which model would you like?**
-   - `veo-3.1` - Latest, highest quality with audio (default)
-   - `veo-3.1-fast` - Faster processing with audio
-   - `veo-3` / `veo-3-fast` - Previous generation with audio
-   - `sora` - OpenAI, up to 20 seconds, no audio
+**Q3: Model**
+> "Which **model** would you like?
+> 
+> - `veo-3.1` — Latest, highest quality with audio (default)
+> - `veo-3.1-fast` — Faster processing with audio
+> - `veo-3` / `veo-3-fast` — Previous generation with audio
+> - `sora` — OpenAI, up to 20 seconds, no audio"
 
-4. **Settings?**
-   - Duration: 4s, 6s, or 8s (default: 8s)
-   - Aspect ratio: 16:9 (landscape) or 9:16 (portrait)
-   - Resolution: 720p or 1080p"
+*Wait for response.*
+
+**Q4: Duration**
+> "What **duration**?
+> 
+> - 4 seconds
+> - 6 seconds
+> - 8 seconds (default)"
+
+*Wait for response.*
+
+**Q5: Format**
+> "What **aspect ratio and resolution**?
+> 
+> - 16:9 landscape, 720p
+> - 16:9 landscape, 1080p
+> - 9:16 portrait, 720p
+> - 9:16 portrait, 1080p
+> - Or specify"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Image | Image-to-video vs text-to-video |
+| Audio | With/without audio generation |
+| Model | Quality and speed tradeoff |
+| Duration | Clip length |
+| Format | Aspect ratio and resolution |
 
 ---
 

@@ -32,24 +32,65 @@ Analyze competitors and develop strategies to win against them.
 
 ## Workflow
 
-### Step 1: Identify Competitors to Analyze
+### Step 1: Gather Requirements (REQUIRED)
 
-**Ask the user:**
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-> "I'll analyze your competitive landscape!
->
-> Tell me:
-> 1. **What's your product/service?** (what you offer)
-> 2. **Who are your main competitors?** (company names/URLs)
-> 3. **What aspects to compare?** (features, pricing, market position)
-> 4. **What's your goal?** (differentiate, enter market, win deals)
-> 5. **Want me to generate visual charts?**
->    - 📊 Yes - positioning matrix, feature comparison, pricing charts
->    - 📝 No - text/tables only
->
-> If you don't know competitors, I can help identify them."
+#### Question Flow
 
-**Wait for the user to provide competitor list.**
+**Q1: Product**
+> "I'll analyze your competitive landscape! First — **what's your product or service?**
+> 
+> *(What you offer)*"
+
+*Wait for response.*
+
+**Q2: Competitors**
+> "Who are your **main competitors**?
+> 
+> *(Company names or URLs — or say 'help me identify them' if unsure)*"
+
+*Wait for response.*
+
+**Q3: Aspects**
+> "What **aspects** should I compare?
+> 
+> - Features and capabilities
+> - Pricing and packaging
+> - Market position
+> - All of the above
+> - Or specify"
+
+*Wait for response.*
+
+**Q4: Goal**
+> "What's your **goal** for this analysis?
+> 
+> - Differentiate from competitors
+> - Enter a new market
+> - Win specific deals
+> - Understand the landscape
+> - Or describe"
+
+*Wait for response.*
+
+**Q5: Visuals**
+> "Do you want me to **generate visual charts**?
+> 
+> - 📊 Yes — positioning matrix, feature comparison, pricing charts
+> - 📝 No — text and tables only"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Product | What we're positioning |
+| Competitors | Who to research |
+| Aspects | Depth of analysis |
+| Goal | Framing and recommendations |
+| Visuals | Whether to generate charts |
 
 ---
 

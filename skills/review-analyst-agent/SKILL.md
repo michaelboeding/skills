@@ -32,21 +32,54 @@ Analyze product reviews to find issues and prioritize improvements.
 
 ## Workflow
 
-### Step 1: Identify the Product and Sources
+### Step 1: Identify Product and Sources (REQUIRED)
 
-**Ask the user:**
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-> "I'll analyze reviews for your product!
->
-> Tell me:
-> 1. **Product name or URL?** (what to analyze)
-> 2. **Where to look?** (Amazon, App Store, G2, Reddit, etc.)
-> 3. **Your product or competitor?** (for context)
-> 4. **Any known issues?** (to validate or explore)
->
-> I'll find and analyze reviews from multiple sources."
+#### Question Flow
 
-**Wait for the user to provide product details.**
+**Q1: Product**
+> "I'll analyze reviews for your product! First — **what's the product?**
+> 
+> *(Product name or URL)*"
+
+*Wait for response.*
+
+**Q2: Sources**
+> "**Where should I look** for reviews?
+> 
+> - Amazon
+> - App Store / Google Play
+> - G2 / Capterra
+> - Reddit
+> - All of the above
+> - Or specify"
+
+*Wait for response.*
+
+**Q3: Context**
+> "Is this **your product** or a **competitor's**?
+> 
+> *(Helps frame the analysis)*"
+
+*Wait for response.*
+
+**Q4: Issues**
+> "Any **known issues** you want me to validate or explore?
+> 
+> - Yes — describe them
+> - No — find all issues"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Product | What to analyze |
+| Sources | Where to scrape reviews |
+| Context | Framing of recommendations |
+| Issues | Focus areas for analysis |
 
 ---
 

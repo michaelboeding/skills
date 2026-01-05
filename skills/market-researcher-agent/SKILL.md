@@ -31,18 +31,55 @@ Research markets and validate opportunities with comprehensive analysis.
 
 ## Workflow
 
-### Step 1: Define the Research Scope
+### Step 1: Define Research Scope (REQUIRED)
 
-**Ask the user:**
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-> "I'll research this market for you! Help me understand what you're exploring:
->
-> 1. **What market/industry?** (e.g., 'smart home devices', 'pet food', 'B2B SaaS')
-> 2. **What's your idea/product?** (if you have one)
-> 3. **Geographic focus?** (US, global, specific regions)
-> 4. **Any specific questions?** (e.g., 'is this market growing?')"
+#### Question Flow
 
-**Wait for the user to describe their research needs.**
+**Q1: Market**
+> "I'll research this market for you! First — **what market or industry?**
+> 
+> *(e.g., 'smart home devices', 'pet food', 'B2B SaaS')*"
+
+*Wait for response.*
+
+**Q2: Product**
+> "Do you have a **specific product or idea** you're exploring?
+> 
+> - Yes — describe it
+> - No — just researching the market"
+
+*Wait for response.*
+
+**Q3: Geography**
+> "What's the **geographic focus**?
+> 
+> - US only
+> - North America
+> - Europe
+> - Global
+> - Or specify regions"
+
+*Wait for response.*
+
+**Q4: Questions**
+> "Any **specific questions** you want answered?
+> 
+> *(e.g., 'is this market growing?', 'who are the key players?', 'what's the market size?')*
+> 
+> Or say 'comprehensive analysis' for a full report."
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Market | Industry and category focus |
+| Product | Whether to include product-market fit analysis |
+| Geography | Regional scope of research |
+| Questions | Specific areas to emphasize |
 
 ---
 

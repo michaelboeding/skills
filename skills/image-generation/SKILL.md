@@ -68,34 +68,66 @@ See the repository README for setup instructions.
 
 ## Workflow
 
-### Step 1: Ask Clarifying Questions
+### Step 1: Gather Requirements (REQUIRED)
 
-Before generating, ask the user these questions in a single message:
+⚠️ **Use interactive questioning — ask ONE question at a time.**
 
----
+#### Question Flow
 
-**Example prompt to user:**
+**Q1: Reference**
+> "I'll generate that image for you! First — **do you have any reference images?**
+> 
+> - Product photos to include
+> - Style references
+> - Images to edit
+> - No, generate from scratch"
 
-"I'll generate that image for you! Quick questions:
+*Wait for response.*
 
-1. **Reference images?** Do you have any images to include (product photos, style references, images to edit)?
+**Q2: Aspect Ratio**
+> "What **aspect ratio**?
+> 
+> - 1:1 (square)
+> - 16:9 (landscape/widescreen)
+> - 9:16 (portrait/vertical)
+> - 4:3 / 3:4 (classic)
+> - Other (2:3, 3:2, 4:5, 5:4, 21:9)
+> - Or specify"
 
-2. **Aspect ratio?**
-   - 1:1 (square)
-   - 16:9 (landscape/widescreen)
-   - 9:16 (portrait/vertical)
-   - 4:3 / 3:4 (classic)
-   - Other (2:3, 3:2, 4:5, 5:4, 21:9)
+*Wait for response.*
 
-3. **Resolution?** 1K, 2K, or 4K
+**Q3: Resolution**
+> "What **resolution**?
+> 
+> - 1K (fast)
+> - 2K (balanced)
+> - 4K (highest quality)"
 
-4. **Any style preferences?** (photorealistic, artistic, cartoon, etc.)"
+*Wait for response.*
 
----
+**Q4: Style**
+> "Any **style preferences**?
+> 
+> - Photorealistic
+> - Artistic/painterly
+> - Cartoon/illustration
+> - 3D render
+> - Or describe your own"
 
-**Parsing the response:**
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Reference | Generation vs editing mode |
+| Aspect Ratio | Image dimensions |
+| Resolution | Quality level |
+| Style | Prompt enhancement direction |
+
+**Parsing:**
 - If user provides reference images → use image editing mode
-- If user doesn't answer all questions → use sensible defaults and note what was assumed
+- If user doesn't answer all questions → use sensible defaults and note assumptions
 - Parse: subject, style, mood, special requirements (colors, text, composition)
 
 ### Step 2: Craft the Prompt

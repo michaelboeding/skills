@@ -85,19 +85,28 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 
 "Write a complete patent for my invention" / "Create a patent document for this"
 
-**First, ask the user:**
+**Use interactive questioning — ask ONE question at a time:**
 
+**Q1: Invention**
 > "I'll draft a complete patent application for your invention!
->
+> 
 > **⚠️ Note:** This is informational only, not legal advice.
->
-> Before I start:
-> 1. **Tell me about your invention** (if not already described)
-> 2. **Want me to generate patent figures?**
->    - 📐 Yes - perspective views, cross-sections, block diagrams (B&W technical drawings)
->    - 📝 No - figure descriptions only (you'll create your own drawings)
->
-> Generating figures requires `GOOGLE_API_KEY`."
+> 
+> First — **tell me about your invention.**
+> 
+> *(What is it? How does it work? What problem does it solve?)*"
+
+*Wait for response.*
+
+**Q2: Figures**
+> "Do you want me to **generate patent figures**?
+> 
+> - 📐 Yes — perspective views, cross-sections, block diagrams (B&W technical drawings)
+> - 📝 No — figure descriptions only (you'll create your own drawings)
+> 
+> *(Generating figures requires `GOOGLE_API_KEY`)*"
+
+*Wait for response.*
 
 **What it does:**
 1. Gathers invention details (asks if needed)

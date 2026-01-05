@@ -31,26 +31,76 @@ Create compelling marketing copy for products, brands, and campaigns.
 
 ## Workflow
 
-### Step 1: Gather Copy Brief
+### Step 1: Gather Copy Brief (REQUIRED)
 
-**Ask the user:**
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-> "I'll write compelling copy for you!
->
-> Tell me about the project:
-> 1. **What's the product/service?** (what you're promoting)
-> 2. **Who's the audience?** (target customer)
-> 3. **What's the goal?** (awareness, clicks, sales, signups)
-> 4. **What's the key message?** (main benefit or value prop)
-> 5. **What format?** (headlines, ad copy, email, landing page)
->
-> Also helpful:
-> - Brand voice guidelines? (or run brand-research first)
-> - Competitor examples to beat?
-> - Specific length requirements?
-> - Platform constraints? (character limits, etc.)"
+#### Question Flow
 
-**Wait for the user to provide the brief.**
+**Q1: Product**
+> "I'll write compelling copy for you! First — **what's the product or service?**
+> 
+> *(What are you promoting?)*"
+
+*Wait for response.*
+
+**Q2: Audience**
+> "Who's the **target audience**?
+> 
+> *(Describe your ideal customer)*"
+
+*Wait for response.*
+
+**Q3: Goal**
+> "What's the **goal** of this copy?
+> 
+> - Brand awareness
+> - Clicks/traffic
+> - Sales/conversions
+> - Signups/leads
+> - Or describe"
+
+*Wait for response.*
+
+**Q4: Message**
+> "What's the **key message** or value proposition?
+> 
+> *(The main benefit you want to communicate)*"
+
+*Wait for response.*
+
+**Q5: Format**
+> "What **format(s)** do you need?
+> 
+> - Headlines
+> - Ad copy (Facebook, Google, etc.)
+> - Email copy
+> - Landing page
+> - Product descriptions
+> - All of the above
+> - Or specify"
+
+*Wait for response.*
+
+**Q6: Voice**
+> "Do you have **brand voice guidelines**?
+> 
+> - Yes (describe or share)
+> - No — I can run brand-research first
+> - No — just use best practices"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Product | What we're writing about |
+| Audience | Tone and messaging approach |
+| Goal | CTA and persuasion strategy |
+| Message | Core theme across all copy |
+| Format | Which copy types to generate |
+| Voice | Style and tone guidelines |
 
 ---
 

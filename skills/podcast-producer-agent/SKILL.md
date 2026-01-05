@@ -34,27 +34,67 @@ Create complete podcast episodes, interviews, and conversation-style audio conte
 
 ## Workflow
 
-### Step 1: Understand the Request
+### Step 1: Gather Requirements (REQUIRED)
 
-When user asks for podcast content, gather:
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-| What to Ask | Why |
-|-------------|-----|
-| **Topic** | What should they discuss? |
-| **Hosts/Speakers** | Names, personalities, number (max 2 for TTS) |
-| **Duration** | How long? (e.g., 5 min, 10 min) |
-| **Tone** | Professional, casual, funny, serious? |
-| **Format** | Intro → Discussion → Outro? Segments? |
-| **Music** | What style for intro/outro? |
+#### Question Flow
 
-**Example prompt to user:**
+**Q1: Topic**
+> "I'll create that podcast episode! First — **what's the topic?**
+> 
+> *(What should the hosts discuss?)*"
 
-"I'll create that podcast episode! Quick questions:
+*Wait for response.*
 
-1. **Who are the hosts?** (Names and brief personality - e.g., 'Sarah, enthusiastic tech expert')
-2. **How long?** (5 min, 10 min, etc.)
-3. **Tone?** (Professional, casual, funny?)
-4. **Music style?** (Upbeat pop, chill lo-fi, corporate, etc.)"
+**Q2: Hosts**
+> "Who are the **hosts/speakers**?
+> 
+> *(Names and brief personality — e.g., 'Sarah, enthusiastic tech expert' — max 2 for TTS)*"
+
+*Wait for response.*
+
+**Q3: Duration**
+> "How **long** should the episode be?
+> 
+> - 5 minutes
+> - 10 minutes
+> - 15 minutes
+> - Or specify your own"
+
+*Wait for response.*
+
+**Q4: Tone**
+> "What **tone**?
+> 
+> - Professional
+> - Casual/conversational
+> - Funny/entertaining
+> - Serious/educational
+> - Or describe your own"
+
+*Wait for response.*
+
+**Q5: Music**
+> "What **music style** for intro/outro?
+> 
+> - Upbeat pop
+> - Chill lo-fi
+> - Corporate/professional
+> - Electronic
+> - Or describe your own"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Topic | Script content and discussion points |
+| Hosts | Voice selection and script style |
+| Duration | Script length |
+| Tone | Writing style and energy |
+| Music | Lyria prompt for intro/outro |
 
 ---
 

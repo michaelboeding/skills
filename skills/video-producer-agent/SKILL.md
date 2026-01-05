@@ -23,37 +23,103 @@ Create complete videos with voiceover, music, and visuals.
 
 ### Step 1: Gather Requirements (REQUIRED)
 
-⚠️ **DO NOT skip this step. DO NOT run init_project.py until you have answers.**
+⚠️ **DO NOT skip this step. DO NOT run init_project.py until you have ALL answers.**
 
-**Ask the user:**
+**Use interactive questioning** — ask ONE question at a time, wait for the response, then ask the next. This creates a collaborative spec-driven process.
 
-> "I'll create that video! First, a few quick questions:
->
-> 1. **Subject** — What's the video about? (product, story, concept)
-> 2. **Duration** — How long? (15s, 30s, 60s, 2min)
-> 3. **Style** — Premium/luxury, fun/playful, corporate, dramatic?
-> 4. **Have assets?** — Do you have images or video clips to use?
-> 5. **Audio preference?**
->    - Custom voiceover + background music (I generate both)
->    - Veo's native audio (dialogue, SFX, ambient built into clips)
->    - Silent video (add audio later)
-> 6. **Voice tone?** — Professional, friendly, energetic, calm, dramatic?
-> 7. **Music vibe?** — Modern electronic, cinematic, upbeat, ambient?
-> 8. **Format?** — 16:9 (YouTube), 9:16 (TikTok/Reels), 1:1 (Instagram)?
->
-> Share what you know — I'll help with the rest!"
+#### Question Flow
 
-**⏸️ Wait for the user to respond before proceeding.**
+**Q1: Subject**
+> "I'll create that video! First — **what's it about?**
+> 
+> *(e.g., product launch, brand story, tutorial, explainer — or describe your own)*"
 
-| Question | Why It Matters |
-|----------|----------------|
-| Subject | Determines scene content and prompts |
-| Duration | Determines scene count (6s per scene) |
-| Style | Affects visual prompts and music selection |
-| Have assets? | Use existing vs generate everything |
-| Audio preference | custom, veo_audio, or silent strategy |
-| Voice tone | Voice selection for TTS |
-| Music vibe | Lyria prompt |
+*Wait for response.*
+
+**Q2: Duration**
+> "How long should the video be?
+> 
+> - 15 seconds *(quick hook)*
+> - 30 seconds *(standard ad)*
+> - 60 seconds *(explainer)*
+> - 2+ minutes *(detailed)*
+> - Or specify your own duration"
+
+*Wait for response.*
+
+**Q3: Style**
+> "What visual style?
+> 
+> - Premium/luxury
+> - Fun/playful
+> - Corporate/professional
+> - Dramatic/cinematic
+> - Minimal/clean
+> - Or describe your own style"
+
+*Wait for response.*
+
+**Q4: Assets**
+> "Do you have existing images or video clips to use?
+> 
+> - No, generate everything
+> - Yes, I have images *(provide paths)*
+> - Yes, I have video clips *(provide paths)*"
+
+*Wait for response.*
+
+**Q5: Audio Strategy**
+> "How should we handle audio?
+> 
+> - **Custom** — I generate voiceover + background music
+> - **Veo native** — Use Veo's built-in dialogue/SFX/ambient
+> - **Silent** — No audio, add later"
+
+*Wait for response.*
+
+**Q6: Voice** *(if custom audio)*
+> "What voice tone for the voiceover?
+> 
+> - Professional
+> - Friendly/warm
+> - Energetic
+> - Calm/soothing
+> - Dramatic
+> - Or describe your own tone"
+
+*Wait for response.*
+
+**Q7: Music** *(if custom audio)*
+> "What music vibe?
+> 
+> - Modern electronic
+> - Cinematic/epic
+> - Upbeat pop
+> - Ambient/chill
+> - Corporate
+> - Or describe your own style"
+
+*Wait for response.*
+
+**Q8: Format**
+> "What aspect ratio?"
+> - 16:9 (YouTube, web)
+> - 9:16 (TikTok, Reels, Shorts)
+> - 1:1 (Instagram feed)
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Subject | Scene content and prompts |
+| Duration | Scene count (~6s per scene) |
+| Style | Visual prompts and music selection |
+| Assets | Generate vs use existing |
+| Audio | custom, veo_audio, or silent |
+| Voice | TTS voice selection |
+| Music | Lyria prompt |
 | Format | Aspect ratio for Veo |
 
 ---

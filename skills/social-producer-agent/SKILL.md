@@ -35,28 +35,71 @@ Create coordinated social media content packs with multiple assets.
 
 ## Workflow
 
-### Step 1: Understand the Request
+### Step 1: Gather Requirements (REQUIRED)
 
-When user asks for social content, gather:
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-| What to Ask | Why |
-|-------------|-----|
-| **Platform(s)** | Instagram, TikTok, YouTube, LinkedIn? |
-| **Quantity** | How many pieces? |
-| **Types** | Images, videos, reels, or mix? |
-| **Theme** | Product launch, campaign, evergreen? |
-| **Brand** | Colors, style, tone? |
-| **Assets provided** | Product images, logos? |
+#### Question Flow
 
-**Example prompt to user:**
+**Q1: Platform**
+> "I'll create your social media content pack! First — **which platform(s)?**
+> 
+> - Instagram
+> - TikTok
+> - YouTube
+> - LinkedIn
+> - All of the above
+> - Or specify"
 
-"I'll create your social media content pack! Quick questions:
+*Wait for response.*
 
-1. **Platform(s)?** (Instagram, TikTok, LinkedIn, all?)
-2. **How many pieces?** (e.g., 5 posts, 10 assets)
-3. **Content types?** (Images only, videos only, or mix?)
-4. **Theme/campaign?** (Product launch, tips series, brand awareness?)
-5. **Do you have assets?** (Product photos, logo, brand colors?)"
+**Q2: Quantity**
+> "**How many pieces** of content?
+> 
+> *(e.g., 5 posts, 10 assets, a week's worth)*"
+
+*Wait for response.*
+
+**Q3: Types**
+> "What **content types**?
+> 
+> - Images only
+> - Videos/Reels only
+> - Mix of both
+> - Or specify"
+
+*Wait for response.*
+
+**Q4: Theme**
+> "What's the **theme or campaign**?
+> 
+> - Product launch
+> - Tips/educational series
+> - Brand awareness
+> - Promotional/sale
+> - Or describe your own"
+
+*Wait for response.*
+
+**Q5: Assets**
+> "Do you have **existing assets** to use?
+> 
+> - Product photos (provide paths)
+> - Logo/brand assets
+> - Brand colors/guidelines
+> - No, generate everything"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Platform | Aspect ratios and format requirements |
+| Quantity | Number of assets to generate |
+| Types | Image vs video generation |
+| Theme | Content direction and messaging |
+| Assets | Whether to use existing or generate |
 
 ---
 

@@ -48,25 +48,83 @@ Appendix: Detailed metrics, references, backup slides
 
 ## Workflow
 
-### Step 1: Gather Business Information
+### Step 1: Gather Business Information (REQUIRED)
 
-**Ask the user:**
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-> "I'll help you create a compelling pitch deck!
->
-> Tell me about your business:
-> 1. **What do you do?** (one sentence)
-> 2. **What problem do you solve?** (the pain point)
-> 3. **Who is your customer?** (target market)
-> 4. **What's your traction?** (users, revenue, growth)
-> 5. **What's the ask?** (investment amount, partnership goal)
->
-> Also helpful:
-> - Any existing materials? (website, one-pager, etc.)
-> - What's the audience? (VC, angel, corporate partner)
-> - Presentation length? (5 min, 10 min, demo day)"
+#### Question Flow
 
-**Wait for the user to provide business details.**
+**Q1: Business**
+> "I'll help you create a compelling pitch deck! First — **what does your company do?**
+> 
+> *(One sentence that captures your core offering)*"
+
+*Wait for response.*
+
+**Q2: Problem**
+> "What **problem** do you solve?
+> 
+> *(The pain point your customers face)*"
+
+*Wait for response.*
+
+**Q3: Customer**
+> "Who is your **target customer**?
+> 
+> *(e.g., enterprise B2B, SMBs, consumers, specific industry)*"
+
+*Wait for response.*
+
+**Q4: Traction**
+> "What **traction** do you have?
+> 
+> - Users/customers
+> - Revenue
+> - Growth rate
+> - Key milestones
+> - Or describe your stage"
+
+*Wait for response.*
+
+**Q5: Ask**
+> "What's the **ask**?
+> 
+> - Investment amount (seed, Series A, etc.)
+> - Partnership goal
+> - Or describe what you're seeking"
+
+*Wait for response.*
+
+**Q6: Audience**
+> "Who's the **audience** for this deck?
+> 
+> - VC / investors
+> - Angel investors
+> - Corporate partners
+> - Customers
+> - Or describe"
+
+*Wait for response.*
+
+**Q7: Length**
+> "How long is the **presentation**?
+> 
+> - 5 minutes (demo day)
+> - 10 minutes (standard)
+> - 20+ minutes (detailed)
+> - Or specify"
+
+*Wait for response.*
+
+**Q8: Materials**
+> "Do you have any **existing materials** I can reference?
+> 
+> - Website URL
+> - One-pager
+> - Previous deck
+> - No, starting fresh"
+
+*Wait for response.*
 
 ---
 

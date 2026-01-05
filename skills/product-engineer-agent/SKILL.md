@@ -33,32 +33,70 @@ Design and develop new product concepts with comprehensive specifications.
 
 ## Workflow
 
-### Step 1: Gather the Product Idea
+### Step 1: Gather Product Idea (REQUIRED)
 
-**Ask the user:**
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-> "I'll help you design this product! Tell me about your idea:
->
-> 1. **What problem does it solve?** (the core user need)
-> 2. **Who is it for?** (target user)
-> 3. **Any must-have features?** (key requirements)
-> 4. **Any constraints?** (budget, size, materials, etc.)
-> 5. **Want me to generate visuals?**
->    - 🎨 Concept renders (what it looks like)
->    - 🔧 Engineering drawings (exploded views, cross-sections)
->    - Both
->    - No visuals (spec document only)
->
-> Share as much or as little as you have - I'll help fill in the gaps!"
+#### Question Flow
 
-**Wait for the user to describe their product idea.**
+**Q1: Problem**
+> "I'll help you design this product! First — **what problem does it solve?**
+> 
+> *(The core user need)*"
+
+*Wait for response.*
+
+**Q2: User**
+> "Who is the **target user**?
+> 
+> *(Who will use this product?)*"
+
+*Wait for response.*
+
+**Q3: Features**
+> "Any **must-have features** or key requirements?
+> 
+> *(Or say 'help me figure it out')*"
+
+*Wait for response.*
+
+**Q4: Constraints**
+> "Any **constraints** to consider?
+> 
+> - Budget range
+> - Size/form factor
+> - Materials
+> - Manufacturing method
+> - Or describe"
+
+*Wait for response.*
+
+**Q5: Visuals**
+> "Do you want me to **generate visuals**?
+> 
+> - 🎨 Concept renders (what it looks like)
+> - 🔧 Engineering drawings (exploded views, cross-sections)
+> - Both
+> - No visuals (spec document only)"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Problem | Core value proposition |
+| User | User research focus |
+| Features | Feature prioritization |
+| Constraints | Manufacturing and design boundaries |
+| Visuals | Whether to generate renders/drawings |
 
 **Parse visual preferences:**
-- If user says "yes", "visuals", "show me", "render", "drawings" → Generate all visuals
-- If user says "concept only" → Just concept render + lifestyle
-- If user says "engineering only" → Just exploded/technical views
-- If user says "no visuals" or doesn't mention → Skip visual generation
-- If unclear → Default to generating visuals (they add value)
+- "yes", "visuals", "show me", "render", "drawings" → Generate all visuals
+- "concept only" → Just concept render + lifestyle
+- "engineering only" → Just exploded/technical views
+- "no visuals" or not mentioned → Skip visual generation
+- Unclear → Default to generating visuals (they add value)
 
 ---
 

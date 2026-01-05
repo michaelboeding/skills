@@ -40,27 +40,69 @@ Create single-speaker audio content: audiobooks, voiceovers, narrations, jingles
 
 ## Workflow
 
-### Step 1: Understand the Request
+### Step 1: Gather Requirements (REQUIRED)
 
-When user asks for audio content, gather:
+⚠️ **DO NOT skip this step. Use interactive questioning — ask ONE question at a time.**
 
-| What to Ask | Why |
-|-------------|-----|
-| **Type** | Audiobook, voiceover, jingle, ad? |
-| **Content** | Text to speak, or generate it? |
-| **Voice** | Tone, gender, style preference |
-| **Music** | Background music style, or none? |
-| **Duration** | Target length |
-| **Style** | Professional, warm, energetic, calm? |
+#### Question Flow
 
-**Example prompt to user:**
+**Q1: Type**
+> "I'll create that audio for you! First — **what type of audio?**
+> 
+> - Audiobook / narration
+> - Voiceover (for video/presentation)
+> - Audio ad / radio ad
+> - Jingle / sonic logo
+> - Meditation / guided audio
+> - Or describe your own"
 
-"I'll create that audio for you! Quick questions:
+*Wait for response.*
 
-1. **What's the text/content?** (Paste it or describe what you need)
-2. **Voice style?** (Professional, warm, energetic, calm)
-3. **Background music?** (Yes/No, and what style?)
-4. **Target duration?** (Or let it be natural length)"
+**Q2: Content**
+> "What's the **text/content** to speak?
+> 
+> - Paste the text here
+> - Or describe what you need and I'll write it"
+
+*Wait for response.*
+
+**Q3: Voice**
+> "What **voice style**?
+> 
+> - Professional
+> - Warm/friendly
+> - Energetic
+> - Calm/soothing
+> - Dramatic
+> - Or describe your own"
+
+*Wait for response.*
+
+**Q4: Music**
+> "Do you want **background music**?
+> 
+> - Yes — describe the style (ambient, upbeat, cinematic, etc.)
+> - No — voice only"
+
+*Wait for response.*
+
+**Q5: Duration**
+> "What's the **target duration**?
+> 
+> - Let it be natural length
+> - Or specify (e.g., 30 seconds, 2 minutes)"
+
+*Wait for response.*
+
+#### Quick Reference
+
+| Question | Determines |
+|----------|------------|
+| Type | Processing approach and output format |
+| Content | TTS input text |
+| Voice | Voice selection and style parameters |
+| Music | Whether to generate and mix music |
+| Duration | Pacing and content length |
 
 ---
 
