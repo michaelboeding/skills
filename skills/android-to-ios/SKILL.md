@@ -174,6 +174,14 @@ Create the iOS implementation:
 - Follow the same naming conventions
 - Keep data structure shapes equivalent for API compatibility
 
+**⚠️ IMPORTANT: After creating each `.swift` file, register it with Xcode:**
+
+```bash
+ruby ${CLAUDE_PLUGIN_ROOT}/skills/add-to-xcode/scripts/add_to_xcode.rb <filepath>
+```
+
+Without this step, files won't appear in Xcode or compile. See the `add-to-xcode` skill.
+
 ### Step 6: Copy Assets (if needed)
 
 **If the feature uses assets, offer to copy them:**
