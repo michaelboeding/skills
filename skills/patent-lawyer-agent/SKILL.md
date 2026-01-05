@@ -5,8 +5,9 @@ description: >
   Triggers: "patent", "prior art", "IP protection", "intellectual property", "patent search",
   "patentability", "patent claims", "invention disclosure", "patent strategy", "trade secret",
   "patent application", "freedom to operate", "infringement", "draft patent", "write patent",
-  "provisional patent", "patent document"
-  Outputs: Patentability assessment, prior art report, draft claims, IP strategy, full patent application draft.
+  "provisional patent", "patent document", "design around", "get around patent", "avoid patent",
+  "work around patent", "FTO", "freedom to operate analysis", "patent analysis"
+  Outputs: Patentability assessment, prior art report, draft claims, IP strategy, full patent application draft, design-around analysis.
   DISCLAIMER: This is informational only, not legal advice. Consult a licensed patent attorney.
 ---
 
@@ -47,6 +48,7 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 | "Draft a patent for my invention" | Full patent application (does prior art search too) |
 | "Write claims for this" | Just drafts patent claims |
 | "What's the IP strategy here?" | Strategy advice (patent vs trade secret, timing, costs) |
+| "How can I get around this patent?" | Analyzes claims, finds gaps, suggests design alternatives |
 
 **You don't need to follow a rigid workflow.** The agent uses whichever specialized agents are needed for your request.
 
@@ -166,6 +168,87 @@ Intellectual property guidance, patent analysis, and patent drafting for inventi
 
 ---
 
+### 7. Design-Around Analysis (Freedom to Operate)
+
+"How can I get around this patent?" / "Analyze this patent and find ways to design around it"
+
+**Use the `AskUserQuestion` tool for each question below.**
+
+**Q1: Patent**
+> "I'll analyze that patent and identify design-around opportunities!
+> 
+> **⚠️ Note:** This is informational only, not legal advice.
+> 
+> First — **which patent do you want to analyze?**
+> 
+> *(Provide patent number, URL, or describe the patented technology)*"
+
+*Wait for response.*
+
+**Q2: Your Goal**
+> "What's your **goal**?
+> 
+> - Build a competing product
+> - Improve on the patented technology
+> - Avoid infringement in my own invention
+> - Understand the patent landscape
+> - Or describe your specific situation"
+
+*Wait for response.*
+
+**Q3: Report Depth**
+> "How **detailed** should the analysis be?
+> 
+> - Quick overview — key claims and obvious gaps
+> - Standard analysis — claims breakdown + design alternatives
+> - Deep dive — comprehensive FTO report with multiple strategies"
+
+*Wait for response.*
+
+**What it does:**
+1. Analyzes the patent's claims (the legal boundaries)
+2. Identifies the **scope** of what's protected
+3. Finds **gaps** in the claims (what's NOT covered)
+4. Suggests **design alternatives** that achieve similar goals without infringing
+5. Searches for **prior art** that might invalidate or narrow the patent
+6. Provides a **risk assessment** for each alternative
+
+**Output: Design-Around Report**
+```
+## Patent Analysis: [Patent Number]
+
+### 1. Patent Overview
+- Title, assignee, filing date, status
+- Core invention summary
+
+### 2. Claim Analysis
+- Independent claims breakdown
+- Claim elements and limitations
+- What's actually protected vs. assumed
+
+### 3. Design-Around Opportunities
+| Alternative | How It Differs | Risk Level | Feasibility |
+|-------------|----------------|------------|-------------|
+| Option A    | Changes X to Y | Low        | High        |
+| Option B    | Omits element Z| Medium     | Medium      |
+
+### 4. Prior Art That May Narrow Scope
+- Patents/publications that predate this patent
+- Potential invalidity arguments
+
+### 5. Recommended Strategy
+- Safest approach
+- Cost/benefit analysis
+- Next steps
+
+### ⚠️ Disclaimer
+This is informational guidance only. Consult a patent attorney.
+```
+
+**Uses agents:** Prior Art Searcher, Claims Strategist, IP Strategy Advisor, Patentability Analyst
+
+---
+
 ## Specialized Agents
 
 Each agent has a specific focus. The skill uses whichever are needed:
@@ -273,3 +356,12 @@ Complete patent application with all sections (Title, Background, Description, C
 
 **Specific comparison:**
 > "How does my invention differ from US Patent 10,123,456?"
+
+**Design-around analysis:**
+> "How can I get around this patent? [provide patent number or URL]"
+
+**Freedom to operate:**
+> "Analyze US Patent 9,876,543 and find ways to design around it for my competing product"
+
+**Patent gap analysis:**
+> "What's NOT covered by Apple's patent on [technology]? I want to build something similar legally"

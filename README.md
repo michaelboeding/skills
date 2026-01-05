@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.13.0** - Video producer asks model selection (veo-3.1, fast, etc.)
+> **Version 5.14.0** - Patent lawyer now has design-around/FTO analysis capability
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
