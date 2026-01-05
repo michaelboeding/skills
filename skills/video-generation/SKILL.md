@@ -19,25 +19,30 @@ Generate videos using AI (Google Veo 3.1, OpenAI Sora).
 
 ## Prerequisites
 
-### Recommended: Vertex AI (10 requests/minute)
+### Default: Vertex AI (10 requests/minute) ⭐
+
+Vertex AI is the default backend with 1400x higher rate limits:
 
 ```bash
-# 1. Install SDK
-pip install google-cloud-aiplatform
-
-# 2. Set your project
+# 1. Set your project
 export GOOGLE_CLOUD_PROJECT=your-project-id
 
-# 3. Authenticate
+# 2. Authenticate (opens browser)
 gcloud auth application-default login
 
-# 4. Enable the API
+# 3. Enable the API (one-time)
 gcloud services enable aiplatform.googleapis.com
 ```
 
-### Alternative: AI Studio (10 requests/day)
+Add to your `.env` file:
+```
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+```
 
-Simpler setup but heavily rate-limited:
+### Fallback: AI Studio (10 requests/day)
+
+Only use if you don't have a GCP project:
 
 - `GOOGLE_API_KEY` - Get from https://aistudio.google.com/apikey
 
