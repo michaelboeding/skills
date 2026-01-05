@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.16.0** - PDF report generation for all analysis skills
+> **Version 5.17.0** - New add-to-xcode skill for automatic Xcode project file registration
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
