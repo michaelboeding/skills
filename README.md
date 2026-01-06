@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.19.0** - Fixed add-to-xcode path doubling bug (files no longer show red in Xcode)
+> **Version 5.20.0** - Added background-remove skill (AI-based background removal with rembg)
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -50,6 +50,7 @@ pip install -r requirements.txt
 | `numpy` | ≥1.24.0 | chart-generation |
 | `python-pptx` | ≥0.6.21 | slide-generation |
 | `Pillow` | ≥10.0.0 | slide-generation, image processing |
+| `rembg` | ≥2.0.50 | background-remove, icon-generation |
 
 **Optional tools:**
 
@@ -199,6 +200,8 @@ Base skills are focused tools that do one thing well. They can be used directly 
 | Skill | What It Does | API Keys |
 |-------|--------------|----------|
 | [image-generation](skills/image-generation/) | Generate/edit images (Gemini, DALL-E) | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
+| [icon-generation](skills/icon-generation/) | Generate app icons with transparent backgrounds | `GOOGLE_API_KEY` |
+| [background-remove](skills/background-remove/) | Remove backgrounds from images (AI-based) | None (`pip install rembg`) |
 | [video-generation](skills/video-generation/) | Generate videos (Veo, Sora) | `GOOGLE_API_KEY` or `OPENAI_API_KEY` |
 | [voice-generation](skills/voice-generation/) | Text-to-speech (Gemini TTS, ElevenLabs, OpenAI) | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
 | [music-generation](skills/music-generation/) | Generate music (Lyria, Suno, Udio) | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
@@ -734,6 +737,30 @@ generate an image of a sunset over mountains
 create a cyberpunk cityscape at night
 
 make a watercolor painting of a cat
+```
+
+### icon-generation
+
+Generate app icons with transparent backgrounds:
+
+```
+generate an icon for a music app
+
+create a flat style settings gear icon
+
+make a 3D shopping cart icon for my e-commerce app
+```
+
+### background-remove
+
+Remove backgrounds from images:
+
+```
+remove the background from this photo
+
+make this image transparent
+
+cut out the product from this image
 ```
 
 ### video-generation
