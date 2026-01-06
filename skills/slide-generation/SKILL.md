@@ -278,6 +278,15 @@ Open with:
 - Custom layouts require theme customization
 - Large images are resized to fit
 
+## For Advanced PowerPoint Operations
+
+For more complex PowerPoint tasks, use the **[pptx skill](../pptx/)** which supports:
+- Editing existing presentations (OOXML)
+- Working with templates (duplicate, rearrange, replace)
+- HTML → PowerPoint conversion
+- Advanced layout and typography control
+- Comments and speaker notes
+
 ---
 
 ## Example Prompts

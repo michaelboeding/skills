@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.20.0** - Added background-remove skill (AI-based background removal with rembg)
+> **Version 5.21.0** - Added docx, pptx, xlsx, pdf skills from Anthropic skills repo
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -206,8 +206,12 @@ Base skills are focused tools that do one thing well. They can be used directly 
 | [voice-generation](skills/voice-generation/) | Text-to-speech (Gemini TTS, ElevenLabs, OpenAI) | `GOOGLE_API_KEY`, `ELEVENLABS_API_KEY`, or `OPENAI_API_KEY` |
 | [music-generation](skills/music-generation/) | Generate music (Lyria, Suno, Udio) | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
 | [chart-generation](skills/chart-generation/) | Data-driven charts (matplotlib) | None (`pip install matplotlib`) |
-| [slide-generation](skills/slide-generation/) | PowerPoint slides (PPTX) | None (`pip install python-pptx`) |
+| [slide-generation](skills/slide-generation/) | PowerPoint slides from JSON | None (`pip install python-pptx`) |
 | [media-utils](skills/media-utils/) | Concat/mix audio/video (FFmpeg) | None (`brew install ffmpeg`) |
+| [docx](skills/docx/) | Create/edit Word documents (OOXML) | None |
+| [pptx](skills/pptx/) | Create/edit PowerPoint (advanced) | None (`npm install pptxgenjs`) |
+| [xlsx](skills/xlsx/) | Create/edit Excel spreadsheets | None |
+| [pdf](skills/pdf/) | PDF forms, extraction, validation | None |
 
 ---
 
