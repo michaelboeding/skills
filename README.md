@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.21.0** - Added docx, pptx, xlsx, pdf skills from Anthropic skills repo
+> **Version 5.22.0** - Added sidequest skill for spawning parallel Claude sessions
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -225,6 +225,7 @@ Skills for development workflows (no API keys needed):
 | [ios-to-android](skills/ios-to-android/) | Port iOS/Swift features to Android/Kotlin |
 | [android-to-ios](skills/android-to-ios/) | Port Android/Kotlin features to iOS/Swift |
 | [add-to-xcode](skills/add-to-xcode/) | Auto-register new files with Xcode projects |
+| [sidequest](skills/sidequest/) | Spawn parallel Claude sessions in new terminal tabs |
 | [debug-council](skills/debug-council/) | Multi-agent debugging with majority voting |
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation, synthesize best parts |
 | [parallel-builder](skills/parallel-builder/) | Decompose plans into parallel tasks |
@@ -626,6 +627,30 @@ ruby ${CLAUDE_PLUGIN_ROOT}/skills/add-to-xcode/scripts/add_to_xcode.rb Sources/M
 **Supported files:** `.swift`, `.m`, `.mm`, `.c`, `.cpp`, `.h`
 
 **Requires:** `gem install xcodeproj`
+
+---
+
+### sidequest
+
+Spawn a new Claude Code session in a separate terminal to work on a different task:
+
+```
+/sidequest "Add a settings page with dark mode toggle"
+
+/sidequest "Set up the database schema" --no-context
+
+/sidequest  # Interactive prompt for task description
+```
+
+**What happens:**
+1. Claude asks if you want to include a summary of the current chat
+2. Opens a new Terminal/iTerm tab
+3. Starts Claude with the sidequest task (and optional context)
+4. You continue working in your original session
+
+**Use when:** You're deep in a task but need to branch off for something else without losing your place.
+
+**macOS only** (uses osascript for terminal control)
 
 ---
 
