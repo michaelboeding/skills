@@ -47,13 +47,28 @@ See the repository README for setup instructions.
 
 ## Available APIs
 
-### OpenAI DALL-E 3
-- **Best for**: High-quality, creative images with excellent prompt understanding
-- **Sizes**: 1024x1024, 1024x1792, 1792x1024
-- **Styles**: vivid (dramatic, hyper-real) or natural (realistic)
-- **Quality**: standard or hd
+### OpenAI GPT Image (Recommended for pure generation)
+- **Models**:
+  - `gpt-image-1.5` (state of the art, best quality)
+  - `gpt-image-1` (great quality, cost-effective)
+  - `gpt-image-1-mini` (fastest, most affordable)
+- **Best for**: High-quality generation, transparency, text rendering, image editing
+- **Sizes**: 1024x1024 (square), 1536x1024 (landscape), 1024x1536 (portrait), or `auto`
+- **Quality**: low (fast), medium (balanced), high (best), or `auto`
+- **Background**: transparent, opaque, or `auto`
+- **Output formats**: png (default), jpeg (faster), webp
+- **Compression**: 0-100% (for jpeg/webp)
+- **Features**:
+  - Image editing with up to 16 input images
+  - Transparent backgrounds
+  - Streaming with partial images
+  - High input fidelity for preserving faces/logos
+  - Inpainting with masks
+  - 32,000 character prompts
 
-### Google Gemini Native Image Generation (Recommended)
+> ⚠️ **Note**: DALL-E 2 and DALL-E 3 are deprecated and will stop being supported on 05/12/2026.
+
+### Google Gemini Native Image Generation (Recommended for editing)
 - **Nano Banana** (`gemini-2.5-flash-image`): Fast, efficient, 1K resolution, up to 3 reference images
 - **Nano Banana Pro** (`gemini-3-pro-image-preview`): Professional quality, up to 4K, thinking mode, up to 14 reference images (default)
 - **Aspect ratios**: 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
@@ -75,6 +90,16 @@ See the repository README for setup instructions.
 #### Question Flow
 
 ⚠️ **Use the `AskUserQuestion` tool for each question below.** Do not just print questions in your response — use the tool to create interactive prompts with the options shown.
+
+**Q0: Model Selection**
+> "Which image generation model would you like to use?
+>
+> - Google Gemini (Nano Banana Pro) - Up to 4K, 14 reference images, style transfer, thinking mode (Recommended)
+> - OpenAI GPT Image 1.5 - State of the art, transparency, streaming, up to 16 input images
+> - OpenAI GPT Image 1 - Great quality, transparency, image editing
+> - OpenAI GPT Image 1 Mini - Fastest, most affordable"
+
+*Wait for response. If user doesn't have a preference, recommend Gemini for editing/reference tasks or GPT Image 1.5 for pure generation.*
 
 **Q1: Reference**
 > "I'll generate that image for you! First — **do you have any reference images?**
@@ -147,29 +172,83 @@ Transform the user request into an effective image generation prompt:
 
 ### Step 3: Select the API
 
-Check which API keys are available and let the user choose:
+Use the model selected by the user in Q0:
 
 1. **Check which API keys are configured** in environment:
-   - `OPENAI_API_KEY` → DALL-E 3 available
+   - `OPENAI_API_KEY` → GPT Image models available
    - `GOOGLE_API_KEY` → Gemini (Nano Banana Pro) available
 
-2. **If only one API is available**: Use it automatically, no need to ask.
+2. **If the user's selected model isn't available**: Inform them and offer alternatives.
 
-3. **If both APIs are available**: Default to **Google Gemini (Nano Banana Pro)** unless the user specifically requests DALL-E.
-   - Gemini is preferred because: up to 4K resolution, reference image support, advanced text rendering
-   - Only use DALL-E if user asks for it or if Gemini fails
+3. **Model mapping from Q0**:
+   - "Google Gemini (Nano Banana Pro)" → Use `gemini.py` with `gemini-3-pro-image-preview`
+   - "OpenAI GPT Image 1.5" → Use `openai_image.py` with `gpt-image-1.5`
+   - "OpenAI GPT Image 1" → Use `openai_image.py` with `gpt-image-1`
+   - "OpenAI GPT Image 1 Mini" → Use `openai_image.py` with `gpt-image-1-mini`
 
 ### Step 4: Generate the Image
 
 Execute the appropriate script from `${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/`:
 
-**For OpenAI DALL-E 3:**
+**For OpenAI GPT Image - Text to Image:**
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/dalle.py \
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/openai_image.py \
   --prompt "your enhanced prompt" \
+  --model "gpt-image-1" \
   --size "1024x1024" \
-  --style "vivid" \
-  --quality "hd"
+  --quality "high" \
+  --output "/path/to/output.png"
+```
+
+**For OpenAI GPT Image - With Transparent Background:**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/openai_image.py \
+  --prompt "A product icon with no background" \
+  --model "gpt-image-1" \
+  --background "transparent" \
+  --quality "high" \
+  --output "/path/to/output.png"
+```
+
+**For OpenAI GPT Image - Image Editing (with reference images):**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/openai_image.py \
+  --prompt "Add a wizard hat to this cat" \
+  --model "gpt-image-1" \
+  --image "/path/to/cat.jpg" \
+  --input-fidelity "high" \
+  --output "/path/to/output.png"
+```
+
+**For OpenAI GPT Image - Multiple Reference Images:**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/openai_image.py \
+  --prompt "Create a gift basket containing these items" \
+  --model "gpt-image-1" \
+  --image "/path/to/item1.png" \
+  --image "/path/to/item2.png" \
+  --image "/path/to/item3.png" \
+  --output "/path/to/output.png"
+```
+
+**For OpenAI GPT Image - With Mask (Inpainting):**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/openai_image.py \
+  --prompt "Replace the pool with a garden" \
+  --model "gpt-image-1" \
+  --image "/path/to/scene.jpg" \
+  --mask "/path/to/mask.png" \
+  --output "/path/to/output.png"
+```
+
+**For OpenAI GPT Image - Streaming with Partial Images:**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/openai_image.py \
+  --prompt "A beautiful sunset over mountains" \
+  --model "gpt-image-1" \
+  --stream \
+  --partial-images 2 \
+  --output "/path/to/output.png"
 ```
 
 **For Google Gemini (Nano Banana Pro) - Text to Image:**
@@ -231,9 +310,12 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/image-generation/scripts/gemini.py \
 
 **Generation failed**: Retry with simplified prompt or different API.
 
-## Reference Image Use Cases (Gemini Only)
+## Reference Image Use Cases
 
-Nano Banana and Nano Banana Pro support reference images for advanced editing:
+Both OpenAI GPT Image and Google Gemini support reference images for advanced editing:
+
+**OpenAI GPT Image**: Up to 16 input images, with `input_fidelity: high` for preserving faces/logos
+**Google Gemini**: Nano Banana (up to 3), Nano Banana Pro (up to 14)
 
 ### Image Editing
 - "Add a santa hat to this person" + person.jpg
@@ -277,19 +359,25 @@ Nano Banana and Nano Banana Pro support reference images for advanced editing:
 
 ## API Comparison
 
-| Feature | DALL-E 3 | Nano Banana | Nano Banana Pro |
-|---------|----------|-------------|-----------------|
-| Provider | OpenAI | Google | Google |
-| Model | dall-e-3 | gemini-2.5-flash-image | gemini-3-pro-image-preview |
-| Best for | Creative, artistic | Fast generation | Professional assets |
-| Max Resolution | 1792x1024 | 1K | 4K |
-| Aspect ratios | 3 options | 10 options | 10 options |
-| Reference images | No | Up to 3 | Up to 14 |
-| Image editing | No | Yes | Yes |
-| Product placement | No | Yes | Yes |
-| Style transfer | No | Yes | Yes |
-| Styles | vivid, natural | N/A | N/A |
-| Text rendering | Good | Good | Excellent |
-| Thinking mode | No | No | Yes |
-| Google Search grounding | No | No | Yes |
-| Speed | ~15-30s | ~10-20s | ~30-60s |
+| Feature | GPT Image 1.5 | GPT Image 1 | GPT Image 1 Mini | Nano Banana | Nano Banana Pro |
+|---------|---------------|-------------|------------------|-------------|-----------------|
+| Provider | OpenAI | OpenAI | OpenAI | Google | Google |
+| Model ID | gpt-image-1.5 | gpt-image-1 | gpt-image-1-mini | gemini-2.5-flash-image | gemini-3-pro-image-preview |
+| Best for | State of the art | Quality + value | Speed + cost | Fast generation | Professional assets |
+| Sizes | 1024², 1536x1024, 1024x1536, auto | Same | Same | 1K only | Up to 4K |
+| Quality options | low, medium, high, auto | Same | Same | N/A | N/A |
+| Aspect ratios | 3 + auto | Same | Same | 10 options | 10 options |
+| Reference images | Up to 16 | Up to 16 | Up to 16 | Up to 3 | Up to 14 |
+| Image editing | Yes | Yes | Yes | Yes | Yes |
+| Inpainting (mask) | Yes | Yes | Yes | Yes | Yes |
+| Transparent background | Yes | Yes | Yes | No | No |
+| Streaming | Yes | Yes | Yes | No | No |
+| Input fidelity | high/low | high/low | low only | N/A | N/A |
+| Output formats | png, jpeg, webp | Same | Same | png | png |
+| Compression | 0-100% | Same | Same | No | No |
+| Text rendering | Excellent | Excellent | Good | Good | Excellent |
+| Thinking mode | No | No | No | No | Yes |
+| Max prompt length | 32,000 chars | 32,000 chars | 32,000 chars | N/A | N/A |
+| Speed | ~30-60s | ~20-40s | ~10-20s | ~10-20s | ~30-60s |
+
+> ⚠️ **DALL-E 2 and DALL-E 3 are deprecated** and will stop being supported on 05/12/2026. Use GPT Image models instead.
