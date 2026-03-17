@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.22.0** - Added sidequest skill for spawning parallel Claude sessions
+> **Version 5.23.0** - Added cmo-agent: AI Chief Marketing Officer with 6 parallel agents
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -248,6 +248,7 @@ Business analysis, research, and strategy:
 
 | Agent | What It Does | Sub-Agents | Skills Used |
 |-------|--------------|------------|-------------|
+| [cmo-agent](skills/cmo-agent/) | AI CMO: SEO audit, content, Reddit, HN, X growth | 6 (seo, geo, content-writer, reddit, hackernews, x) | site_audit.py, chart-generation |
 | [brand-research-agent](skills/brand-research-agent/) | Analyze brands from websites | 5 (visual, voice, product, audience, competitive) | None |
 | [product-engineer-agent](skills/product-engineer-agent/) | Design products with specs + visuals | 5 (industrial, mechanical, user, manufacturing, innovation) | image-generation |
 | [market-researcher-agent](skills/market-researcher-agent/) | Research markets (TAM/SAM/SOM) | 4 (trend, consumer, industry, opportunity) | chart-generation |
@@ -419,6 +420,21 @@ Focus: File ownership, shared contracts, parallel execution, integration.
 | `style-frontend` | Component patterns, styling, state (if applicable) |
 
 Focus: Language-agnostic detection, real examples from codebase, structured output.
+
+### CMO Specialists (for cmo-agent)
+
+6 specialized marketing agents that work in parallel:
+
+| Agent | Focus |
+|-------|-------|
+| `seo-analyst` | Technical SEO audit with exact HTML fix snippets |
+| `geo-analyst` | AI search visibility (ChatGPT, Perplexity, Google AI Overview) |
+| `content-writer` | Full SEO articles (1500-3000 words) + 4-week content calendar |
+| `reddit-scout` | Active thread discovery + copy-paste-ready comments with risk assessment |
+| `hackernews-scout` | Show HN submission + founder comment + objection responses |
+| `x-scout` | Tweet threads + standalone tweets + 7-day calendar + influencer mapping |
+
+Also includes `site_audit.py`: stdlib-only technical SEO crawler with 3-tier scoring (static analysis, PageSpeed Insights API, Lighthouse CLI).
 
 ### Brand Analysts (for brand-research-agent)
 
@@ -859,6 +875,40 @@ make a pie chart showing use of funds
 ---
 
 ## Professional Agent Examples
+
+### cmo-agent
+
+AI Chief Marketing Officer — enter a URL and get a full marketing team deployed:
+
+```
+be my AI CMO for https://mysite.com
+
+run a full SEO audit on https://myapp.io and give me exact fixes
+
+find Reddit and Hacker News opportunities for my product
+
+write SEO articles for my site and create a content calendar
+```
+
+How it works:
+1. **Onboarding** - Just provide a URL (+ optional context)
+2. **Site Audit** - `site_audit.py` crawls the site, scores SEO/Accessibility/Performance/Best Practices
+3. **6 agents deploy in parallel** - SEO, GEO, Content Writer, Reddit, HN, X/Twitter
+4. **Cross-channel synthesis** - Narrative spines + content cascades across channels
+5. **Dashboard** - Terminal-formatted overview with scores, opportunities, and prioritized actions
+
+**Output includes:**
+- SEO audit with exact HTML fix snippets (copy-paste ready)
+- GEO recommendations with JSON-LD schema code
+- Full 1500-3000 word SEO articles ready to publish
+- Reddit comments for specific active threads (with risk levels)
+- Show HN submission + founder comment + objection responses
+- Tweet threads + 7-day content calendar + influencer targets
+- Prioritized "Do This Now" action list
+
+**Optional API keys:** `GOOGLE_PSI_API_KEY` for PageSpeed Insights scores, `lighthouse` CLI for full browser audit.
+
+---
 
 ### brand-research-agent
 
