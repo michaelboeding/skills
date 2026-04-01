@@ -24,3 +24,6 @@ service-account*.json
 *.jpg
 *.jpeg
 *.pptx
+
+# Exceptions - device frame assets required by device-framer skill
+!skills/device-framer/frames/*.png
