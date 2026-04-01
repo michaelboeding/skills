@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.23.0** - Added cmo-agent: AI Chief Marketing Officer with 6 parallel agents
+> **Version 5.25.0** - Added app-demo-agent: turn screen recordings into polished demo videos with AI voiceover, device frames, and music
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -207,6 +207,7 @@ Base skills are focused tools that do one thing well. They can be used directly 
 | [music-generation](skills/music-generation/) | Generate music (Lyria, Suno, Udio) | `GOOGLE_API_KEY`, `SUNO_API_KEY`, or `UDIO_API_KEY` |
 | [chart-generation](skills/chart-generation/) | Data-driven charts (matplotlib) | None (`pip install matplotlib`) |
 | [slide-generation](skills/slide-generation/) | PowerPoint slides from JSON | None (`pip install python-pptx`) |
+| [device-framer](skills/device-framer/) | Wrap screenshots/recordings in iPhone frames | None (`pip install Pillow`, `brew install ffmpeg`) |
 | [media-utils](skills/media-utils/) | Concat/mix audio/video (FFmpeg) | None (`brew install ffmpeg`) |
 | [docx](skills/docx/) | Create/edit Word documents (OOXML) | None |
 | [pptx](skills/pptx/) | Create/edit PowerPoint (advanced) | None (`npm install pptxgenjs`) |
@@ -268,6 +269,7 @@ Create complete media by combining multiple generation skills:
 | [podcast-producer-agent](skills/podcast-producer-agent/) | Podcast episodes, dialogues | voice-gen, music-gen, media-utils |
 | [audio-producer-agent](skills/audio-producer-agent/) | Audiobooks, ads, jingles | voice-gen, music-gen, media-utils |
 | [social-producer-agent](skills/social-producer-agent/) | Multi-asset content packs | image-gen, video-gen, voice-gen |
+| [app-demo-agent](skills/app-demo-agent/) | Polished demos from screen recordings | device-framer, voice-gen, music-gen, media-utils |
 
 ---
 
@@ -856,6 +858,18 @@ generate a PowerPoint presentation for my pitch
 make slides for my market research report
 ```
 
+### device-framer
+
+Wrap screenshots and screen recordings in photorealistic iPhone frames:
+
+```
+frame this screenshot in an iPhone 16 Pro
+
+wrap this screen recording in a device mockup
+
+put this in an iPhone 17 Pro in cosmic orange on a dark background
+```
+
 ### chart-generation
 
 Generate data-driven charts from data:
@@ -1064,6 +1078,18 @@ create a launch kit: 1 reel, 5 carousel images
 make a week of social content for our product
 
 create TikTok content for our new feature
+```
+
+### app-demo-agent
+
+Turn screen recordings into polished demo videos:
+
+```
+here's a screen recording of my app — turn it into a polished demo video
+
+add voiceover to this screen recording: ~/Desktop/demo.mp4
+
+take ~/Desktop/recording.mov, frame it in iPhone 17 Pro, add narration and music
 ```
 
 ---
