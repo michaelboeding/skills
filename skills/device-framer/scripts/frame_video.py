@@ -190,20 +190,19 @@ def make_shadow(frame_w, frame_h, cr, blur=50, opacity=80, offset_y=8):
 
 
 def extract_screen_mask(frame_path, screen_box, target_w, target_h, corner_radius=95):
-    """Create a screen mask with rounded corners matching the device frame.
+    """Create an RGBA screen mask with rounded corners matching the device frame.
 
-    Uses the device's known corner radius to draw a precise rounded rectangle.
-    This is more reliable than alpha-channel flood-fill, which can leak through
-    anti-aliased pixels at the corners.
+    Returns an RGBA image where the alpha channel contains the mask:
+    alpha=255 where content should show, alpha=0 at rounded corners.
+    Saved as RGBA so ffmpeg's alphaextract reliably reads the mask.
+    For Pillow (image path), the alpha channel is used directly.
     """
     sx, sy, sw, sh = screen_box
 
-    # Draw a rounded rectangle mask at the screen dimensions
-    mask = Image.new("L", (sw, sh), 0)
+    # Create RGBA image — alpha channel IS the mask
+    mask = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
     draw = ImageDraw.Draw(mask)
-    # Inset by 2px so the frame fully covers edges
-    inset = 2
-    _rrect(draw, [inset, inset, sw - 1 - inset, sh - 1 - inset], corner_radius, fill=255)
+    _rrect(draw, [0, 0, sw - 1, sh - 1], corner_radius, fill=(255, 255, 255, 255))
 
     if mask.size != (target_w, target_h):
         mask = mask.resize((target_w, target_h), Image.LANCZOS)
@@ -268,8 +267,9 @@ def frame_image(
     screen_img = fit_image(screenshot, sw, sh)
 
     # Apply screen mask with rounded corners matching the device
-    mask = extract_screen_mask(frame_path, (sx, sy, sw, sh), sw, sh, cr)
-    screen_img.putalpha(ImageChops.multiply(screen_img.split()[3], mask))
+    mask_rgba = extract_screen_mask(frame_path, (sx, sy, sw, sh), sw, sh, cr)
+    mask_alpha = mask_rgba.split()[3]  # Extract alpha channel for Pillow
+    screen_img.putalpha(ImageChops.multiply(screen_img.split()[3], mask_alpha))
 
     # Paste screenshot onto canvas
     canvas.paste(screen_img, (scx, scy), screen_img)
@@ -375,7 +375,7 @@ def frame_video(
         f"pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black,format=rgba[vid]"
     )
 
-    fc.append(f"[{idx['mask']}:v]format=gray,format=rgba,alphaextract[mask]")
+    fc.append(f"[{idx['mask']}:v]alphaextract[mask]")
     fc.append("[vid][mask]alphamerge[vr]")
     vl = "vr"
 

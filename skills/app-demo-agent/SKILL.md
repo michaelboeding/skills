@@ -308,8 +308,8 @@ Use one of the voice generation scripts:
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/gemini_tts.py \
   --text "Your voiceover script here..." \
-  --voice Kore \
-  --style "Friendly, clear, app demo narration" \
+  --voice Orus \
+  --style "Clear, confident, app demo narration" \
   -o ~/demo_project/voiceover.wav
 ```
 
@@ -367,11 +367,13 @@ echo "Voiceover: ${VO_DUR}s, Video: ${VID_DUR}s"
 
 | Tone | Gemini Voice | OpenAI Voice | ElevenLabs Voice |
 |------|-------------|--------------|-----------------|
-| Professional | Charon | onyx | josh |
+| **Default / Professional** | **Orus** (recommended) | onyx | josh |
 | Friendly | Kore | nova | rachel |
 | Energetic | Puck | echo | domi |
 | Calm | Aoede | shimmer | bella |
-| Authoritative | Orus | alloy | adam |
+| Authoritative | Charon | alloy | adam |
+
+**Default voice: Orus (Gemini TTS)** — firm, clear, professional. Works well for most app demos.
 
 ---
 
@@ -507,8 +509,8 @@ python3 $SKILL/device-framer/scripts/frame_video.py $INPUT -o $PROJECT/framed.mp
 
 # 4. Generate voiceover
 python3 $SKILL/voice-generation/scripts/gemini_tts.py \
-  --text-file $PROJECT/script.md --voice Kore \
-  --style "Friendly app demo narration" -o $PROJECT/voiceover.wav
+  --text-file $PROJECT/script.md --voice Orus \
+  --style "Clear, confident, app demo narration" -o $PROJECT/voiceover.wav
 
 # 5. Generate music (optional)
 python3 $SKILL/music-generation/scripts/lyria.py \
@@ -557,12 +559,13 @@ python3 $SKILL/media-utils/scripts/video_audio_merge.py \
 
 | Demo Style | Voice (Gemini) | Music Prompt |
 |------------|----------------|-------------|
-| SaaS product tour | Kore (friendly) | "modern, clean, minimal, professional" |
+| **General / default** | **Orus (firm)** | "modern, clean, minimal, professional" |
+| SaaS product tour | Orus (firm) | "modern, clean, minimal, professional" |
 | Mobile app showcase | Puck (upbeat) | "upbeat, positive, mobile, fresh" |
-| Enterprise demo | Charon (professional) | "corporate, confident, ambient, subtle" |
+| Enterprise demo | Charon (authoritative) | "corporate, confident, ambient, subtle" |
 | Creative tool | Aoede (breezy) | "inspiring, creative, flowing, warm" |
 | Developer tool | Orus (firm) | "tech, minimal, electronic, focused" |
-| Consumer app | Zephyr (bright) | "playful, modern, light, accessible" |
+| Consumer app | Kore (friendly) | "playful, modern, light, accessible" |
 
 ---
 
