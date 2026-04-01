@@ -447,7 +447,7 @@ STYLE TIPS:
         """
     )
     
-    parser.add_argument("--text", "-t", required=True,
+    parser.add_argument("--text", "-t", default="",
                         help="Text to convert to speech")
     parser.add_argument("--voice", "-v", default=DEFAULT_VOICE,
                         choices=list(VOICES.keys()),
@@ -493,10 +493,14 @@ STYLE TIPS:
     if args.text_file:
         try:
             with open(args.text_file, "r") as f:
-                text = f.read()
+                text = f.read().strip()
         except Exception as e:
             print(f"Error reading file: {e}", file=sys.stderr)
             sys.exit(1)
+
+    if not text:
+        print("Error: Either --text or --text-file is required", file=sys.stderr)
+        sys.exit(1)
     
     print("=" * 60)
     print("Google Gemini TTS - Text-to-Speech Generation")

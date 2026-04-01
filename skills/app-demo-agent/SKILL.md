@@ -57,35 +57,81 @@ Turn raw screen recordings into polished app demo videos with AI-generated voice
 
 *Wait for response. If they want a specific device, run `--list-devices` and let them pick.*
 
+**Q3b: Device Color** *(if device frame selected)*
+> "What color for the [device name]?
+>
+> *(list the available colors for the selected device)*"
+
+*Wait for response. Show the actual color options from the device registry.*
+
+**Q3c: Background Color** *(if device frame selected)*
+> "What background color for the video?
+>
+> - **Dark** (`#0a0a0a`) — cinematic, great for social media
+> - **White** (`#ffffff`) — clean, good for presentations/websites
+> - **Transparent** — for compositing *(note: output will be WebM, not MP4)*
+> - **Custom** — specify a hex color"
+
+*Wait for response. If transparent, set output format to WebM with alpha. If custom, validate the hex color.*
+
 **Q4: Voiceover**
 > "How should we handle the voiceover?
 >
-> - **Generate** — I'll analyze the recording and write a script
+> - **Generate** — I'll analyze the recording and write a script that narrates what's on screen
 > - **You provide** — Give me the script text
 > - **None** — No voiceover"
 
 *Wait for response.*
 
 **Q5: Voice Style** *(if voiceover enabled)*
-> "What voice tone?
+> "What kind of voice?
 >
+> **Tone:**
 > - Professional / polished
 > - Friendly / conversational
 > - Energetic / excited
 > - Calm / reassuring
-> - Or describe your own tone"
-
-*Wait for response.*
-
-**Q6: Background Music**
-> "Want background music?
+> - Or describe your own tone
 >
-> - **Yes** — *(describe the vibe, or I'll pick something fitting)*
-> - **No** — Voiceover only (or silent)"
+> **Gender preference:**
+> - Male
+> - Female
+> - No preference"
 
 *Wait for response.*
 
-**Q7: Output**
+**Q6: Voice Selection** *(if voiceover enabled)*
+
+Based on the user's tone and gender preference, recommend a specific voice and let them confirm or pick another:
+
+> "Based on your preferences, I'd recommend **[voice name]** ([provider]). Here are some options:
+>
+> | Voice | Provider | Tone |
+> |-------|----------|------|
+> | Kore | Gemini | Friendly, clear, female |
+> | Charon | Gemini | Professional, authoritative, male |
+> | Puck | Gemini | Upbeat, energetic, male |
+> | Aoede | Gemini | Breezy, warm, female |
+> | nova | OpenAI | Friendly, natural, female |
+> | onyx | OpenAI | Deep, professional, male |
+>
+> Want to go with **[recommendation]**, or pick a different one?"
+
+*Wait for response.*
+
+**Q7: Background Music**
+> "Want background music? If so, what vibe?
+>
+> - **Modern / minimal** — clean, tech-forward
+> - **Upbeat / positive** — energetic, fun
+> - **Corporate / professional** — polished, confident
+> - **Ambient / calm** — soft, relaxed
+> - **Custom** — describe the vibe you want
+> - **No music** — voiceover only (or silent)"
+
+*Wait for response.*
+
+**Q8: Output**
 > "Where should I save the final video?
 >
 > *(default: same directory as the input, with `_demo` suffix)*"
@@ -99,8 +145,11 @@ Turn raw screen recordings into polished app demo videos with AI-generated voice
 | Screen Recording | Input file |
 | App Overview | Context for voiceover script |
 | Device Frame | Whether to use device-framer and which device |
+| Device Color | Color variant for the selected device |
+| Background Color | Background behind the device frame |
 | Voiceover | Generate script vs user-provided vs none |
-| Voice Style | TTS voice selection and style |
+| Voice Style | Tone and gender preference |
+| Voice Selection | Specific TTS voice and provider |
 | Background Music | Whether to generate music and what style |
 | Output | Where to save final video |
 
@@ -108,25 +157,38 @@ Turn raw screen recordings into polished app demo videos with AI-generated voice
 
 ### Step 2: Analyze the Screen Recording
 
-Extract keyframes from the recording so you can understand what's happening on screen.
+Extract keyframes from the recording. **Use scene detection** to capture frames at actual screen transitions rather than fixed intervals — this gives you frames at the moments that matter.
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/app-demo-agent/scripts/extract_frames.py \
+  INPUT_VIDEO \
+  -o ~/demo_project/frames/ \
+  --scene-detect \
+  --timestamps
+```
+
+If scene detection doesn't find enough transitions (e.g., scrolling content), fall back to fixed intervals:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/app-demo-agent/scripts/extract_frames.py \
   INPUT_VIDEO \
   -o ~/demo_project/frames/ \
   --interval 2 \
-  --max-frames 20
+  --max-frames 20 \
+  --timestamps
 ```
 
 **Options:**
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--interval` | `2` | Seconds between frame captures |
+| `--scene-detect` | off | Detect actual screen transitions instead of fixed intervals |
+| `--scene-threshold` | `0.3` | Scene sensitivity 0.0-1.0, lower = more sensitive |
+| `--interval` | `2` | Seconds between frame captures (fixed interval mode) |
 | `--max-frames` | `20` | Maximum number of frames to extract |
 | `-o, --output` | `./frames/` | Output directory for frames |
 | `--timestamps` | off | Also output a `timestamps.json` mapping |
 
-This creates numbered PNG screenshots: `frame_001.png`, `frame_002.png`, etc.
+This creates numbered PNG screenshots: `frame_001.png`, `frame_002.png`, etc. The `timestamps.json` maps each frame to its exact timestamp in the video.
 
 **Now read each frame image** using the Read tool to understand the screen flow. Build a mental timeline:
 
@@ -146,37 +208,68 @@ Use the user's app description (Q2) combined with what you see in the frames to 
 
 ### Step 3: Write the Voiceover Script
 
-Based on your analysis, write a voiceover script that narrates the screen flow. The script should:
+⚠️ **This is the most important step.** The voiceover must match what's happening on screen at every moment. A generic script that doesn't align with the visuals will feel disconnected and unprofessional.
 
-1. **Match the recording duration** — get the video duration first:
-   ```bash
-   ffprobe -v quiet -show_entries format=duration -of csv=p=0 INPUT_VIDEO
-   ```
+**First, get the exact video duration:**
+```bash
+ffprobe -v quiet -show_entries format=duration -of csv=p=0 INPUT_VIDEO
+```
 
-2. **Be natural and conversational** — not robotic marketing speak
-3. **Describe what the user sees** — guide viewers through the flow
-4. **Highlight key features** — call out what makes the app special
-5. **Match the pacing** — leave pauses where the screen is transitioning
+**Then write a timed script** that maps narration to the frame timeline you built in Step 2. Every line of the script should correspond to what's visible on screen at that moment.
 
-**Script format — write as a single block of text** (TTS handles pacing from punctuation):
+#### Script Rules
+
+1. **Content must match the screen** — if the user is tapping a button at 4s, the narration at 4s should describe that action. Never narrate something that isn't visible.
+2. **Fill the full video duration** — the voiceover should naturally span the entire recording. Not too short (dead silence at the end), not too long (audio gets cut off). Aim for the TTS output to be within 2-3 seconds of the video length.
+3. **Flow with transitions** — when the screen transitions between views, use that moment for a brief pause or transitional phrase. Don't talk over a screen change.
+4. **Be natural and conversational** — not robotic marketing speak.
+5. **Highlight key features** — call out what makes the app special as those features appear on screen.
+
+#### Write the script as a timed outline first
+
+Map each line to the timestamp where it should be spoken:
+
+```
+[0-3s]   "Meet TaskFlow — the simplest way to stay on top of your day."
+[3-6s]   "Tap the plus button to create a new task."
+[6-10s]  "Give it a name... set a due date... and you're done."
+[10-14s] "Your tasks show up right on your home screen, organized by priority."
+[14-17s] "One tap to mark it complete."
+[17-20s] "That's it — no clutter, no complexity. TaskFlow."
+```
+
+#### Then convert to a single block for TTS
+
+Remove the timestamps and join into flowing text. Use punctuation to control pacing:
 
 ```
 Meet TaskFlow — the simplest way to stay on top of your day.
 Tap the plus button to create a new task.
-Give it a name, set a due date, and you're done.
+Give it a name... set a due date... and you're done.
 Your tasks show up right on your home screen, organized by priority.
-One tap to mark it complete. That's it — no clutter, no complexity.
-TaskFlow. Get more done with less.
+One tap to mark it complete.
+That's it — no clutter, no complexity. TaskFlow.
 ```
 
-**Tips:**
-- Use short sentences (TTS pacing works better)
-- Add periods for natural pauses
-- Use ellipsis (...) for longer pauses
-- Keep it under 150 words for a 30-60s video
-- Front-load the hook — first sentence matters most
+#### Pacing guide
 
-**Present the script to the user for approval before generating audio.** Ask if they want changes.
+| Video Duration | Target Word Count | Pace |
+|----------------|-------------------|------|
+| 15s | 30-40 words | Fast, punchy |
+| 30s | 60-80 words | Standard |
+| 45s | 90-120 words | Comfortable |
+| 60s | 120-150 words | Relaxed |
+| 90s+ | ~150 words/min | Natural conversational |
+
+**Tips:**
+- Short sentences work better for TTS pacing
+- Periods create natural pauses (~0.5s)
+- Ellipsis (...) creates longer pauses (~1s)
+- Em dashes (—) create brief pauses (~0.3s)
+- Front-load the hook — first sentence matters most
+- End with the app name or a clear CTA
+
+**Present the timed script to the user for approval before generating audio.** Show both the timed outline and the final text block. Ask if they want changes to wording, pacing, or emphasis.
 
 ---
 
@@ -236,6 +329,40 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/elevenlabs.py \
   -o ~/demo_project/voiceover.mp3
 ```
 
+⚠️ **You can also use `--text-file` instead of `--text`** to read the script from a file:
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/gemini_tts.py \
+  --text-file ~/demo_project/script.md \
+  --voice Kore \
+  --style "Friendly, clear, app demo narration" \
+  -o ~/demo_project/voiceover.wav
+```
+
+#### Duration Check (CRITICAL)
+
+After generating the voiceover, **immediately check if it matches the video duration**:
+
+```bash
+# Get voiceover duration
+VO_DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 ~/demo_project/voiceover.wav)
+
+# Get video duration
+VID_DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 INPUT_VIDEO)
+
+echo "Voiceover: ${VO_DUR}s, Video: ${VID_DUR}s"
+```
+
+**If there's a mismatch greater than 3 seconds, fix it before proceeding:**
+
+| Situation | Fix |
+|-----------|-----|
+| **Voiceover too long** | Shorten the script — remove filler words, tighten phrasing, cut a line. Regenerate. |
+| **Voiceover slightly long** (< 5s over) | Extend the video with a freeze frame at the end: `ffmpeg -i video.mp4 -vf "tpad=stop_mode=clone:stop_duration=5" -c:a copy extended.mp4` |
+| **Voiceover too short** | Add more descriptive lines, slow the pace with pauses (ellipsis), or add a closing line. Regenerate. |
+| **Voiceover slightly short** (< 3s under) | Acceptable — the video will have a brief silent outro which can feel natural. |
+
+**Always prefer adjusting the script** over stretching the video. The script should be written to fit the video, not the other way around.
+
 #### Voice Recommendations for Demos
 
 | Tone | Gemini Voice | OpenAI Voice | ElevenLabs Voice |
@@ -252,10 +379,15 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/voice-generation/scripts/elevenlabs.py \
 
 If the user wants music:
 
+⚠️ **Always match the video duration exactly.** Get the video duration first, then pass it to the music generator:
+
 ```bash
+# Get exact video duration
+DURATION=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 INPUT_VIDEO | cut -d. -f1)
+
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/music-generation/scripts/lyria.py \
   --prompt "modern, minimal, tech product demo, clean, upbeat, positive" \
-  --duration MATCH_VIDEO_DURATION \
+  --duration $DURATION \
   -o ~/demo_project/music.wav
 ```
 

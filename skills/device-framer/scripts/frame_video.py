@@ -189,51 +189,25 @@ def make_shadow(frame_w, frame_h, cr, blur=50, opacity=80, offset_y=8):
     return shadow, pad
 
 
-def extract_screen_mask(frame_path, screen_box, target_w, target_h):
-    """Extract pixel-perfect screen mask from frame PNG's alpha channel.
-    
-    Strategy: the frame is transparent in two regions — the screen hole
-    and outside the device body. We fill from the image corners (exterior)
-    to mark all exterior transparency, then anything transparent that
-    ISN'T exterior must be the screen.
+def extract_screen_mask(frame_path, screen_box, target_w, target_h, corner_radius=95):
+    """Create a screen mask with rounded corners matching the device frame.
+
+    Uses the device's known corner radius to draw a precise rounded rectangle.
+    This is more reliable than alpha-channel flood-fill, which can leak through
+    anti-aliased pixels at the corners.
     """
-    frame = Image.open(frame_path)
-    alpha_img = frame.split()[3]
-    
-    import numpy as np
-    alpha = np.array(alpha_img)
-    h, w = alpha.shape
     sx, sy, sw, sh = screen_box
-    
-    # Mark transparent/semi-transparent pixels (include AA edges for connectivity)
-    transparent = alpha < 128
-    
-    # Flood-fill exterior from all 4 corners using PIL (fast C implementation)
-    fill_img = Image.fromarray((transparent * 255).astype(np.uint8), mode="L").copy()
-    from PIL import ImageDraw as ID
-    
-    # Flood fill from corners to mark exterior transparent regions
-    # PIL floodfill replaces connected region of similar color with new color
-    ID.floodfill(fill_img, (0, 0), 128, thresh=10)
-    ID.floodfill(fill_img, (w-1, 0), 128, thresh=10)
-    ID.floodfill(fill_img, (0, h-1), 128, thresh=10)
-    ID.floodfill(fill_img, (w-1, h-1), 128, thresh=10)
-    
-    # Now: 128 = exterior, 255 = screen, 0 = bezel
-    filled = np.array(fill_img)
-    screen = (filled == 255)
-    
-    # Crop to screen_box
-    cropped = screen[sy:sy+sh, sx:sx+sw].astype(np.uint8) * 255
-    mask = Image.fromarray(cropped, mode="L")
-    
-    # Erode by 2px so frame fully covers edges
-    from PIL import ImageFilter
-    mask = mask.filter(ImageFilter.MinFilter(5))
-    
+
+    # Draw a rounded rectangle mask at the screen dimensions
+    mask = Image.new("L", (sw, sh), 0)
+    draw = ImageDraw.Draw(mask)
+    # Inset by 2px so the frame fully covers edges
+    inset = 2
+    _rrect(draw, [inset, inset, sw - 1 - inset, sh - 1 - inset], corner_radius, fill=255)
+
     if mask.size != (target_w, target_h):
         mask = mask.resize((target_w, target_h), Image.LANCZOS)
-    
+
     return mask
 
 
@@ -293,8 +267,8 @@ def frame_image(
     # Scale screenshot to fit screen area
     screen_img = fit_image(screenshot, sw, sh)
 
-    # Apply screen mask extracted from frame's actual alpha channel
-    mask = extract_screen_mask(frame_path, (sx, sy, sw, sh), sw, sh)
+    # Apply screen mask with rounded corners matching the device
+    mask = extract_screen_mask(frame_path, (sx, sy, sw, sh), sw, sh, cr)
     screen_img.putalpha(ImageChops.multiply(screen_img.split()[3], mask))
 
     # Paste screenshot onto canvas
@@ -386,8 +360,8 @@ def frame_video(
         inputs += ["-i", sp]
         idx["shadow"] = next_i; next_i += 1
 
-    # Extract screen mask from frame's alpha channel (pixel-perfect corners)
-    mask = extract_screen_mask(frame_path, (sx, sy, sw, sh), sw, sh)
+    # Screen mask with rounded corners matching the device
+    mask = extract_screen_mask(frame_path, (sx, sy, sw, sh), sw, sh, cr)
     mp = os.path.join(tmp, "mask.png")
     mask.save(mp, "PNG")
     inputs += ["-i", mp]

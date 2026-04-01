@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Extract keyframes from a video at regular intervals for analysis.
+"""Extract keyframes from a video for analysis.
+
+Supports two modes:
+  - Fixed interval (default): frames every N seconds
+  - Scene detection: frames at actual screen transitions using ffmpeg scene filter
 
 Outputs numbered PNG screenshots and optionally a timestamps.json mapping.
 Used by app-demo-agent to analyze screen recordings before generating voiceover scripts.
@@ -46,16 +50,71 @@ def get_video_resolution(video_path: str) -> tuple:
     return None, None
 
 
+def detect_scene_changes(video_path: str, threshold: float = 0.3,
+                         max_frames: int = 20) -> list:
+    """Detect scene changes using ffmpeg's scene filter.
+
+    Returns list of timestamps where significant visual changes occur.
+    """
+    cmd = [
+        "ffprobe", "-v", "quiet",
+        "-show_entries", "frame=pts_time",
+        "-of", "csv=p=0",
+        "-f", "lavfi",
+        f"movie={video_path},select='gt(scene\\,{threshold})'"
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        # Fallback: try with select filter via ffmpeg
+        cmd2 = [
+            "ffmpeg", "-i", video_path,
+            "-vf", f"select='gt(scene,{threshold})',showinfo",
+            "-vsync", "vfr",
+            "-f", "null", "-"
+        ]
+        result2 = subprocess.run(cmd2, capture_output=True, text=True)
+        if result2.returncode != 0:
+            return []
+
+        # Parse pts_time from showinfo output
+        timestamps = []
+        for line in result2.stderr.split("\n"):
+            if "pts_time:" in line:
+                try:
+                    pts = line.split("pts_time:")[1].split()[0]
+                    timestamps.append(float(pts))
+                except (IndexError, ValueError):
+                    continue
+        return timestamps[:max_frames]
+
+    # Parse direct output
+    timestamps = []
+    for line in result.stdout.strip().split("\n"):
+        line = line.strip()
+        if line:
+            try:
+                timestamps.append(float(line))
+            except ValueError:
+                continue
+
+    return timestamps[:max_frames]
+
+
 def extract_frames(video_path: str, output_dir: str, interval: float,
-                   max_frames: int, timestamps: bool) -> dict:
-    """Extract frames from video at regular intervals.
+                   max_frames: int, timestamps: bool,
+                   scene_detect: bool = False,
+                   scene_threshold: float = 0.3) -> dict:
+    """Extract frames from video.
 
     Args:
         video_path: Path to input video file.
         output_dir: Directory to save extracted frames.
-        interval: Seconds between frame captures.
+        interval: Seconds between frame captures (fixed interval mode).
         max_frames: Maximum number of frames to extract.
         timestamps: Whether to output a timestamps.json file.
+        scene_detect: Use scene change detection instead of fixed intervals.
+        scene_threshold: Sensitivity for scene detection (0.0-1.0, lower = more sensitive).
 
     Returns:
         Dict with extraction results.
@@ -77,19 +136,43 @@ def extract_frames(video_path: str, output_dir: str, interval: float,
     width, height = get_video_resolution(video_path)
 
     # Calculate frame timestamps
-    frame_times = []
-    t = 0.0
-    while t < duration and len(frame_times) < max_frames:
-        frame_times.append(t)
-        t += interval
+    if scene_detect:
+        # Use scene detection to find actual transitions
+        frame_times = detect_scene_changes(video_path, scene_threshold, max_frames)
 
-    # Always include a frame near the end if we haven't already
-    if frame_times and (duration - frame_times[-1]) > interval * 0.5:
-        if len(frame_times) < max_frames:
+        # Always include the first frame
+        if not frame_times or frame_times[0] > 0.5:
+            frame_times.insert(0, 0.0)
+
+        # Always include a frame near the end
+        if frame_times[-1] < duration - 2.0:
             frame_times.append(max(0, duration - 0.5))
+
+        # Fallback to fixed interval if scene detection found nothing useful
+        if len(frame_times) < 3:
+            print("Scene detection found few transitions, falling back to fixed interval",
+                  file=sys.stderr)
+            scene_detect = False
+
+    if not scene_detect:
+        # Fixed interval mode
+        frame_times = []
+        t = 0.0
+        while t < duration and len(frame_times) < max_frames:
+            frame_times.append(t)
+            t += interval
+
+        # Always include a frame near the end if we haven't already
+        if frame_times and (duration - frame_times[-1]) > interval * 0.5:
+            if len(frame_times) < max_frames:
+                frame_times.append(max(0, duration - 0.5))
 
     if not frame_times:
         return {"success": False, "error": "Video too short to extract frames"}
+
+    # Deduplicate and sort
+    frame_times = sorted(set(round(t, 2) for t in frame_times))
+    frame_times = frame_times[:max_frames]
 
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
@@ -126,6 +209,7 @@ def extract_frames(video_path: str, output_dir: str, interval: float,
             "video": os.path.basename(video_path),
             "duration": round(duration, 2),
             "resolution": {"width": width, "height": height},
+            "mode": "scene_detect" if scene_detect else "fixed_interval",
             "frames": extracted
         }
         with open(ts_path, "w") as f:
@@ -136,6 +220,7 @@ def extract_frames(video_path: str, output_dir: str, interval: float,
         "frames_extracted": len(extracted),
         "video_duration": round(duration, 2),
         "resolution": f"{width}x{height}" if width else "unknown",
+        "mode": "scene_detect" if scene_detect else "fixed_interval",
         "output_dir": output_dir,
         "frames": [e["frame"] for e in extracted]
     }
@@ -154,10 +239,18 @@ def main():
                         help="Maximum number of frames to extract (default: 20)")
     parser.add_argument("--timestamps", action="store_true",
                         help="Output a timestamps.json mapping file")
+    parser.add_argument("--scene-detect", action="store_true",
+                        help="Use scene change detection instead of fixed intervals")
+    parser.add_argument("--scene-threshold", type=float, default=0.3,
+                        help="Scene detection sensitivity 0.0-1.0, lower = more sensitive (default: 0.3)")
 
     args = parser.parse_args()
-    result = extract_frames(args.input, args.output, args.interval,
-                            args.max_frames, args.timestamps)
+    result = extract_frames(
+        args.input, args.output, args.interval,
+        args.max_frames, args.timestamps,
+        scene_detect=args.scene_detect,
+        scene_threshold=args.scene_threshold,
+    )
 
     print(json.dumps(result, indent=2))
 
