@@ -63,7 +63,7 @@ log "Permission mode: $PERMISSION_MODE | Tool: $TOOL_NAME"
 
 # --- Auto-allow read-only tools (any permission mode) ---
 case "$TOOL_NAME" in
-  Read|Glob|Grep|LS|WebSearch|WebFetch|ToolSearch|TaskGet|TaskList)
+  Read|Glob|Grep|LS|WebSearch|WebFetch|ToolSearch|TaskGet|TaskList|Agent)
     log "Auto-allowing read-only tool: $TOOL_NAME"
     allow "Read-only tool"
     exit 0
