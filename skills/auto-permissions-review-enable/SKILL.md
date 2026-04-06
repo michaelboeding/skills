@@ -1,6 +1,6 @@
 ---
 name: auto-permissions-review-enable
-description: Enable the auto permissions review hook for this session. When enabled and accept-edits mode is on, Claude Haiku evaluates every tool call for safety before execution. Requires auto-permissions-review to be installed first.
+description: Enable the auto permissions review hook for this session. Auto-approves read-only operations, sends ambiguous Bash to Haiku, and reviews edits only in accept-edits mode. Other terminal sessions are not affected.
 triggers:
   - enable ai review
   - turn on permission review
@@ -23,17 +23,18 @@ If not installed, tell the user to run `/auto-permissions-review-install` first 
 
 ### Step 2: Enable for this session
 
-Write "pending" to the flag file. The hook will bind to this session on the next tool call.
+The hook detects this command by the keyword and creates a session file automatically.
 
 ```bash
-echo "pending" > ~/.claude/ai-review-enabled && echo "Auto permissions review is now ON for this session."
+mkdir -p ~/.claude/ai-review-sessions && echo "ai-review-enable" && echo "Auto permissions review is now ON for this session."
 ```
 
 ### Step 3: Confirm
 
 Tell the user:
 - Auto permissions review is now **enabled for this session**
-- It only activates when **accept-edits mode** is on (Shift+Tab)
-- In default permission mode, normal prompts appear as usual
-- Closing this session automatically deactivates it
-- Use `/auto-permissions-review-disable` to turn it off early
+- Read-only tools (`Read`, `Glob`, `Grep`, etc.) are auto-approved instantly
+- Ambiguous Bash commands are reviewed by Haiku
+- Edits only go through Haiku when **accept-edits mode** is on (Shift+Tab)
+- Other terminal sessions are not affected
+- Use `/auto-permissions-review-disable` to turn it off

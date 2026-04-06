@@ -1,6 +1,6 @@
 ---
 name: auto-permissions-review-install
-description: Install an AI-powered permission review hook that uses Claude Haiku to evaluate tool call safety before execution. Per-session, only active when accept-edits mode is on. Use when setting up auto-approve with AI review, reducing permission fatigue, or wanting Claude to review its own tool calls.
+description: Install an AI-powered permission review hook that uses Claude Haiku to evaluate tool call safety before execution. Per-session, auto-approves read-only operations, sends ambiguous Bash commands to Haiku, and only reviews edits in accept-edits mode. Use when setting up auto-approve with AI review, reducing permission fatigue, or wanting Claude to review its own tool calls.
 triggers:
   - permission hook
   - ai review
@@ -12,22 +12,22 @@ triggers:
 
 # Auto Permissions Review
 
-Installs a `PreToolUse` hook that sends tool calls to Claude Haiku for safety evaluation. Two key behaviors:
+Installs a `PreToolUse` hook that reduces permission prompt fatigue by auto-approving safe operations and sending ambiguous commands to Claude Haiku for review.
 
-1. **Per-session** -- enabling it only affects the current Claude Code session. New sessions start with it off.
-2. **Accept-edits only** -- the review only fires when accept-edits mode (Shift+Tab) or a more permissive mode is active. In default mode you're already reviewing manually, so the hook stays silent.
+## Behavior
 
-## How It Works
+| Tool | Default mode | Accept-edits mode |
+|------|-------------|-------------------|
+| `Read`, `Glob`, `Grep`, `LS`, etc. | instant allow | instant allow |
+| Simple Bash (`ls`, `cat`, `find`, `git status`) | instant allow | instant allow |
+| Complex Bash (pipes, substitution) | Haiku reviews | Haiku reviews |
+| `Edit`, `Write` | normal prompt (you decide) | Haiku reviews |
 
-1. User runs `/auto-permissions-review-enable` -- writes "pending" to flag file
-2. User toggles accept-edits on (Shift+Tab)
-3. Claude Code wants to use a tool (Bash, Write, Edit, etc.)
-4. `PreToolUse` hook fires, reads `session_id` and `permission_mode` from stdin
-5. First call: binds to this session's ID. Subsequent sessions are ignored.
-6. Checks permission mode -- only proceeds if `acceptEdits`, `auto`, or more permissive
-7. Pipes tool call to `claude -p --model claude-haiku-4-5-20251001 --permission-mode plan`
-8. Haiku responds `ALLOW` or `BLOCK: <reason>`
-9. Hook returns the decision to Claude Code
+Key design choices:
+- **Per-session** -- each terminal session independently enables/disables. Multiple sessions can run simultaneously without conflicts.
+- **Read-only operations never prompt** -- `Read`, `Glob`, `Grep`, and common Bash reads are auto-approved instantly with no API call.
+- **Ambiguous Bash always goes to Haiku** -- piped commands, subshells, and anything not in the read-only pattern list gets reviewed regardless of mode.
+- **Edits respect your permission mode** -- in default mode you still approve edits manually. In accept-edits mode (Shift+Tab), Haiku reviews them.
 
 ## Related Commands
 
@@ -35,7 +35,18 @@ Installs a `PreToolUse` hook that sends tool calls to Claude Haiku for safety ev
 |---------|--------------|
 | `/auto-permissions-review-install` | Install the hook (run once) |
 | `/auto-permissions-review-enable` | Turn on for this session |
-| `/auto-permissions-review-disable` | Turn off |
+| `/auto-permissions-review-disable` | Turn off for this session |
+
+## How It Works
+
+1. User runs `/auto-permissions-review-enable` -- hook creates `~/.claude/ai-review-sessions/<session_id>`
+2. Tool call triggers `PreToolUse` hook
+3. Hook checks if a file for this session's ID exists
+4. Read-only tools and simple Bash reads are auto-approved instantly
+5. Complex Bash commands go to `claude -p --model claude-haiku-4-5-20251001 --permission-mode plan`
+6. Write tools check permission mode -- Haiku in accept-edits, normal prompt in default
+7. Haiku responds `ALLOW` or `BLOCK: <reason>`
+8. Hook returns the decision to Claude Code
 
 ## Installation
 
@@ -74,20 +85,29 @@ Auto Permissions Review hook installed.
 
 Usage:
   /auto-permissions-review-enable   -- turn on (this session only)
-  /auto-permissions-review-disable  -- turn off
+  /auto-permissions-review-disable  -- turn off (this session only)
 
-The hook only fires when accept-edits mode is on (Shift+Tab).
-In default permission mode, normal prompts appear as usual.
-Each new session starts with it off.
+Read-only operations are auto-approved instantly.
+Ambiguous Bash commands are reviewed by Haiku.
+Edits only go through Haiku when accept-edits mode is on (Shift+Tab).
+Each session enables independently.
 ```
 
 ## Customization
 
 The hook script is at `~/.claude/hooks/ai-review.sh`. Users can:
 - Change the model (swap `claude-haiku-4-5-20251001` for any model)
-- Uncomment the allowlist to skip review for read-only tools
-- Modify the evaluation prompt/rules
-- Restrict which permission modes trigger the review
+- Add patterns to the read-only Bash allowlist
+- Modify the Haiku evaluation prompt/rules
+- Set `DEBUG=0` to disable logging
+
+## Debug Log
+
+When `DEBUG=1` (default), all hook activity is logged to `~/.claude/ai-review.log`:
+
+```bash
+cat ~/.claude/ai-review.log
+```
 
 ## Requirements
 

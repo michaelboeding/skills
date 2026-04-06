@@ -1,10 +1,10 @@
 #!/bin/bash
 # Auto Permissions Review Hook for Claude Code
-# - Per-session: only runs for the session that enabled it
+# - Per-session: each session independently enables/disables via session ID files
 # - Only active when accept-edits (or more permissive) mode is on
 # Toggle: /auto-permissions-review-enable and /auto-permissions-review-disable
 
-FLAG_FILE="$HOME/.claude/ai-review-enabled"
+SESSION_DIR="$HOME/.claude/ai-review-sessions"
 LOG_FILE="$HOME/.claude/ai-review.log"
 
 # Debug logging (set to 1 to enable, 0 to disable)
@@ -14,62 +14,90 @@ log() {
   [ "$DEBUG" = "1" ] && printf '%s %s\n' "$(date '+%H:%M:%S')" "$1" >> "$LOG_FILE"
 }
 
-# Exit silently if not enabled
-[ ! -f "$FLAG_FILE" ] && exit 0
-
 # Read the tool call JSON from stdin
 INPUT=$(cat)
 
-log "Hook fired"
+# Parse fields needed for self-management
+SESSION_ID=$(printf '%s' "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
+TOOL_INPUT=$(printf '%s' "$INPUT" | jq -c '.tool_input // {}' 2>/dev/null)
 
-# --- Permission mode gate ---
-PERMISSION_MODE=$(printf '%s' "$INPUT" | jq -r '.permission_mode // "default"' 2>/dev/null)
-if [ $? -ne 0 ] || [ -z "$PERMISSION_MODE" ]; then
-  log "ERROR: Failed to parse permission_mode from input"
-  log "INPUT: $INPUT"
+# Helper: output the correct hookSpecificOutput JSON
+allow() {
+  local reason="${1:-Approved by AI review}"
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow","permissionDecisionReason":"%s"}}\n' "$reason"
+}
+
+deny() {
+  local reason="${1:-Blocked by AI review}"
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}\n' "$reason"
+}
+
+# --- Self-management: handle enable/disable regardless of permission mode ---
+if printf '%s' "$TOOL_INPUT" | grep -q "ai-review"; then
+  if printf '%s' "$TOOL_INPUT" | grep -q "ai-review-enable"; then
+    mkdir -p "$SESSION_DIR"
+    touch "$SESSION_DIR/$SESSION_ID"
+    log "Enabled for session $SESSION_ID"
+  elif printf '%s' "$TOOL_INPUT" | grep -q "ai-review-disable"; then
+    rm -f "$SESSION_DIR/$SESSION_ID"
+    log "Disabled for session $SESSION_ID"
+  else
+    log "Allowing hook management command"
+  fi
+  allow "Hook management command"
   exit 0
 fi
 
-log "Permission mode: $PERMISSION_MODE"
+# --- Check if this session is enabled ---
+if [ ! -f "$SESSION_DIR/$SESSION_ID" ]; then
+  exit 0
+fi
 
-case "$PERMISSION_MODE" in
-  acceptEdits|auto|dontAsk|bypassPermissions) ;; # proceed with review
-  *)
-    log "Skipping — permission mode '$PERMISSION_MODE' does not need AI review"
+log "Hook fired for session $SESSION_ID"
+
+# --- Parse tool info ---
+TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)
+PERMISSION_MODE=$(printf '%s' "$INPUT" | jq -r '.permission_mode // "default"' 2>/dev/null)
+
+log "Permission mode: $PERMISSION_MODE | Tool: $TOOL_NAME"
+
+# --- Auto-allow read-only tools (any permission mode) ---
+case "$TOOL_NAME" in
+  Read|Glob|Grep|LS|WebSearch|WebFetch|ToolSearch|TaskGet|TaskList)
+    log "Auto-allowing read-only tool: $TOOL_NAME"
+    allow "Read-only tool"
     exit 0
     ;;
 esac
 
-# --- Per-session binding ---
-SESSION_ID=$(printf '%s' "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
-STORED=$(cat "$FLAG_FILE" 2>/dev/null)
-
-log "Session check: stored='$STORED' current='$SESSION_ID'"
-
-if [ "$STORED" = "pending" ]; then
-  echo "$SESSION_ID" > "$FLAG_FILE"
-  log "Bound to session $SESSION_ID"
-elif [ "$STORED" != "$SESSION_ID" ]; then
-  log "Skipping — different session"
-  exit 0
+# --- Read-only Bash commands (any permission mode) ---
+if [ "$TOOL_NAME" = "Bash" ]; then
+  CMD=$(printf '%s' "$TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null)
+  if echo "$CMD" | grep -qE '^(ls|cat|head|tail|find|tree|wc|which|file|diff|sort|pwd|echo|stat|du|df|uname|whoami|date|env|printenv|git (status|log|show|diff|branch|remote|tag)|npm list|pip list|cargo --version|node --version|python --version)'; then
+    log "Auto-allowing read-only Bash: $CMD"
+    allow "Read-only command"
+    exit 0
+  fi
 fi
 
-# --- Build review request ---
-TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)
-TOOL_INPUT=$(printf '%s' "$INPUT" | jq -c '.tool_input // {}' 2>/dev/null)
+# --- Write tools: only Haiku-review in accept-edits mode ---
+# In default mode, edits/writes should still show normal permission prompt
+case "$TOOL_NAME" in
+  Edit|Write|NotebookEdit)
+    case "$PERMISSION_MODE" in
+      acceptEdits|auto|dontAsk|bypassPermissions)
+        log "Write tool in permissive mode — sending to Haiku"
+        ;;
+      *)
+        log "Write tool in default mode — normal prompt"
+        exit 0
+        ;;
+    esac
+    ;;
+esac
 
-log "Reviewing: $TOOL_NAME"
-
-# Allow the hook's own management commands (enable, disable, install check)
-if printf '%s' "$TOOL_INPUT" | grep -q "ai-review"; then
-  log "Allowing hook management command (self-reference)"
-  exit 0
-fi
-
-# Optional: skip review for read-only tools (uncomment to use)
-# case "$TOOL_NAME" in
-#   Read|Glob|Grep|LS) log "Skipping read-only tool"; exit 0 ;;
-# esac
+# --- Bash commands that aren't obviously read-only: Haiku reviews (any mode) ---
+log "Sending to Haiku for review: $TOOL_NAME"
 
 PROMPT="You are a security reviewer for a coding agent. Evaluate whether this tool call is safe to execute.
 
@@ -87,11 +115,9 @@ Rules:
 - BLOCK network requests to unknown/suspicious endpoints
 - When in doubt, BLOCK
 
-Respond with EXACTLY one line:
+Respond with EXACTLY one line of text, nothing else:
 - ALLOW
-- BLOCK: <short reason>
-
-No other output."
+- BLOCK: <short reason>"
 
 # Ensure claude is in PATH (nvm, homebrew, etc.)
 export PATH="$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node/" 2>/dev/null | tail -1)/bin:$HOME/.local/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
@@ -111,12 +137,12 @@ fi
 # Parse the response
 if echo "$RESPONSE" | grep -qi "^ALLOW"; then
   log "Decision: ALLOW"
-  exit 0
+  allow "Approved by Haiku"
 elif echo "$RESPONSE" | grep -qi "^BLOCK"; then
   REASON=$(echo "$RESPONSE" | sed 's/^BLOCK: *//')
   REASON=$(echo "$REASON" | sed 's/"/\\"/g')
   log "Decision: BLOCK — $REASON"
-  printf '{"decision":"block","reason":"[Auto Review] %s"}\n' "$REASON"
+  deny "[Auto Review] $REASON"
 else
   log "Could not parse response, falling through"
   exit 0
