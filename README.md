@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.25.0** - Added app-demo-agent: turn screen recordings into polished demo videos with AI voiceover, device frames, and music
+> **Version 5.26.0** - Added auto-permissions-review: per-session AI-powered tool call safety review using Claude Haiku
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -231,6 +231,7 @@ Skills for development workflows (no API keys needed):
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation, synthesize best parts |
 | [parallel-builder](skills/parallel-builder/) | Decompose plans into parallel tasks |
 | [model-council](skills/model-council/) | Get consensus from multiple AI models |
+| [auto-permissions-review](skills/auto-permissions-review-install/) | Per-session AI tool call safety review using Claude Haiku |
 
 ---
 
