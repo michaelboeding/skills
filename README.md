@@ -231,7 +231,24 @@ Skills for development workflows (no API keys needed):
 | [feature-council](skills/feature-council/) | Multi-agent feature implementation, synthesize best parts |
 | [parallel-builder](skills/parallel-builder/) | Decompose plans into parallel tasks |
 | [model-council](skills/model-council/) | Get consensus from multiple AI models |
-| [auto-permissions-review](skills/auto-permissions-review-install/) | Per-session AI tool call safety review using Claude Haiku |
+| [auto-permissions-review](skills/auto-permissions-review-install/) | Per-session AI permission review using Claude Haiku |
+
+### Auto Permissions Review
+
+Reduces permission prompt fatigue by auto-approving safe operations and sending ambiguous commands to Haiku for review. Per-session — each terminal enables independently.
+
+| Tool | Default mode | Accept-edits mode (Shift+Tab) |
+|------|-------------|-------------------------------|
+| `Read`, `Glob`, `Grep`, `LS`, `Agent` | instant allow | instant allow |
+| Simple Bash (`ls`, `cat`, `find`, `git status`) | instant allow | instant allow |
+| Complex Bash (pipes, substitution) | Haiku reviews | Haiku reviews |
+| `Edit`, `Write` | normal prompt (you decide) | Haiku reviews |
+
+```
+/auto-permissions-review-install   # one-time setup
+/auto-permissions-review-enable    # turn on (this session)
+/auto-permissions-review-disable   # turn off (this session)
+```
 
 ---
 
