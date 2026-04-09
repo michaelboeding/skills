@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.26.0** - Added auto-permissions-review: per-session AI-powered tool call safety review using Claude Haiku
+> **Version 5.27.0** - Added walkthrough-script-agent: generate timed walkthrough video scripts for app features
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -283,6 +283,7 @@ Create complete media by combining multiple generation skills:
 
 | Agent | What It Creates | Skills Used |
 |-------|-----------------|-------------|
+| [walkthrough-script-agent](skills/walkthrough-script-agent/) | Walkthrough video scripts for app features | app-demo-agent, voice-gen |
 | [video-producer-agent](skills/video-producer-agent/) | Complete videos with voiceover + music | video-gen, voice-gen, music-gen, media-utils |
 | [podcast-producer-agent](skills/podcast-producer-agent/) | Podcast episodes, dialogues | voice-gen, music-gen, media-utils |
 | [audio-producer-agent](skills/audio-producer-agent/) | Audiobooks, ads, jingles | voice-gen, music-gen, media-utils |
