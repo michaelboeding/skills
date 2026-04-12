@@ -168,6 +168,13 @@ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
 │  │   uses: image-gen   │  │   5 sub-agents      │  │   uses: video-gen   │ │
 │  │         chart-gen   │  │   uses: image-gen   │  │         voice-gen   │ │
 │  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘ │
+│  ┌─────────────────────┐                                                    │
+│  │ patent-prosecution- │                                                    │
+│  │     agent           │                                                    │
+│  │   5 sub-agents      │                                                    │
+│  │   uses: patent-     │                                                    │
+│  │     lawyer-agent    │                                                    │
+│  └─────────────────────┘                                                    │
 │                                      │ calls                                │
 ├──────────────────────────────────────▼──────────────────────────────────────┤
 │                    BASE SKILLS (Single-Purpose)                             │
@@ -272,6 +279,7 @@ Business analysis, research, and strategy:
 | [product-engineer-agent](skills/product-engineer-agent/) | Design products with specs + visuals | 5 (industrial, mechanical, user, manufacturing, innovation) | image-generation |
 | [market-researcher-agent](skills/market-researcher-agent/) | Research markets (TAM/SAM/SOM) | 4 (trend, consumer, industry, opportunity) | chart-generation |
 | [patent-lawyer-agent](skills/patent-lawyer-agent/) | Patent drafting + IP guidance | 5 (prior-art, patentability, claims, strategy, drafter) | image-generation |
+| [patent-prosecution-agent](skills/patent-prosecution-agent/) | Office action responses + prosecution | 5 (analyzer, strategist, amendment-drafter, argument-writer, distinguisher) | patent-lawyer-agent |
 | [competitive-intel-agent](skills/competitive-intel-agent/) | Analyze competitors | 4 (feature, pricing, positioning, market) | chart-generation, image-generation |
 | [copywriter-agent](skills/copywriter-agent/) | Marketing copy | 4 (headlines, body, ads, CTA) | None |
 | [review-analyst-agent](skills/review-analyst-agent/) | Analyze product reviews | 4 (scraper, sentiment, issues, recommendations) | chart-generation |
@@ -320,6 +328,26 @@ User: "Draft a patent for my self-watering planter"
                     │
                     ▼
 Output: Complete patent document + generated figures
+```
+
+Example: **patent-prosecution-agent** workflow (after office action received):
+
+```
+User: "Help me respond to this 103 rejection"
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────┐
+│          patent-prosecution-agent                    │
+│                                                     │
+│  1. office-action-analyzer  → Parse rejections      │
+│  2. prior-art-distinguisher → Analyze cited art     │
+│  3. prosecution-strategist  → Pick strategy         │
+│  4. claim-amendment-drafter → Rewrite claims        │
+│  5. argument-writer         → Draft remarks         │
+└─────────────────────────────────────────────────────┘
+                    │
+                    ▼
+Output: Complete office action response + PDF
 ```
 
 ### How Producers Work
@@ -505,6 +533,18 @@ Focus: Web scraping, pattern extraction, structured brand profile output.
 | `claims-strategist` | Draft claims, claim strategy |
 | `ip-strategy-advisor` | Protection strategy, timing, costs |
 | `patent-drafter` | Draft complete patent applications with generated figures |
+
+### Prosecution Specialists (for patent-prosecution-agent)
+
+5 specialized patent prosecution perspectives:
+
+| Agent | Focus |
+|-------|-------|
+| `office-action-analyzer` | Parse rejections, map claims to references |
+| `prosecution-strategist` | Response strategy, amend vs argue decisions |
+| `claim-amendment-drafter` | Rewrite claims with proper amendment markup |
+| `argument-writer` | Draft legal arguments and remarks |
+| `prior-art-distinguisher` | Analyze cited art, find meaningful differences |
 
 ### Copywriters (for copywriter-agent)
 
@@ -997,6 +1037,24 @@ should I patent this or keep it as trade secret?
 draft a full patent application for my invention
 
 create a patent with figures for my self-watering planter
+```
+
+### patent-prosecution-agent
+
+Respond to patent office actions and examiner rejections (companion to patent-lawyer-agent):
+
+```
+I received an office action rejecting my claims under 103, help me respond
+
+analyze this office action and tell me what the examiner is saying
+
+amend my claims to overcome this 102 rejection
+
+write arguments distinguishing my invention over the cited prior art
+
+I got a final rejection, should I file an RCE or appeal?
+
+prepare an appeal brief for the PTAB
 ```
 
 ### pitch-deck-agent
