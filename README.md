@@ -216,6 +216,16 @@ Base skills are focused tools that do one thing well. They can be used directly 
 
 ---
 
+## Data Skills
+
+Skills for data access and API-backed workflows:
+
+| Skill | What It Does | API Keys |
+|-------|--------------|----------|
+| [xquik-x-data](skills/xquik-x-data/) | Work with X/Twitter data, webhooks, and MCP through Xquik | `XQUIK_API_KEY` |
+
+---
+
 ## Coding Skills
 
 Skills for development workflows (no API keys needed):
