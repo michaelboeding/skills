@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.28.0** - Added mobile-parity-check: compare iOS and Android UI/UX in simulators and deliver PDFs with paired screenshots and full analysis
+> **Version 5.29.0** - Added expired-patent-scout: research recently expired patents by brand, product, and market, then build illustrated opportunity reports
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -220,6 +220,16 @@ Base skills are focused tools that do one thing well. They can be used directly 
 | [pptx](skills/pptx/) | Create/edit PowerPoint (advanced) | None (`npm install pptxgenjs`) |
 | [xlsx](skills/xlsx/) | Create/edit Excel spreadsheets | None |
 | [pdf](skills/pdf/) | PDF forms, extraction, validation | None |
+
+---
+
+## Research Skills
+
+Focused research workflows with traceable sources:
+
+| Skill | What It Does |
+|-------|--------------|
+| [expired-patent-scout](skills/expired-patent-scout/) | Ask about brands/products and markets, research recent patent expirations, and produce illustrated product-opportunity reports |
 
 ---
 
@@ -614,6 +624,34 @@ These agents are invoked automatically by their skills and should not be called 
 ---
 
 ## Usage Examples
+
+### expired-patent-scout
+
+Find engineering ideas and product opportunities in recently expired patents:
+
+```text
+Use expired-patent-scout and ask me which brands, products, or technology areas to research.
+
+Find recently expired patents related to portable outdoor cooking products.
+Focus on U.S. manufacturing and sales, and expirations in the last 24 months.
+Create a PDF with patent figures, useful mechanisms, product concepts, and remaining risks.
+```
+
+The skill asks for target brands/products/problems, countries of manufacture/import/sale/use, and the desired expiration window. It uses a stated 24-month lookback when that preference is omitted and can add a separate upcoming-expiration list when requested. Constraints such as price point, manufacturing capability, and utility versus design interests refine the ranking.
+
+It expands brand and assignee names, searches mechanisms and classifications, verifies territory-specific status against official records, and reviews granted claims and related active/pending rights. Natural term expirations, fee lapses with restoration uncertainty, upcoming expirations, and unverified/background records stay separate. A source label or old filing date alone cannot qualify a lead.
+
+The default deliverable is an illustrated PDF with sourced patent figures, full opportunity analysis, status/date evidence, family and related-right notes, product concepts, and technical/legal follow-up questions. Editable Markdown, a candidate ledger, search log, and source evidence accompany it. The output is a research shortlist, not freedom-to-operate clearance or permission to copy an entire branded product.
+
+The agent uses live patent research and available PDF tools. Some official records may require an account; access gaps are disclosed. The standard-library Python validator checks record consistency, dates, references, and shortlist prerequisites; it does not determine legal status or calculate patent terms. Run its synthetic tests with:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 skills/expired-patent-scout/scripts/test_validate_candidates.py
+```
+
+No live portfolio research or PDF export is performed by the validator. A real target-specific run is needed to validate the complete research workflow. See [the skill](skills/expired-patent-scout/SKILL.md) for intake and evidence requirements.
+
+---
 
 ### style-guide
 

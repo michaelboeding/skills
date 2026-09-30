@@ -1,0 +1,4 @@
+interface:
+  display_name: "Expired Patent Scout"
+  short_description: "Find expired patent leads for brands and product ideas"
+  default_prompt: "Use $expired-patent-scout to ask about my target brands, products, markets, and expiration window, then research recently expired patents and create an illustrated opportunity report with verified sources and remaining risks."
