@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.27.0** - Added walkthrough-script-agent: generate timed walkthrough video scripts for app features
+> **Version 5.28.0** - Added mobile-parity-check: compare iOS and Android UI/UX in simulators and deliver PDFs with paired screenshots and full analysis
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -232,6 +232,7 @@ Skills for development workflows (no API keys needed):
 | [style-guide](skills/style-guide/) | Analyze codebase conventions, generate style guide |
 | [ios-to-android](skills/ios-to-android/) | Port iOS/Swift features to Android/Kotlin |
 | [android-to-ios](skills/android-to-ios/) | Port Android/Kotlin features to iOS/Swift |
+| [mobile-parity-check](skills/mobile-parity-check/) | Audit iOS/Android UI and UX in simulators with matching fake data and illustrated PDF reports |
 | [add-to-xcode](skills/add-to-xcode/) | Auto-register new files with Xcode projects |
 | [sidequest](skills/sidequest/) | Spawn parallel Claude sessions in new terminal tabs |
 | [debug-council](skills/debug-council/) | Multi-agent debugging with majority voting |
@@ -679,6 +680,43 @@ port UserProfile from Android to iOS
 ```
 
 Works the same as ios-to-android but in reverse direction.
+
+---
+
+### mobile-parity-check
+
+Compare the UI and UX of both apps using isolated audit branches, an iOS Simulator and Android Emulator, and matching synthetic data:
+
+```text
+Use mobile-parity-check to compare /path/to/ios-app and /path/to/android-app.
+iOS origin/main is the design reference; compare Android origin/develop.
+Audit all screens, navigation, interaction states, and accessibility.
+Generate a PDF with paired screenshots and full UI/UX analysis for the developers.
+```
+
+Also supports Android as the reference or a bidirectional comparison when design authority is unresolved. It pins both revisions, creates worktrees, uses repeatable fixtures, and compares layout, typography, copy, navigation, forms, loading/error states, responsive behavior, and accessibility. Native platform conventions are assessed by usability and intent.
+
+Outputs a self-contained PDF with embedded paired screenshots, full UI/UX analysis, reproducible findings, severity, code locations, suggested fixes, retest criteria, and complete coverage. Markdown source and structured JSON accompany the PDF. Every PDF page is rendered and visually checked before delivery; blocked or untested states remain visible. Fixture/build checks support the UI/UX audit; broader backend audits and feature implementation are separate work. Reports are prepared for handoff and are not sent automatically.
+
+The setup helper uses Python 3.9+ and Git. Simulator runs require macOS/Xcode, an Android SDK/emulator, and an available UI driver or the projects' UI test frameworks. See [the skill](skills/mobile-parity-check/SKILL.md) for the workflow.
+
+**Report package:**
+
+| File | Purpose |
+|------|---------|
+| `report.pdf` | Primary deliverable: embedded screen pairs, full analysis, prioritized findings, coverage, and developer handoff |
+| `report.md` | Editable source with the same analysis and evidence captions |
+| `findings.json`, `coverage.json` | Stable issue/checkpoint IDs, execution outcomes, and evidence references |
+| `run.json`, fixtures, patches, raw evidence | Exact versions, setup, and artifacts needed to reproduce the audit |
+
+This is an agent-driven workflow. The bundled `prepare_run.py` helper creates the isolated Git worktrees and run manifest; fixture integration, simulator interaction, and PDF generation are adapted to each app pair using available tools. Verify those stages with a real app pair before relying on a complete audit. Missing tooling or unexecuted checks must be reported as blocked or untested.
+
+The helper's integration tests use disposable repositories and cover dry runs, pinned revisions, preservation of staged/unstaged/untracked changes and SSH remotes, invalid refs, branch/output collisions, and partial setup failures. Run them from the skills repository root:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 skills/mobile-parity-check/scripts/test_prepare_run.py
+```
+
 
 ---
 

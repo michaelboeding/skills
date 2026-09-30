@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mobile UI/UX Parity Check"
+  short_description: "Compare iOS and Android UI/UX with simulator evidence"
+  default_prompt: "Use $mobile-parity-check to compare the UI and UX of these iOS and Android apps in simulators with matching fake data and produce a PDF with paired screenshots, full analysis, and actionable findings for developers."
