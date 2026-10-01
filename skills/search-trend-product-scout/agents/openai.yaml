@@ -1,0 +1,4 @@
+interface:
+  display_name: "Search Trend Product Scout"
+  short_description: "Turn search trends into ranked product ideas"
+  default_prompt: "Use $search-trend-product-scout to ask me about a category and target market, research search trends and customer problems, and create a ranked product opportunity report."

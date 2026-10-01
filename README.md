@@ -1,6 +1,6 @@
 # Skills
 
-> **Version 5.29.0** - Added expired-patent-scout: research recently expired patents by brand, product, and market, then build illustrated opportunity reports
+> **Version 5.30.0** - Added search-trend-product-scout: turn category search trends and customer problems into ranked product ideas and illustrated reports
 
 Personal collection of agent skills using the open [SKILL.md standard](https://agentskills.io). Works with Claude Code and other AI assistants.
 
@@ -229,6 +229,7 @@ Focused research workflows with traceable sources:
 
 | Skill | What It Does |
 |-------|--------------|
+| [search-trend-product-scout](skills/search-trend-product-scout/) | Research category search trends, customer problems, and competing products to rank ideas and create illustrated opportunity reports |
 | [expired-patent-scout](skills/expired-patent-scout/) | Ask about brands/products and markets, research recent patent expirations, and produce illustrated product-opportunity reports |
 
 ---
@@ -624,6 +625,37 @@ These agents are invoked automatically by their skills and should not be called 
 ---
 
 ## Usage Examples
+
+### search-trend-product-scout
+
+Find product ideas from category search trends and evidence of unmet customer needs:
+
+```text
+Use search-trend-product-scout and ask me about the category, market, and product constraints.
+
+Research hunting accessories for U.S. customers in the $25-$150 range.
+Compare the same seasons across years, investigate recurring customer problems,
+and rank differentiated product ideas I could prototype.
+Create a PDF with trend charts, competing products, evidence, and next tests.
+```
+
+The skill asks about category/subcategory, customer, region/language, product type, price, manufacturing capabilities, budget, and research period, reusing information already provided. It uses multiple years for seasonal context and complete comparable periods for momentum when available. Hunting examples are query seeds, not claims about current trends.
+
+It combines Google Trends data with optional keyword-volume estimates, reviews, customer discussions, and current products. Rankings consider the search signal, problem strength, differentiation, build feasibility, and commercial fit, with confidence and unknowns shown explicitly. Ideas include a smallest useful validation experiment and a reason to reject or revisit the concept.
+
+The default deliverables are an illustrated PDF, editable Markdown, ranked opportunity CSV, source log, raw trend exports, and analysis JSON. Charts use measured data; the report identifies assumptions, sparse signals, access gaps, and proposed concepts. Optional follow-up can pass a chosen mechanism and target markets to expired-patent-scout.
+
+Google Trends Explore and CSV exports provide a path when official API access is unavailable; verify access at run time. The API currently requires alpha access. Trends indices measure relative search interest rather than exact search counts or sales, and independently normalized exports cannot be compared as though they share one scale. Without trend data, the result is labeled a preliminary qualitative scan.
+
+The Python 3.9+ standard-library CSV helper handles regular monthly, weekly, and daily Explore exports. It excludes partial intervals, preserves missing/censored values, compares prior-year periods, reports descriptive seasonality, and suppresses growth from very small baselines. It does not retrieve data or rank products. Run its synthetic tests with:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 skills/search-trend-product-scout/scripts/test_analyze_trends.py
+```
+
+A quick live pilot on October 1, 2026 researched U.S. trail-camera power accessories: it retrieved Google Trends data, analyzed 260 complete weeks, withheld a sparse growth metric, screened existing products, and produced three ranked records with nine sources and a five-page PDF whose pages were visually inspected. The run also led to explicit guidance for exported weeks that overlap the selected date boundaries. This narrow pilot verifies the workflow for that case; specific product demand, economics, and reliability remain unvalidated. See [the skill](skills/search-trend-product-scout/SKILL.md) for intake and [the data guide](skills/search-trend-product-scout/references/trend-research.md) for formats, methods, and official sources.
+
+---
 
 ### expired-patent-scout
 
