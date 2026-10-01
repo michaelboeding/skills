@@ -71,14 +71,14 @@ def create_bar_chart(
         if show_values:
             for bar, val in zip(bars, values):
                 ax.text(val + max(values) * 0.02, bar.get_y() + bar.get_height()/2,
-                       f'{val:,.0f}' if isinstance(val, (int, float)) else str(val),
+                       f'{val:,.4f}'.rstrip('0').rstrip('.') if isinstance(val, (int, float)) else str(val),
                        va='center', fontsize=10)
     else:
         bars = ax.bar(labels, values, color=colors)
         if show_values:
             for bar, val in zip(bars, values):
                 ax.text(bar.get_x() + bar.get_width()/2, val + max(values) * 0.02,
-                       f'{val:,.0f}' if isinstance(val, (int, float)) else str(val),
+                       f'{val:,.4f}'.rstrip('0').rstrip('.') if isinstance(val, (int, float)) else str(val),
                        ha='center', va='bottom', fontsize=10)
     
     # Labels and title
